@@ -27,13 +27,15 @@ function initDispInfo(){
 	lnSeed+=('|13|000000000000000000000000000000000000000000000000000000000000||   10 < Dex > Hit |10  %|Jw|    0|') #16
 	lnSeed+=('|14|000000000000000000000000000000000000000000000000000000000000||   10 < Agi > Flee|10  %|Gd|    0|') #17
 	lnSeed+=('|15|000000000000000000000000000000000000000000000000000000000000||   10 < Luk > Cri |10  %|Sv|   50|') #18
-	lnSeed+=('+==+============================================================++==================+=====+==+=====+') #19
-	lnSeed+=('|91|                                                                                               |') #20
-	lnSeed+=('|92|                                                                                               |') #21
-	lnSeed+=('|93|                                                                                               |') #22
-	lnSeed+=('|94|                                                                                               |') #23
-	lnSeed+=('|95|                                                                                               |') #24
-	lnSeed+=('+--+-------------------------------------------------------------------------input "??" to help.---+') #25
+	lnSeed+=('+==+=============================================+==============++==================+=====+==+=====+') #19
+	lnSeed+=('|COMMAND>                                        |                                                 |') #20
+	lnSeed+=('+==+=============================================+===========================input "??" to help.===+') #21
+	lnSeed+=('|91|                                                                                               |') #22
+	lnSeed+=('|92|                                                                                               |') #23
+	lnSeed+=('|93|                                                                                               |') #24
+	lnSeed+=('|94|                                                                                               |') #25
+	lnSeed+=('|95|                                                                                               |') #26
+	lnSeed+=('+--+-----------------------------------------------------------------------------------------------+') #27
 }
 
 ##################################################
@@ -47,7 +49,7 @@ function viewHelp(){
 	tput smcup
 
 	clear
-	echo "***Command List***  Press [c]key to exit."
+	echo "***Command List***  Press [q]key to exit."
 	echo ""
 	echo "mn [CMD]    : CommandManual"
 	echo "mv [n]      : Move"
@@ -65,11 +67,11 @@ function viewHelp(){
 	while :
 	do
 		getChrH
-		if [ "$inKey" = "c" ]; then
+		if [ "$inKey" = "q" ]; then
 			tput rmcup
 			break
 		else
-			echo "$inKey is invalid. press [c] to exit."
+			echo "$inKey is invalid. press [q] to exit."
 		fi
 	done
 
@@ -93,6 +95,7 @@ function dispAll(){
 	for ((i = 0; i < ${#lnSeed[*]}; i++)) {
 		echo "${lnSeed[i]}"
 	}
+
 }
 
 ##################################################
@@ -157,17 +160,17 @@ function crrctStr(){
 ##################################################
 function modMsg(){
 
-	declare -i  tgtRow=$1
-	declare -i tgtClmn=$(($2+4))
-	declare     tgtStr=$(crrctStr "$3")
+	      declare -i  tgtRow=$1
+	      declare -i tgtClmn=$(($2+3))
+	local declare     tgtStr=$(crrctStr "$3")
+	
+	local declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
 
-	declare leftStr="${lnSeed[19+$tgtRow]:0:$tgtClmn}"
-
-	declare -i spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+	      declare -i spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 	#getCntSingleWidth()で半角相当の文字数をカウント
 	#100文字-|1文字=99、-文字数でSPACEの反復数
 
-	lnSeed[19+$tgtRow]="$leftStr$tgtStr`printf %${spCnt}s`|"
+	lnSeed[$((21+$tgtRow))]="$leftStr$tgtStr`printf %${spCnt}s`|"
 
 }
 
@@ -192,28 +195,48 @@ function getChrH(){
 }
 
 ###########################################
+##getCmd
+## コマンドを受け取る
+###########################################
+function getCmd(){
+	tput cup 20 10
+	getChrV
+}
+
+###########################################
+##dspCmdLog
+## コマンド簡易結果表示
+## $1 表示内容
+##################################################
+function dspCmdLog(){
+
+	local declare   tgtStr=$(crrctStr "$1")
+	local declare  leftStr="${lnSeed[20]:0:50}"
+	      declare -i spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+	#getCntSingleWidth()で半角相当の文字数をカウント
+	#100文字-|1文字=99、-文字数でSPACEの反復数
+
+	lnSeed[20]="$leftStr$tgtStr`printf %${spCnt}s`|"
+}
+
+###########################################
 ##Main
 ## どうにかします
 ###########################################
 
 	declare -g inKey=""
 
-	initDispInfo
-	modMsg 1 0 "Input Commoand. >"
+	initDispInfo 
 	dispAll	
-	tput cup 20 22
 
-	getChrV
+	getCmd
 	case "$inKey" in
-		"ci" )	modMsg 2 0 "チルノ[ＯＨ，リグル、１回,し んででな　おし	てこいﾊﾞｰｶ.wWw…💀]"
-				break;;
+		"ci" )	dspCmdLog "チルノ？どうかした？" 
+				modMsg 1 1 "チルノ[ど、どうもしねーよ……///]"
+				;;
 		"??" )	viewHelp
 				break;;
-		* ) 	modMsg 2 0 "[$inKey]is invalid." ;;
+		* ) 	dspCmdLog "[$inKey]is invalid." ;;
 	esac
 	dispAll
 
-	tput sc
-	tput cup 20 22
-	echo -n $inKey
-	tput rc
