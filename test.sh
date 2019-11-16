@@ -78,6 +78,33 @@ function viewHelp(){
 }
 
 ##################################################
+## キー待ち
+##  SPACEかENTERをまつ
+##################################################
+function wk(){
+
+	tput sc
+	tput civis
+	tput cup 26 97
+	tput blink
+	
+	echo -n "🐛"
+
+	while :
+	do
+		getChrH
+		if [ "$inKey" = "" ] || [ "$inKey" = " " ]; then
+			break
+		fi
+	done
+
+	tput sgr0
+	tput cnorm
+
+}
+
+
+##################################################
 ## MNコマンド
 ##   引数で受け取ったコマンドのManualを表示する
 ##################################################
@@ -157,6 +184,7 @@ function crrctStr(){
 ##   $1 メッセージウィンドウの何行目か
 ##   $2 メッセージウィンドウ$1行目の何文字目からか
 ##   $3 表示する文字
+##   $4 lnSeed更新後にmsgウィンドウを更新するか(1:する/他:しない)
 ##################################################
 function modMsg(){
 
@@ -171,6 +199,11 @@ function modMsg(){
 	#100文字-|1文字=99、-文字数でSPACEの反復数
 
 	lnSeed[$((21+$tgtRow))]="$leftStr$tgtStr`printf %${spCnt}s`|"
+
+	#引数4が1だったら、画面を更新する。
+	if [ "$4" = "1" ] ; then
+		dispAll
+	fi
 
 }
 
@@ -205,8 +238,9 @@ function getCmd(){
 
 ###########################################
 ##dspCmdLog
-## コマンド簡易結果表示
-## $1 表示内容
+## コマンド結果等簡易表示ウィンドウの更新
+##   $1 表示内容
+##   $2 lnSeed更新後にmsgウィンドウを更新するか(1:する/他:しない)
 ##################################################
 function dspCmdLog(){
 
@@ -217,6 +251,11 @@ function dspCmdLog(){
 	#100文字-|1文字=99、-文字数でSPACEの反復数
 
 	lnSeed[20]="$leftStr$tgtStr`printf %${spCnt}s`|"
+
+	#引数2が1だったら、画面を更新する。
+	if [ "$2" = "1" ] ; then
+		dispAll
+	fi
 }
 
 ###########################################
@@ -231,12 +270,15 @@ function dspCmdLog(){
 
 	getCmd
 	case "$inKey" in
-		"ci" )	dspCmdLog "チルノ？どうかした？" 
-				modMsg 1 1 "チルノ[ど、どうもしねーよ……///]"
+		"ci" )	dspCmdLog "チルノ？どうかした？" 0
+				modMsg 1 1 "チルノ[え？]" 1
+				wk
+				modMsg 2 1 "チルノ[ど、どうもしねーよ……///]" 1
 				;;
-		"??" )	viewHelp
-				break;;
-		* ) 	dspCmdLog "[$inKey]is invalid." ;;
+		"??" )	viewHelp;;
+		* ) 	dspCmdLog "[$inKey]is invalid." 1 ;;
 	esac
-	dispAll
 
+
+	#終了時にカーソルを一番下に移動する
+	tput cup 28 0
