@@ -90,9 +90,6 @@ function wk(){
 	
 	echo -n "🐛"
 
-	tput sgr0
-	tput cnorm
-
 	while :
 	do
 		getChrH
@@ -100,6 +97,9 @@ function wk(){
 			break
 		fi
 	done
+
+	tput sgr0
+	tput cnorm
 
 }
 
@@ -263,7 +263,7 @@ function dspCmdLog(){
 ## どうにかします
 ###########################################
 
-	trap '' INT QUIT TSTP
+	trap '' INT QUIT TSTP 
 	declare -g inKey=""
 
 	initDispInfo 
