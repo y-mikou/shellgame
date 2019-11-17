@@ -188,13 +188,13 @@ function crrctStr(){
 ##################################################
 function modMsg(){
 
-	      declare -i  tgtRow=$1
-	      declare -i tgtClmn=$(($2+3))
-	local declare     tgtStr=$(crrctStr "$3")
+	local declare tgtRow=$1
+	local declare tgtClmn=$(($2+3))
+	local declare tgtStr=$(crrctStr "$3")
 	
 	local declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
 
-	      declare -i spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+	local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 	#getCntSingleWidth()で半角相当の文字数をカウント
 	#100文字-|1文字=99、-文字数でSPACEの反復数
 
@@ -244,9 +244,9 @@ function getCmd(){
 ##################################################
 function dspCmdLog(){
 
-	local declare   tgtStr=$(crrctStr "$1")
-	local declare  leftStr="${lnSeed[20]:0:50}"
-	      declare -i spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+	local declare tgtStr=$(crrctStr "$1")
+	local declare leftStr="${lnSeed[20]:0:50}"
+	local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 	#getCntSingleWidth()で半角相当の文字数をカウント
 	#100文字-|1文字=99、-文字数でSPACEの反復数
 
