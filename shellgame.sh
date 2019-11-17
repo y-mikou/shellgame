@@ -69,6 +69,7 @@ function viewHelp(){
 		getChrH
 		if [ "$inKey" = "q" ]; then
 			tput rmcup
+			dispAll
 			break
 		else
 			echo "$inKey is invalid. press [q] to exit."
@@ -83,12 +84,14 @@ function viewHelp(){
 ##################################################
 function wk(){
 
-	tput sc
 	tput civis
 	tput cup 26 97
 	tput blink
 	
 	echo -n "🐛"
+
+	tput sgr0
+	tput cnorm
 
 	while :
 	do
@@ -97,10 +100,6 @@ function wk(){
 			break
 		fi
 	done
-
-	tout rc
-	tput sgr0
-	tput cnorm
 
 }
 
@@ -264,22 +263,28 @@ function dspCmdLog(){
 ## どうにかします
 ###########################################
 
+	trap '' INT QUIT TSTP
 	declare -g inKey=""
 
 	initDispInfo 
 	dispAll	
 
-	getCmd
-	case "$inKey" in
-		"ci" )	dspCmdLog "チルノ？どうかした？" 0
-				modMsg 1 1 "チルノ[え？]" 1
-				wk
-				modMsg 2 1 "チルノ[ど、どうもしねーよ……///]" 1
-				;;
-		"??" )	viewHelp;;
-		* ) 	dspCmdLog "[$inKey]is invalid." 1 ;;
-	esac
+	while :
+	do
 
+		getCmd
+		case "$inKey" in
+			"ci"	)	dspCmdLog "チルノ？どうかした？" 0
+						modMsg 1 1 "チルノ[え？]" 1
+						wk
+						modMsg 2 1 "チルノ[ど、どうもしねーよ……///]" 1
+						;;
+			"??"	)	viewHelp;;
+			"Q"		)	break;;
+			* ) 		dspCmdLog "[$inKey]is invalid." 1 ;;
+		esac
 
-	#終了時にカーソルを一番下に移動する
-	tput cup 28 0
+	done
+
+	#終了時に画面をクリアする
+	clear
