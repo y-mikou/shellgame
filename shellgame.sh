@@ -98,6 +98,7 @@ function wk(){
 		fi
 	done
 
+	tout rc
 	tput sgr0
 	tput cnorm
 
