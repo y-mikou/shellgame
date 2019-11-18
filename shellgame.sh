@@ -46,6 +46,8 @@ function initDispInfo(){
 ##################################################
 function clrMsgWin(){
 
+	lnSeed[20]="|COMMAND>                                        |                                                 |" #20
+
 	lnSeed[22]="|91|                                                                                               |" #22
 	lnSeed[23]="|92|                                                                                               |" #23
 	lnSeed[24]="|93|                                                                                               |" #24
