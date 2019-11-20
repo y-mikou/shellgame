@@ -226,18 +226,18 @@ function modMsg(){
 	#文字長が右端を出ないように切り捨てる。
 	#半角相当の文字数が95以下になるまで、末尾から1文字ずつ切り捨て続ける
 	#半角全角が混じる場合に正確に切り捨てる長さを指定できないため
-	# local declare tmpStr="$tgtStr"
-	# echo [dspCmdLog ${#tmpStr}:0:-1] 
-	# while :
-	# do
-	# 	if [ ${#tmpStr} -gt 5 ] ; then
-	# 		tmpStr={$tmpStr:0:-1}
-	# 	else
-	# 		tgtStr="$tmpStr"
-	# 		break
-	# 	fi
-	# done
-
+	local declare tmpStr="$tgtStr"
+	local declare tmpCntSingleWidth=0
+	while :
+	do
+		tmpCntSingleWidth=$(getCntSingleWidth "$tmpStr")
+		if [ $tmpCntSingleWidth -gt 95 ] ; then
+			tmpStr="${tmpStr:0:-1}"
+		else
+			tgtStr="$tmpStr"
+			break
+		fi
+	done
 
 	local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 	#getCntSingleWidth()で半角相当の文字数をカウント
@@ -291,6 +291,24 @@ function dspCmdLog(){
 
 	local declare tgtStr=$(crrctStr "$1")
 	local declare leftStr="${lnSeed[20]:0:50}"
+
+
+	#文字長が右端を出ないように切り捨てる。
+	#半角相当の文字数が95以下になるまで、末尾から1文字ずつ切り捨て続ける
+	#半角全角が混じる場合に正確に切り捨てる長さを指定できないため
+	local declare tmpStr="$tgtStr"
+	local declare tmpCntSingleWidth=0
+	while :
+	do
+		tmpCntSingleWidth=$(getCntSingleWidth "$tmpStr")
+		if [ $tmpCntSingleWidth -gt 49 ] ; then
+			tmpStr="${tmpStr:0:-1}"
+		else
+			tgtStr="$tmpStr"
+			break
+		fi
+	done
+
 	local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 	#getCntSingleWidth()で半角相当の文字数をカウント
 	#100文字-|1文字=99、-文字数でSPACEの反復数
@@ -318,8 +336,6 @@ function dspCmdLog(){
 
 	while :
 	do
-
-		clrMsgWin 1
 		getCmd
 		case "$inKey" in
 			"ci"	)	dspCmdLog "チルノ？どうかした？" 0
@@ -327,13 +343,14 @@ function dspCmdLog(){
 						wk
 						modMsg 2 1 "チルノ[ど、どうもしねーよ……///]" 1
 						wk
-#						modMsg 2 1 "庭には一羽庭渡さまがいる。庭には二羽庭渡さまがいる。庭には三羽庭渡さまがいる。庭には四羽庭渡さまがいる。" 1
-						;;
+						modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" 0
+						dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" 1
+						wk
+						clrMsgWin 1 ;;
 			"??"	)	viewHelp;;
 			"Q"		)	break;;
 			* ) 		dspCmdLog "[$inKey]is invalid." 1 ;;
 		esac
-
 	done
 
 	#終了時に画面をクリアする
