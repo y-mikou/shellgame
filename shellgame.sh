@@ -76,17 +76,16 @@ function viewHelp(){
 	clear
 	echo "***Command List***  Press [q]key to exit."
 	echo ""
-	echo "man [CMD]    : CommandManual"
-	echo "mv [n]      : Move"
-	echo "ki [n]      : Kick"
-	echo "wp [m][n]   : Attack with [m]Wapon"
-	echo "ct [m][n]   : Cast [m]Magic"
-	echo "in [n]      : Inspect"
-	echo "gt [n]      : Get"
-	echo "tr [m][n]   : Throw [m]Item"
-	echo "tk [n]      : Talk"
-	echo "pr          : Pray"
-	echo "cc          : Cancel"
+	echo "man [CMD]   : [CMD] CommandManual"
+	echo "mv [n]      : Move in direction [n]"
+	echo "ki [m][n]   : Kick in direction [n] with [n]strength"
+	echo "wp [n]      : Attack in direction [n] with Wapon"
+	echo "ct [m][n]   : Cast [m]Magic in direction [n]"
+	echo "in [n]      : Inspect in direction [n]"
+	echo "gt [n]      : Get in direction [n]"
+	echo "tr [m][n]   : Throw [m] item in direction [n]"
+	echo "tk [n]      : Talk in direction [n]"
+	echo "pr [n]      : Pray for [n]"
 	echo "ss          : Suiside!"
 
 	while :
@@ -120,14 +119,15 @@ function man(){
 		"tr"	) man_tr ;;
 		"tk"	) man_tk ;;
 		"pr"	) man_pr ;;
-		"cc"	) man_cc ;;
 		"ss"	) man_ss ;;
-		"man"	) dspCmdLog "Man_man called."    1 ;;
+		"man"	) man_man ;;
 		""		) dspCmdLog "no argment error."  1 ;;
 		*		) dspCmdLog "$1 is Invalid CMD." 1 ;;
 	esac
 }
-
+#----------------------------------------------------------
+# マニュアル表示用の子関数
+#----------------------------------------------------------
 		#-------------------------------------------------
 		#man_mv
 		# mvコマンドのマニュアル表示
@@ -360,6 +360,220 @@ function man(){
 				fi
 			done	
 		}
+		#-------------------------------------------------
+		#man_gt
+		# gtコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_gt(){
+			inKey=""
+			tput smcup
+			clear
+			echo "*** Command Manual:[gt] ***"
+			echo "<Format>"
+			echo " gt [arg]"
+			echo " * arg=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle gets or picks up the one in the direction of [arg]. Consume 1 turn."
+			echo " When [5], it is foot of the Wriggle or Wriggleself."
+			echo " 'The old tale of ants and grasshoppers' should have been that"
+			echo "       the workers were exploited by wife(s) waiting in the nest. ...Is it different?"
+			echo ""
+			echo " gets to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 W 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\      *[5], foot"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_tr
+		# trコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_tr(){
+			inKey=""
+			tput smcup
+			clear
+			echo "*** Command Manual:[tr] ***"
+			echo "<Format>"
+			echo " tr [arg1] [arg2]"
+			echo " * arg1=1~9."
+			echo " * arg2=1~9 except 5."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle throws [arg1] item in the direction of [arg2]. Consume 1 turn."
+			echo " Depending on the [arg1] item type or [STR] value, the thrown item can be destroyed."
+			echo " The winner will also take damage according to the [STR] value and [arg1] item."
+			echo " If you're going to throw things away, be careful."
+			echo " What I received from a woman is particularly troublesome when my wife finds it."
+			echo ""
+			echo " throw to...   \  ^  /"
+			echo "                7 8 9 "
+			echo "               <4 W 6>"
+			echo "                3 2 1 "
+			echo "               /  v  \\"
+			echo ""
+			echo "<Damege>"
+			echo "  Jewel     --- [Value]*1000.0                       :Ignore the [Def]."
+			echo "  Gold      --- [Value]*100.0                        :Ignore the [Def]."
+			echo "  Silver    --- [Value]*1.0                          :Ignore the [Def]."
+			echo "  Wepon     --- [Str]*[WeponAtk]*(RoundUp(Str/100))"
+			echo "  Armor     --- [Str]*[ArmorDef]*(RoundUp(Str/150))"
+			echo "  Medicine  --- [ItemRecovery]*1.0                   :Heal instead of damage."
+			echo "  OtherItem --- I don't know how to do it!"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_tk
+		# tkコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_tk(){
+			inKey=""
+			tput smcup
+			clear
+			echo "*** Command Manual:[tk] ***"
+			echo "<Format>"
+			echo " tk [arg]"
+			echo " * arg=1~9 except 5."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle speaks in the direction of [arg]. Consume 1 turn."
+			echo " If you talk well, you may get along. But watch out for your wife's gaze."
+			echo ""
+			echo " talk to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 W 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_pr
+		# prコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_pr(){
+			inKey=""
+			tput smcup
+			clear
+			echo "*** Command Manual:[pr] ***"
+			echo "<Format>"
+			echo " pr [arg]"
+			echo " * arg=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle prays for [arg] and asks for a miracle. Consume 1 turn."
+			echo " I don't know what will happen, but the [Mnd] value makes it easy to do something good."
+			echo " You can pray only to those who have idols."
+			echo " And if you pray to one, then pray to another, you may be punished."
+			echo " And if you pray too much, you will be punished."
+			echo ""
+			echo "<Object to pray>"
+			echo " unknown"
+			echo "... over."
+			echo "Press [q]key to exit."
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_ss
+		# ssコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_ss(){
+			inKey=""
+			tput smcup
+			clear
+			echo "*** Command Manual:[ss] ***"
+			echo "<Format>"
+			echo " ss *no arg"
+			echo ""
+			echo "<Function>"
+			echo " Wriggle commits suicide. No one will be sad."
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_man
+		# manコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_man(){
+			inKey=""
+			tput smcup
+			clear
+			echo "It is how to use it."
+			echo "Press [q]key to exit."
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+#---------------------------------------------------------
 
 
 
