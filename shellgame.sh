@@ -868,8 +868,8 @@ function jmpPosWrgl(){
 	local declare mapX=$1
 	local declare mapY=$2
 
-	local declare lStr="${lnSeed[$((mapY+3))]:0:$1}"
-	local declare rStr="${lnSeed[$((mapY+3))]:$(($1+1))}"
+	local declare lStr="${lnSeed[$((mapY+3))]:0:$(($1+3))}"
+	local declare rStr="${lnSeed[$((mapY+3))]:$(($1+4))}"
 
 	lnSeed[$((mapY+3))]="${lStr}W${rStr}"
 	
@@ -925,7 +925,7 @@ function jmpPosWrgl(){
 						;;
 			#jwもテストコード
 			"jw"	)	jmpPosWrgl 30 10
-						dspCmdLog "Wriggle respownded in X:30/Y:10." 1
+						dspCmdLog "Wriggle respowned in X:30/Y:10." 1
 						;;
 			"mv"	)	mv ;;                                 #mvコマンド
 			"??"	)	viewHelp;;                            #コマンドリスト
