@@ -39,6 +39,48 @@ function initDispInfo(){
 }
 
 ##################################################
+##sysOut
+## 主にエラー表示用に別の画面を起動する。
+## termcapによって上にかぶせる
+##   $1 深刻度(Hundling [e]rror,
+##             ignoreable [w]arning,
+#              [i]nformation > 無視可能なエラーはdspCmdLogへ表示する方針
+##   $2 呼出元行数
+##   $3 表示内容
+##################################################
+#function sysOut(){
+#
+#	inKey=""
+#
+#	tput smcup
+#	clear
+#
+#	local declare errDiv
+#	case "$1" in
+#			"e"	)	errDiv="Error";;
+#			"w"	)	errDiv="Warning";;
+#			#"i"	)	errDiv="Information";;
+#			*	)	errDiv="FatalError";;
+#	esac
+#
+#	echo "<$errDiv>Line:$2[$3]"
+#
+#	while :
+#	do
+#		getChrH
+#		if [ "$inKey" = "q" ]; then
+#			tput rmcup
+#			dispAll
+#			break
+#		else
+#			echo "Invalid input. press [q] to exit."
+#		fi
+#	done
+#
+#}
+#
+
+##################################################
 ##clrMsgWin
 ## 画面の初期表示情報
 ## lnSeed[22〜26]を初期表示の内容で上書きして画面を更新する
@@ -603,17 +645,6 @@ function wk(){
 
 }
 
-
-##################################################
-##mnCmd
-## MNコマンド
-## 引数で受け取ったコマンドのManualを表示する
-##################################################
-function mnCmd(){
-	echo "manCmd"
-	read inKey
-}
-
 ##################################################
 ## 画面の全情報を更新表示
 ##   lnSeed[]で画面を更新する
@@ -795,6 +826,72 @@ function dspCmdLog(){
 	fi
 }
 
+
+###########################################
+##modDspWrglPos
+## Wriggleの現在座標を画面表示情報へ反映する
+## この関数は座標移動処理を行う
+## initPosWrgl/movePosWrgl/mvから呼び出されるのみで
+## 直接mainから呼び出されることはない
+##  $1 X座標(1〜60)
+##  $2 Y座標(1〜15)
+###########################################
+function modDspWrglPos(){
+	local declare X=$(printf "%02d" $1)
+	local declare Y=$(printf "%02d" $2)
+
+	local declare row1Right=${lnSeed[1]:3}
+	local declare row2Right=${lnSeed[2]:3}
+
+	lnSeed[1]="|$X$row1Right"
+	lnSeed[2]="|$Y$row2Right"
+
+}
+
+###########################################
+##jmpPosWrgl
+## Wriggleの位置をx,y指定で移動する
+## この関数は強制的に画面を再描画する。
+##  $1 X座標(1〜60)
+##  $2 Y座標(1〜15) 
+###########################################
+function jmpPosWrgl(){
+#	if [ $1 -lt 1 ] || [ $1 -gt 60 ]; then
+#		sysOut "e" $LINENO "X must be between 1 and 60."
+#		return
+#	fi
+#	if [ $2 -lt 1 ] || [ $2 -gt 15 ]; then
+#		sysOut "e" $LINENO "Y must be between 1 and 15."
+#		return
+#	fi
+
+	local declare mapX=$1
+	local declare mapY=$2
+
+	local declare lStr="${lnSeed[$((mapY+3))]:0:$1}"
+	local declare rStr="${lnSeed[$((mapY+3))]:$(($1+1))}"
+
+	lnSeed[$((mapY+3))]="${lStr}W${rStr}"
+	
+	modDspWrglPos $mapX $mapY
+
+}
+
+
+#########/##################################
+##mv
+## キャラ('W'で示す)が動く        7 8 9
+##  $1 移動先座標(1〜9)           4 W 6
+##                                3 2 1
+###########################################
+#function mv(){
+#	
+#	dispAll
+#
+#}
+
+
+
 ###########################################
 ##Main
 ## どうにかします
@@ -805,6 +902,9 @@ function dspCmdLog(){
 #	trap '' INT QUIT TSTP 
 	declare -g inKey=""
 
+#	未実装
+#	declare -a posWrgl=(1 1)
+
 	initDispInfo 
 	dispAll	
 
@@ -812,19 +912,26 @@ function dspCmdLog(){
 	do
 		getCmd
 		case "$inKey" in
+			#ciはぶっちゃけテストコード
 			"ci"	)	dspCmdLog "チルノ？どうかした？" 0
-						modMsg 1 1 "チルノ[え？]" 1
-						wk
+						#modMsg 1 1 "チルノ[え？]" 1
+						#wk
 						modMsg 2 1 "チルノ[ど、どうもしねーよ……///]" 1
-						wk
-						modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" 0
-						dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" 1
-						wk
-						clrMsgWin 1 ;;                        #テストコードの塊
+						#wk
+						#modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" 0
+						#dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" 1
+						#wk
+						#clrMsgWin 1
+						;;
+			#jwもテストコード
+			"jw"	)	jmpPosWrgl 30 10
+						dspCmdLog "Wriggle respownded in X:30/Y:10." 1
+						;;
+			"mv"	)	mv ;;                                 #mvコマンド
 			"??"	)	viewHelp;;                            #コマンドリスト
 			"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
 			"Q"		)	break;;                               #ボスが来た
-			""		)	dspCmdLog "input a key." 1 ;;  #エラー
+			""		)	dspCmdLog "input a key." 1 ;;         #エラー
 			*		)	dspCmdLog "[$inKey]is invalid." 1 ;;  #エラー
 		esac
 	done
