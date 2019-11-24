@@ -820,6 +820,8 @@ function jmpPosWrgl(){
 	lnSeed[$((mapY+3))]="${lStr}W${rStr}"
 	
 	modDspWrglPos $mapX $mapY
+	dispAll
+
 
 }
 
@@ -883,7 +885,6 @@ function mv(){
 
 	#割り出した座標へjmpPosWrgl関数で移動する。
 	jmpPosWrgl $((posX+mvX)) $((posY+mvY))
-	dispAll
 
 }
 
