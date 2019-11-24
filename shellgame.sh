@@ -171,6 +171,8 @@ function getCmd(){
 function sysOut(){
 
 	local declare   errDiv=""
+	local declare   bColor=0
+	local declare   fColor=0
 	local declare wdthSize=0
 	local declare  msgWdth=0
 	local declare   lrWdth=0
@@ -181,10 +183,19 @@ function sysOut(){
 	clear
 
 	case "$1" in
-			"e"	)	errDiv="Error";;
-			"w"	)	errDiv="Warning";;
+			"e"	)	errDiv="Error"
+					bColor=1
+					fColor=7
+					;;
+			"w"	)	errDiv="Warning"
+					bColor=7
+					fColor=0
+					;;
 			#"i"	)	errDiv="Information";;
-			*	)	errDiv="FatalError";;
+			*	)	errDiv="FatalError"
+					bColor=1
+					fColor=0
+					;;
 	esac
 
 	wdthSize=$(tput cols)
@@ -194,8 +205,8 @@ function sysOut(){
 	echo ""
 	echo ""
 	echo ""
-	tput setab 1
-	tput setaf 7
+	tput setab $bColor
+	tput setaf $fColor
 	printf "%${lrWdth}s<$errDiv>Line:$2[$3]%${lrWdth}s"
 	tput sgr0
 	echo ""
@@ -757,8 +768,7 @@ function man(){
 ###########################################
 ##modDspWrglPos
 ## Wriggleの現在座標を画面表示情報へ反映する
-## この関数は座標移動処理を行う
-## initPosWrgl/movePosWrgl/mvから呼び出されるのみで
+## この関数は座標移動処理を行う他の関数から呼び出されるのみで
 ## 直接mainから呼び出されることはない
 ##  $1 X座標(1〜60)
 ##  $2 Y座標(1〜15)
@@ -786,18 +796,18 @@ function jmpPosWrgl(){
 
 	#バリデーション
 	##引数の個数
-	if [ -z "$2" ]; then
+	if [ $# -ne 2 ]; then
 		sysOut "e" $LINENO "Set 2 arguments."
 		return
 	fi
 	##$1の範囲
 	if [ $1 -lt 1 ] || [ $1 -gt 60 ]; then
-		sysOut "e" $LINENO "X must be between 1 and 60."
+		sysOut "e" $LINENO "'X' must be between 1 and 60."
 		return
 	fi
 	##$2の範囲
 	if [ $2 -lt 1 ] || [ $2 -gt 15 ]; then
-		sysOut "e" $LINENO "Y must be between 1 and 15."
+		sysOut "e" $LINENO "'Y' must be between 1 and 15."
 		return
 	fi
 
@@ -820,11 +830,62 @@ function jmpPosWrgl(){
 ##  $1 移動先座標(1〜9)           4 W 6
 ##                                3 2 1
 ###########################################
-#function mv(){
-#	
-#	dispAll
-#
-#}
+function mv(){
+
+	#バリデーション
+	##引数の個数
+	if [ $# -ne 1 ]; then
+		dspCmdLog "<mv> Set 1 arguments." 1
+		return
+	fi
+	##$1の範囲
+	if [ $1 -lt 1 ] || [ $1 -gt 9 ] || [ $1 -eq 5 ]; then
+		dspCmdLog "<mv> Enter 1~9 other than 5." 1
+		return
+	fi
+
+	local declare posX=${lnSeed[1]:1:2}
+	local declare posY=${lnSeed[2]:1:2}
+	local declare dirct=$1
+	local declare mvX=0
+	local declare mvY=0
+
+	#今いるlnSeed[xx]の中の「w」をスペースに置換する
+	lnSeed[$((posY+3))]=${lnSeed[$((posY+3))]//"W"/" "}
+
+	case "$dirct" in
+		"1"	)	mvX=-1
+				mvY=1
+				;;
+		"2"	)	mvX=0
+				mvY=1
+				;;
+		"3"	)	mvX=1
+				mvY=1
+				;;
+		"4"	)	mvX=-1
+				mvY=0
+				;;
+		"6"	)	mvX=1
+				mvY=0
+				;;
+		"7"	)	mvX=-1
+				mvY=-1
+				;;
+		"8"	)	mvX=0
+				mvY=-1
+				;;
+		"9"	)	mvX=1
+				mvY=-1
+				;;
+		*	)	sysOut "e" $LINENO "Direction value Error."
+	esac
+
+	#割り出した座標へjmpPosWrgl関数で移動する。
+	jmpPosWrgl $((posX+mvX)) $((posY+mvY))
+	dispAll
+
+}
 
 ##################################################
 ##modMsg
@@ -840,7 +901,7 @@ function modMsg(){
 
 	#バリデーション
 	##引数の個数
-	if [ -z "$4" ]; then
+	if [ $# -ne 4 ] ; then
 		sysOut "e" $LINENO "Set 4 arguments."
 		return
 	fi
@@ -898,6 +959,13 @@ function modMsg(){
 ##################################################
 function dspCmdLog(){
 
+	#バリデーション
+	##引数の個数
+	if [ -z "$1" ] || [ -n "$3" ] ; then
+		sysOut "e" $LINENO "Set 1 or 2 arguments."
+		return
+	fi
+
 	local declare tgtStr=$(crrctStr "$1")
 	local declare leftStr="${lnSeed[20]:0:50}"
 
@@ -944,7 +1012,8 @@ function dspCmdLog(){
 #	declare -a posWrgl=(1 1)
 
 	initDispInfo 
-	dispAll	
+	jmpPosWrgl 30 10
+	dspCmdLog "Wriggle respowned in X:30/Y:10." 1
 
 	while :
 	do
@@ -952,20 +1021,16 @@ function dspCmdLog(){
 		case "$inKey" in
 			#ciはぶっちゃけテストコード
 			"ci"	)	dspCmdLog "チルノ？どうかした？" 0
-						#modMsg 1 1 "チルノ[え？]" 1
-						#wk
+#						modMsg 1 1 "チルノ[え？]" 1
+#						wk
 						modMsg 2 1 "チルノ[ど、どうもしねーよ……///]" 1
-						#wk
-						#modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" 0
-						#dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" 1
-						#wk
-						#clrMsgWin 1
+#						wk
+#						modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" 0
+#						dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" 1
+#						wk
+#						clrMsgWin 1
 						;;
-			#jwもテストコード
-			"jw"	)	jmpPosWrgl 30 10
-						dspCmdLog "Wriggle respowned in X:30/Y:10." 1
-						;;
-			"mv"	)	mv ;;                                 #mvコマンド
+			"mv"*	)	mv "${inKey:3}";;
 			"??"	)	viewHelp;;                            #コマンドリスト
 			"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
 			"Q"		)	break;;                               #ボスが来た
