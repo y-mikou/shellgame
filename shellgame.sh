@@ -2,7 +2,7 @@
 ## 画面の初期表示情報
 ##   lnSeed[]に初期表示情報を格納する
 ##################################################
-function initDispInfo(){
+function initDispInfo() {
 
 	declare -a -g lnSeed=() ##0から25までの26要素用意するつもり。
 
@@ -60,19 +60,36 @@ function wk(){
 	done
 
 	tput sgr0
-	tput cnorm
+	tput setab 0
+	tput setaf 7
+	wtput cnorm
 
 }
 
 ##################################################
 ## 画面の全情報を更新表示
 ##   lnSeed[]で画面を更新する
+##   自キャラ位置に「W」を強調表示で上書きする。
 ##################################################
 function dispAll(){
 	clear
+
 	for ((i = 0; i < ${#lnSeed[*]}; i++)) {
 		echo "${lnSeed[i]}"
 	}
+
+	local declare posX=$((10#${lnSeed[1]:1:2}+3))
+	local declare posY=$((10#${lnSeed[2]:1:2}+3))
+
+	tput sc
+	tput setab 2
+	tput setaf 0
+	tput cup $posY $posX
+	echo "¥"
+	tput sgr0
+	tput setab 0
+	tput setaf 7
+	tput rc
 
 }
 
@@ -209,6 +226,8 @@ function sysOut(){
 	tput setaf $fColor
 	printf "%${lrWdth}s<$errDiv>Line:$2[$3]%${lrWdth}s"
 	tput sgr0
+	tput setab 0
+	tput setaf 7
 	echo ""
 	echo ""
 	echo ""
@@ -811,13 +830,13 @@ function jmpPosWrgl(){
 		return
 	fi
 
-	local declare mapX=$1
-	local declare mapY=$2
+	local declare mapX=$((10#$1))
+	local declare mapY=$((10#$2))
 
 	local declare lStr="${lnSeed[$((mapY+3))]:0:$(($1+3))}"
 	local declare rStr="${lnSeed[$((mapY+3))]:$(($1+4))}"
 
-	lnSeed[$((mapY+3))]="${lStr}W${rStr}"
+	lnSeed[$((mapY+3))]="${lStr} ${rStr}"
 	
 	modDspWrglPos $mapX $mapY
 	dispAll
@@ -852,9 +871,6 @@ function mv(){
 	local declare mvX=0
 	local declare mvY=0
 
-	#今いるlnSeed[xx]の中の「w」をスペースに置換する
-	lnSeed[$((posY+3))]=${lnSeed[$((posY+3))]//"W"/" "}
-
 	case "$dirct" in
 		"1"	)	mvX=-1
 				mvY=1
@@ -884,7 +900,7 @@ function mv(){
 	esac
 
 	#割り出した座標へjmpPosWrgl関数で移動する。
-	jmpPosWrgl $((posX+mvX)) $((posY+mvY))
+	jmpPosWrgl $((10#$posX+mvX)) $((10#$posY+mvY))
 
 }
 
@@ -1003,6 +1019,10 @@ function dspCmdLog(){
 ##Main
 ## どうにかします
 ###########################################
+#このゲームは黒背景に白文字で稼働する
+	tput setab 0
+	tput setaf 7
+
 	clear
 
 #安定するまでは不測の無限ループ脱出のためコメントアウトする
@@ -1040,5 +1060,6 @@ function dspCmdLog(){
 		esac
 	done
 
-	#終了時に画面をクリアする
+	#終了時に文字就職を除去し、画面をクリアする
+	tput sgr0
 	clear
