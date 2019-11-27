@@ -1083,7 +1083,7 @@
 
 			case "$inKey" in
 			"0"	)	dspCmdLog "Quit picnic mode." 1
-					retrun
+					break
 					;;
 			"1"	)	mvX=-1
 					mvY=1
@@ -1119,6 +1119,7 @@
 			jmpPosWrgl $((10#$posX+mvX)) $((10#$posY+mvY))
 
 		done
+		return
 
 	}
 
@@ -1131,8 +1132,9 @@
 	#このゲームは黒背景に白文字で稼働する
 	mainLoop(){
 		initDispInfo 
-		jmpPosWrgl 30 10
-		dspCmdLog "Wriggle respowned in X:30/Y:10." 1
+		dispAll
+#		jmpPosWrgl 30 10
+#		dspCmdLog "Wriggle respowned in X:30/Y:10." 1
 
 		while :
 		do
@@ -1148,6 +1150,7 @@
 							#wk
 							#clrMsgWin 1
 							;;
+				"ri"	)	jmpPosWrgl 30 10;;
 				"mv"*	)	mv "${inKey:3}";;
 				"??"	)	viewHelp;;                            #コマンドリスト
 				"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
@@ -1174,6 +1177,7 @@
 	#主処理
 	mainLoop
 
-	#終了時に文字就職を除去し、画面をクリアする
+	#終了時に文字修飾を除去し、画面をクリアする
+	tput cvvis
 	tput sgr0
 	clear
