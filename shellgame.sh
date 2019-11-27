@@ -149,6 +149,7 @@
 
 	}
 
+
 ##画面系
 	##################################################
 	## 画面の初期表示情報
@@ -505,452 +506,490 @@
 			*		) dspCmdLog "$1 is Invalid CMD." 1 ;;
 		esac
 	}
-	#----------------------------------------------------------
-	# マニュアル表示用の子関数
-	#----------------------------------------------------------
-		#-------------------------------------------------
-		#man_mv
-		# mvコマンドのマニュアル表示
-		#-------------------------------------------------
 		function man_mv(){
-				inKey=""
-				tput smcup
-				clear
-				echo "*** Command Manual:[mv] ***"
-				echo "<Format>"
-				echo " mv [arg]"
-				echo " * arg=1~9."
-				echo ""
-				echo "<Function>"
-				echo " Wriggle moves 1 step [arg]. Consume 1 turn."
-				echo " If select [5] then Switch to 'PicnicMode' what you can skip typing [Enter]key."
-				echo " Entering [0] during picnic mode will exit 'PicnicMode'."
-				echo " Dungeon exploration begins with walking and ends with walking..."
-				echo " ...No, when is the end when I die? Make your picnic feel moderate. GLHF!"
-				echo ""
-				echo " move to...   \  ^  /"
-				echo "               7 8 9 "
-				echo "              <4 W 6>"
-				echo "               3 2 1 "
-				echo "              /  v  \\    5/0:Switch 'PicniMode'"
-				echo ""
-				echo "... over."
-				echo "Press [q]key to exit."
-				while :
-				do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-				done	
+
+            inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[mv] ***"
+			echo "<Format>"
+			echo " mv [arg]"
+			echo " * arg=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle moves 1 step [arg]. Consume 1 turn."
+			echo " If select [5] then Switch to 'PicnicMode' what you can skip typing [Enter]key."
+			echo " Entering [0] during picnic mode will exit 'PicnicMode'."
+			echo " Dungeon exploration begins with walking and ends with walking..."
+			echo " ...No, when is the end when I die? Make your picnic feel moderate. GLHF!"
+			echo ""
+			echo " move to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 W 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\    5/0:Switch 'PicniMode'"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
+
 		#-------------------------------------------------
 		#man_ki
 		# kiコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_ki(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[ki] ***"
-					echo "<Format>"
-					echo " ki [arg1] [arg2]"
-					echo " * arg1=1~9 except 5."
-					echo " * arg2=1~9."
-					echo ""
-					echo "<Function>"
-					echo " It's Called 'WriggleKick'."
-					echo " Wriggle kicks [arg1] with a strength of [arg2]."
-					echo " Consume 1 turn."
-					echo " Once used, the 'WriggleKick' cannot be reused for one turn."
-					echo " 'WriggleKick' range is 1 square."
-					echo " 'Wrigglekick' is very helpful when you have no weapons."
-					echo " Some enemies can only be defeated with 'WriggleKick'."
-					echo " Because it is the first enemy, it is not necessarily OHKO."
-					echo ""
-					echo " kick to...   \  ^  /"
-					echo "               1 2 3 "
-					echo "              <4 W 6>"
-					echo "               7 8 9 "
-					echo "              /  v  \\"
-					echo ""
-					echo "<MP Cost Referance>"
-					echo "  +--------+---+---+---+---+---+---+---+---+---+"
-					echo "  |useLv   |  1|  2|  3|  4|  5|  6|  7|  8|  9|"
-					echo "  +--------+---+---+---+---+---+---+---+---+---+"
-					echo "  |Cost MP |  3|  3|  3|  7|  7|  7|  9|  9| 12|"
-					echo "  +--------+-----------------------------------+"
-					echo ""
-					echo "<Strength>"
-					echo "  ([Atk]*[useLv]*1.2)+([Atk]*[useLv-9]*0.5)"
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[ki] ***"
+			echo "<Format>"
+			echo " ki [arg1] [arg2]"
+			echo " * arg1=1~9 except 5."
+			echo " * arg2=1~9."
+			echo ""
+			echo "<Function>"
+			echo " It's Called 'WriggleKick'."
+			echo " Wriggle kicks [arg1] with a strength of [arg2]."
+			echo " Consume 1 turn."
+			echo " Once used, the 'WriggleKick' cannot be reused for one turn."
+			echo " 'WriggleKick' range is 1 square."
+			echo " 'Wrigglekick' is very helpful when you have no weapons."
+			echo " Some enemies can only be defeated with 'WriggleKick'."
+			echo " Because it is the first enemy, it is not necessarily OHKO."
+			echo ""
+			echo " kick to...   \  ^  /"
+			echo "               1 2 3 "
+			echo "              <4 W 6>"
+			echo "               7 8 9 "
+			echo "              /  v  \\"
+			echo ""
+			echo "<MP Cost Referance>"
+			echo "  +--------+---+---+---+---+---+---+---+---+---+"
+			echo "  |useLv   |  1|  2|  3|  4|  5|  6|  7|  8|  9|"
+			echo "  +--------+---+---+---+---+---+---+---+---+---+"
+			echo "  |Cost MP |  3|  3|  3|  7|  7|  7|  9|  9| 12|"
+			echo "  +--------+-----------------------------------+"
+			echo ""
+			echo "<Strength>"
+			echo "  ([Atk]*[useLv]*1.2)+([Atk]*[useLv-9]*0.5)"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_wp
 		# wpコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_wp(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[wp] ***"
-					echo "<Format>"
-					echo " wp [arg]"
-					echo " * arg=1~9 except 5."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle uses a weapon to attack in [arg] directions."
-					echo " Consume 1 turn."
-					echo " The range depends on the weapon used."
-					echo " There is no MP consumption except in special cases."
-					echo " He seems to be trying to clear up the depression "
-					echo "     that has always been abused by his wife(s) in the dungeon."
-					echo ""
-					echo " attack to...   \  ^  /"
-					echo "                 1 2 3 "
-					echo "                <4 W 6>"
-					echo "                 7 8 9 "
-					echo "                /  v  \\   *range depends wepon."
-					echo ""
-					echo "<Strength>"
-					echo "  ([Atk]*[weponAtk])+(|Atk-50|*[weponAtk]*0.3)"
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+
+			tput smcup
+			clear
+
+			echo "*** Command Manual:[wp] ***"
+			echo "<Format>"
+			echo " wp [arg]"
+			echo " * arg=1~9 except 5."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle uses a weapon to attack in [arg] directions."
+			echo " Consume 1 turn."
+			echo " The range depends on the weapon used."
+			echo " There is no MP consumption except in special cases."
+			echo " He seems to be trying to clear up the depression "
+			echo "     that has always been abused by his wife(s) in the dungeon."
+			echo ""
+			echo " attack to...   \  ^  /"
+			echo "                 1 2 3 "
+			echo "                <4 W 6>"
+			echo "                 7 8 9 "
+			echo "                /  v  \\   *range depends wepon."
+			echo ""
+			echo "<Strength>"
+			echo "  ([Atk]*[weponAtk])+(|Atk-50|*[weponAtk]*0.3)"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done
+		}
 		#-------------------------------------------------
 		#man_ct
 		# ctコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_ct(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[ct] ***"
-					echo "<Format>"
-					echo " ct [arg1] [arg2]"
-					echo " * arg1=1~4."
-					echo " * arg2=1~9."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle casts a [arg1] Magic in [arg2] directions."
-					echo " When [5] is set, you are the subject."
-					echo " Consume 1 turn."
-					echo " The range depends on the mgic used."
-					echo " Magic is not necessarily for attack."
-					echo " There are also recovery, assistance, and some with more special effects."
-					echo " Useful for exploring dungeons."
-					echo ""
-					echo " cast to...   \  ^  /"
-					echo "               1 2 3 "
-					echo "              <4 W 6>"
-					echo "               7 8 9 "
-					echo "              /  v  \\   *range depends magic."
-					echo ""
-					echo "<Strength>"
-					echo "  ([Mat]*[magicStr])+(|[Mat]-50|*[magicStr]*0.4)"
-					echo ""
-					echo "<MP Cost Referance>"
-					echo "  MP consumed depends on the magic used, but can be reduced by [Int] value."
-					echo "    +--------+---+-----------+----------+----+"
-					echo "    |int     |~30|~60        |~98       |99  |"
-					echo "    +--------+---+-----------+----------+----+"
-					echo "    |Cost MP |-0%|-(int/20)% |-(int/10)%|-30%|"
-					echo "    +--------+---+-----------+----------+----+"
-					echo "    *Reduction amount is rounded up to one decimal place."
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+
+			tput smcup
+			clear
+
+			echo "*** Command Manual:[ct] ***"
+			echo "<Format>"
+			echo " ct [arg1] [arg2]"
+			echo " * arg1=1~4."
+			echo " * arg2=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle casts a [arg1] Magic in [arg2] directions."
+			echo " When [5] is set, you are the subject."
+			echo " Consume 1 turn."
+			echo " The range depends on the mgic used."
+			echo " Magic is not necessarily for attack."
+			echo " There are also recovery, assistance, and some with more special effects."
+			echo " Useful for exploring dungeons."
+			echo ""
+			echo " cast to...   \  ^  /"
+			echo "               1 2 3 "
+			echo "              <4 W 6>"
+			echo "               7 8 9 "
+			echo "              /  v  \\   *range depends magic."
+			echo ""
+			echo "<Strength>"
+			echo "  ([Mat]*[magicStr])+(|[Mat]-50|*[magicStr]*0.4)"
+			echo ""
+			echo "<MP Cost Referance>"
+			echo "  MP consumed depends on the magic used, but can be reduced by [Int] value."
+			echo "    +--------+---+-----------+----------+----+"
+			echo "    |int     |~30|~60        |~98       |99  |"
+			echo "    +--------+---+-----------+----------+----+"
+			echo "    |Cost MP |-0%|-(int/20)% |-(int/10)%|-30%|"
+			echo "    +--------+---+-----------+----------+----+"
+			echo "    *Reduction amount is rounded up to one decimal place."
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_in
 		# inコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_in(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[in] ***"
-					echo "<Format>"
-					echo " in [arg]"
-					echo " * arg=1~9."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle investigates the direction of [arg]. Consume 1 turn."
-					echo " Depending on the [Snc]value, success and failure may be separated."
-					echo " When [5], it is foot of the Wriggle or Wriggleself."
-					echo " Keep your antennae clean."
-					echo ""
-					echo " investigate to...   \  ^  /"
-					echo "                      7 8 9 "
-					echo "                     <4 W 6>"
-					echo "                      3 2 1 "
-					echo "                     /  v  \\      *[5], foot or self"
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+
+			tput smcup
+			clear
+
+			echo "*** Command Manual:[in] ***"
+			echo "<Format>"
+			echo " in [arg]"
+			echo " * arg=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle investigates the direction of [arg]. Consume 1 turn."
+			echo " Depending on the [Snc]value, success and failure may be separated."
+			echo " When [5], it is foot of the Wriggle or Wriggleself."
+			echo " Keep your antennae clean."
+			echo ""
+			echo " investigate to...   \  ^  /"
+			echo "                      7 8 9 "
+			echo "                     <4 W 6>"
+			echo "                      3 2 1 "
+			echo "                     /  v  \\      *[5], foot or self"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_gt
 		# gtコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_gt(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[gt] ***"
-					echo "<Format>"
-					echo " gt [arg]"
-					echo " * arg=1~9."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle gets or picks up the one in the direction of [arg]. Consume 1 turn."
-					echo " When [5], it is foot of the Wriggle or Wriggleself."
-					echo " 'The old tale of ants and grasshoppers' should have been that"
-					echo "       the workers were exploited by wife(s) waiting in the nest. ...Is it different?"
-					echo ""
-					echo " gets to...   \  ^  /"
-					echo "               7 8 9 "
-					echo "              <4 W 6>"
-					echo "               3 2 1 "
-					echo "              /  v  \\      *[5], foot"
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+
+			tput smcup
+			clear
+
+			echo "*** Command Manual:[gt] ***"
+			echo "<Format>"
+			echo " gt [arg]"
+			echo " * arg=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle gets or picks up the one in the direction of [arg]. Consume 1 turn."
+			echo " When [5], it is foot of the Wriggle or Wriggleself."
+			echo " 'The old tale of ants and grasshoppers' should have been that"
+			echo "       the workers were exploited by wife(s) waiting in the nest. ...Is it different?"
+			echo ""
+			echo " gets to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 W 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\      *[5], foot"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_tr
 		# trコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_tr(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[tr] ***"
-					echo "<Format>"
-					echo " tr [arg1] [arg2]"
-					echo " * arg1=1~9."
-					echo " * arg2=1~9 except 5."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle throws [arg1] item in the direction of [arg2]. Consume 1 turn."
-					echo " Depending on the [arg1] item type or [STR] value, the thrown item can be destroyed."
-					echo " The winner will also take damage according to the [STR] value and [arg1] item."
-					echo " If you're going to throw things away, be careful."
-					echo " What I received from a woman is particularly troublesome when my wife finds it."
-					echo ""
-					echo " throw to...   \  ^  /"
-					echo "                7 8 9 "
-					echo "               <4 W 6>"
-					echo "                3 2 1 "
-					echo "               /  v  \\"
-					echo ""
-					echo "<Damege>"
-					echo "  Jewel     --- [Value]*1000.0                       :Ignore the [Def]."
-					echo "  Gold      --- [Value]*100.0                        :Ignore the [Def]."
-					echo "  Silver    --- [Value]*1.0                          :Ignore the [Def]."
-					echo "  Wepon     --- [Str]*[WeponAtk]*(RoundUp(Str/100))"
-					echo "  Armor     --- [Str]*[ArmorDef]*(RoundUp(Str/150))"
-					echo "  Medicine  --- [ItemRecovery]*1.0                   :Heal instead of damage."
-					echo "  OtherItem --- I don't know how to do it!"
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+			tput smcup
+			clear
+
+			echo "*** Command Manual:[tr] ***"
+			echo "<Format>"
+			echo " tr [arg1] [arg2]"
+			echo " * arg1=1~9."
+			echo " * arg2=1~9 except 5."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle throws [arg1] item in the direction of [arg2]. Consume 1 turn."
+			echo " Depending on the [arg1] item type or [STR] value, the thrown item can be destroyed."
+			echo " The winner will also take damage according to the [STR] value and [arg1] item."
+			echo " If you're going to throw things away, be careful."
+			echo " What I received from a woman is particularly troublesome when my wife finds it."
+			echo ""
+			echo " throw to...   \  ^  /"
+			echo "                7 8 9 "
+			echo "               <4 W 6>"
+			echo "                3 2 1 "
+			echo "               /  v  \\"
+			echo ""
+			echo "<Damege>"
+			echo "  Jewel     --- [Value]*1000.0                       :Ignore the [Def]."
+			echo "  Gold      --- [Value]*100.0                        :Ignore the [Def]."
+			echo "  Silver    --- [Value]*1.0                          :Ignore the [Def]."
+			echo "  Wepon     --- [Str]*[WeponAtk]*(RoundUp(Str/100))"
+			echo "  Armor     --- [Str]*[ArmorDef]*(RoundUp(Str/150))"
+			echo "  Medicine  --- [ItemRecovery]*1.0                   :Heal instead of damage."
+			echo "  OtherItem --- I don't know how to do it!"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_tk
 		# tkコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_tk(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[tk] ***"
-					echo "<Format>"
-					echo " tk [arg]"
-					echo " * arg=1~9 except 5."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle speaks in the direction of [arg]. Consume 1 turn."
-					echo " If you talk well, you may get along. But watch out for your wife's gaze."
-					echo ""
-					echo " talk to...   \  ^  /"
-					echo "               7 8 9 "
-					echo "              <4 W 6>"
-					echo "               3 2 1 "
-					echo "              /  v  \\"
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[tk] ***"
+			echo "<Format>"
+			echo " tk [arg]"
+			echo " * arg=1~9 except 5."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle speaks in the direction of [arg]. Consume 1 turn."
+			echo " If you talk well, you may get along. But watch out for your wife's gaze."
+			echo ""
+			echo " talk to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 W 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_pr
 		# prコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_pr(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[pr] ***"
-					echo "<Format>"
-					echo " pr [arg]"
-					echo " * arg=1~9."
-					echo ""
-					echo "<Function>"
-					echo " Wriggle prays for [arg] and asks for a miracle. Consume 1 turn."
-					echo " I don't know what will happen, but the [Mnd] value makes it easy to do something good."
-					echo " You can pray only to those who have idols."
-					echo " And if you pray to one, then pray to another, you may be punished."
-					echo " And if you pray too much, you will be punished."
-					echo ""
-					echo "<Object to pray>"
-					echo " unknown"
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[pr] ***"
+			echo "<Format>"
+			echo " pr [arg]"
+			echo " * arg=1~9."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle prays for [arg] and asks for a miracle. Consume 1 turn."
+			echo " I don't know what will happen, but the [Mnd] value makes it easy to do something good."
+			echo " You can pray only to those who have idols."
+			echo " And if you pray to one, then pray to another, you may be punished."
+			echo " And if you pray too much, you will be punished."
+			echo ""
+			echo "<Object to pray>"
+			echo " unknown"
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_ss
 		# ssコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_ss(){
-					inKey=""
-					tput smcup
-					clear
-					echo "*** Command Manual:[ss] ***"
-					echo "<Format>"
-					echo " ss *no arg"
-					echo ""
-					echo "<Function>"
-					echo " Wriggle commits suicide. No one will be sad."
-					echo ""
-					echo "... over."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+
+			tput smcup
+			clear
+
+			echo "*** Command Manual:[ss] ***"
+			echo "<Format>"
+			echo " ss *no arg"
+			echo ""
+			echo "<Function>"
+			echo " Wriggle commits suicide. No one will be sad."
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 		#-------------------------------------------------
 		#man_man
 		# manコマンドのマニュアル表示
 		#-------------------------------------------------
 		function man_man(){
-					inKey=""
-					tput smcup
-					clear
-					echo "It is how to use it."
-					echo "Press [q]key to exit."
-					while :
-					do
-						getChrH
-						if [ "$inKey" = "q" ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo "Invalid input. press [q] to exit."
-						fi
-					done	
+
+			inKey=""
+
+			tput smcup
+			clear
+
+			echo "It is how to use it."
+			echo "Press [q]key to exit."
+
+			while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
 		}
 
 	###########################################
@@ -1079,6 +1118,7 @@
 
 	}
 
+
 ##主処理
 	###########################################
 	##mainLoop
@@ -1086,9 +1126,6 @@
 	###########################################
 	#このゲームは黒背景に白文字で稼働する
 	mainLoop(){
-		#未実装
-		#declare -a posWrgl=(1 1)
-
 		initDispInfo 
 		jmpPosWrgl 30 10
 		dspCmdLog "Wriggle respowned in X:30/Y:10." 1
@@ -1113,8 +1150,8 @@
 				"Q"		)	break;;                               #ボスが来た
 				""		)	dspCmdLog "Input key." 1 ;;           #エラー
 				*		)	dspCmdLog "[$inKey]is invalid." 1 ;;  #エラー
-				esac
-			done
+			esac
+		done
 	}
 
 	###########################################
