@@ -105,7 +105,7 @@
 		tput sgr0
 		tput setab 0
 		tput setaf 7
-		wtput cnorm
+		tput cnorm
 
 	}
 
@@ -138,12 +138,12 @@
 		local declare mapX=$((10#$1))
 		local declare mapY=$((10#$2))
 
-		local declare lStr="${lnSeed[$((mapY+3))]:0:$(($1+3))}"
-		local declare rStr="${lnSeed[$((mapY+3))]:$(($1+4))}"
+		local declare lStr="${lnSeed[$((mapY+3))]:0:$((mapX+3))}"
+		local declare rStr="${lnSeed[$((mapY+3))]:$((mapX+4))}"
 
 		lnSeed[$((mapY+3))]="${lStr} ${rStr}"
 		
-		modDspWrglPos $mapX $mapY
+		modDspWrglPos $1 $2
 		dispAll
 
 
@@ -162,8 +162,8 @@
 		#初期状態 0000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990
 		#文字数   1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 		lnSeed+=("+--+------------------------------------------------------------++------------+----------+---------+") #00
-		lnSeed+=("|//|000000000111111111122222222223333333333444444444455555555556||Wriggle     |Bug       |Fighter  |") #01
-		lnSeed+=("|//|123456789012345678901234567890123456789012345678901234567890|+--+---------+----------+---------+") #02
+		lnSeed+=("|01|000000000111111111122222222223333333333444444444455555555556||Wriggle     |Bug       |Fighter  |") #01
+		lnSeed+=("|01|123456789012345678901234567890123456789012345678901234567890|+--+---------+----------+---------+") #02
 		lnSeed+=("+--+------------------------------------------------------------+|HP| 100/ 100|BLv: 1=     0/    10|") #03
 		lnSeed+=("|01|000000000000000000000000000000000000000000000000000000000000||MP| 100/ 100|JLv: 1=     0/    10|") #04
 		lnSeed+=("|02|000000000000000000000000000000000000000000000000000000000000|+--+--+--+--++-+--++--+--+--+--+--+") #05
@@ -329,6 +329,7 @@
 
 		lnSeed[1]="|$X$row1Right"
 		lnSeed[2]="|$Y$row2Right"
+		dispAll
 
 	}
 
@@ -1014,7 +1015,7 @@
 		fi
 		##$1の範囲
 		if [ $1 -lt 1 ] || [ $1 -gt 9 ]; then
-			dspCmdLog "<mv> Enter 1~9." 1
+			dspCmdLog "<mv> Enter 1~9, or 5." 1
 			return
 		fi
 
@@ -1025,31 +1026,43 @@
 		local declare mvY=0
 
 		case "$dirct" in
-			"5"	)	dspCmdLog "Start PcncMode." 1
+			"5"	)	#ピクニックモード
+					dspCmdLog "Start picnic mode." 1
 					pcncMode
+					#ピクニックモード終了時のみ、posX/Yを更新する必要がある
+					posX=${lnSeed[1]:1:2}
+					posY=${lnSeed[2]:1:2}
 					;;
-			"1"	)	mvX=-1
+			"1"	)	#↙
+					mvX=-1
 					mvY=1
 					;;
-			"2"	)	mvX=0
+			"2"	)	#↓
+					mvX=0
 					mvY=1
 					;;
-			"3"	)	mvX=1
+			"3"	)	#↘
+					mvX=1
 					mvY=1
 					;;
-			"4"	)	mvX=-1
+			"4"	)	#←
+					mvX=-1
 					mvY=0
 					;;
-			"6"	)	mvX=1
+			"6"	)	#→
+					mvX=1
 					mvY=0
 					;;
-			"7"	)	mvX=-1
+			"7"	)	#↖
+					mvX=-1
 					mvY=-1
 					;;
-			"8"	)	mvX=0
+			"8"	)	#↑
+					mvX=0
 					mvY=-1
 					;;
-			"9"	)	mvX=1
+			"9"	)	#↗
+					mvX=1
 					mvY=-1
 					;;
 			*	)	sysOut "e" $LINENO "Direction value Error."
@@ -1067,62 +1080,30 @@
 	##  0で終了。
 	##################################################
 	function pcncMode(){
-
-		local declare posX=0
-		local declare posY=0
-		local declare mvX=0
-		local declare mvY=0
-
+		tput civis
 		while :
 		do
-
-			posX=${lnSeed[1]:1:2}
-			posY=${lnSeed[2]:1:2}
-
 			getChrH
-
 			case "$inKey" in
 			"0"	)	dspCmdLog "Quit picnic mode." 1
+					tput cup 20 10
+					tput cnorm
 					break
 					;;
-			"1"	)	mvX=-1
-					mvY=1
-					;;
-			"2"	)	mvX=0
-					mvY=1
-					;;
-			"3"	)	mvX=1
-					mvY=1
-					;;
-			"4"	)	mvX=-1
-					mvY=0
-					;;
-			"5"	)	mvX=0
-					mvY=0
-					;;
-			"6"	)	mvX=1
-					mvY=0
-					;;
-			"7"	)	mvX=-1
-					mvY=-1
-					;;
-			"8"	)	mvX=0
-					mvY=-1
-					;;
-			"9"	)	mvX=1
-					mvY=-1
-					;;
-			*	)	sysOut "e" $LINENO "Direction value Error."
+			"1"	)	mv 1;;
+			"2"	)	mv 2;;
+			"3"	)	mv 3;;
+			"4"	)	mv 4;;
+			"5"	)	;;
+			"6"	)	mv 6;;
+			"7"	)	mv 7;;
+			"8"	)	mv 8;;
+			"9"	)	mv 9;;
+			*	)	dspCmdLog "<pcnc> Enter 1~9, 5 or 0." 1 
 			esac
-
-			#割り出した座標へjmpPosWrgl関数で移動する。
-			jmpPosWrgl $((10#$posX+mvX)) $((10#$posY+mvY))
-
 		done
-		return
 
 	}
-
 
 ##主処理
 	###########################################
@@ -1131,10 +1112,9 @@
 	###########################################
 	#このゲームは黒背景に白文字で稼働する
 	mainLoop(){
-		initDispInfo 
-		dispAll
-#		jmpPosWrgl 30 10
-#		dspCmdLog "Wriggle respowned in X:30/Y:10." 1
+	
+		jmpPosWrgl 30 10
+		dspCmdLog "Wriggle respowned in X:30/Y:10." 1
 
 		while :
 		do
@@ -1150,7 +1130,6 @@
 							#wk
 							#clrMsgWin 1
 							;;
-				"ri"	)	jmpPosWrgl 30 10;;
 				"mv"*	)	mv "${inKey:3}";;
 				"??"	)	viewHelp;;                            #コマンドリスト
 				"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
@@ -1169,7 +1148,8 @@
 	tput setaf 7
 
 	clear
-
+	initDispInfo 
+	
 	#安定するまでは不測の無限ループ脱出のためコメントアウトする
 	#	trap '' INT QUIT TSTP 
 	declare -g inKey=""
@@ -1178,6 +1158,6 @@
 	mainLoop
 
 	#終了時に文字修飾を除去し、画面をクリアする
-	tput cvvis
+	tput cnorm
 	tput sgr0
 	clear
