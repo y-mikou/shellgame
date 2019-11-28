@@ -146,10 +146,54 @@
 		modDspWrglPos $1 $2
 		dispAll
 
-
 	}
 
+	##################################################
+	##sayRnd
+	## ランダム出力表現生成
+	##  何度も繰り返すことができる行動に対する出力を
+	##  ランダム生成する。10パターン固定、減らす場合は結果重複で制限する
+    ##   $1:出力するタイプ
+	##################################################
+	function sayRnd(){
 
+		local declare rslt=$(($RANDOM % 10))
+		
+		case "$1" in
+			"1"	)	#ぶつかる音
+					case "$rslt" in
+						"0"	)	echo "Thud!";;
+						"1"	)	echo "Thump!!";;
+						"2"	)	echo "Bonk";;
+						"3"	)	echo "Ou!";;
+						"4"	)	echo "Ouch!";;
+						"5"	)	echo "Can't go any further.";;
+						"6"	)	echo "Do not push!";;
+						"7"	)	echo "Thud.";;
+						"8"	)	echo "Thud!!";;
+						"9"	)	echo "Bonk!";;
+						*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
+					esac
+					;;
+			"2"	)	#おさわり反応
+					case "$rslt" in
+						"0"	)	echo "";;
+						"1"	)	echo "";;
+						"2"	)	echo "";;
+						"3"	)	echo "";;
+						"4"	)	echo "";;
+						"5"	)	echo "";;
+						"6"	)	echo "";;
+						"7"	)	echo "";;
+						"8"	)	echo "";;
+						"9"	)	echo "";;
+						*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
+					esac
+					;;
+			*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
+		esac
+
+	}
 ##画面系
 	##################################################
 	## 画面の初期表示情報
@@ -312,6 +356,22 @@
 
 	}
 
+	##################################################
+	##clrCmdLog
+	## lnSeed[20]を初期表示の内容で上書きして画面をクリア更新する
+	##  $1 lnSeed更新後にmsgウィンドウを更新するか(1:する/他:しない)
+	##################################################
+	function clrCmdLog(){
+
+		lnSeed[20]="|COMMAND>                                        |                                                 |"
+
+		#引数が1だったら、画面を更新する。
+		if [ "$1" = "1" ] ; then
+			dispAll
+		fi
+
+	}
+
 	###########################################
 	##modDspWrglPos
 	## Wriggleの現在座標を画面表示情報へ反映する
@@ -407,8 +467,8 @@
 
 		#バリデーション
 		##引数の個数
-		if [ -z "$1" ] || [ -n "$3" ] ; then
-			sysOut "e" $LINENO "Set 1 or 2 arguments."
+		if [ -z "$1" ] || [ -n "$3" ] ; then			
+			sysOut "e" $LINENO "Set 1 or 2 arguments. $1/$2"
 			return
 		fi
 
@@ -461,6 +521,7 @@
 		echo ""
 		echo "man [CMD]   : [CMD] CommandManual"
 		echo "mv [n]      : Move in direction [n]"
+		echo "pp          : Start Picnic Mode"
 		echo "ki [m][n]   : Kick in direction [n] with [n]strength"
 		echo "wp [n]      : Attack in direction [n] with Wapon"
 		echo "ct [m][n]   : Cast [m]Magic in direction [n]"
@@ -493,6 +554,7 @@
 	function man(){		
 		case "$1" in
 			"mv"	) man_mv ;;
+			"pp"	) man_pp ;;
 			"ki"	) man_ki ;;
 			"wp"	) man_wp ;;
 			"ct"	) man_ct ;;
@@ -535,9 +597,53 @@
 			echo ""
 			echo " move to...   \  ^  /"
 			echo "               7 8 9 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               3 2 1 "
 			echo "              /  v  \\    5/0:Switch 'PicniMode'"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_pp
+		# ppコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_pp(){
+
+            inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[pp] ***"
+			echo "<Format>"
+			echo " pp"
+			echo " * no arg."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle begins a picnic."
+			echo " Wriggle walks without waiting for the Enter key after every [1]-[9] input."
+			echo " * [5] is invalid. Enter [0] to exit picnic mode. Use one turn for each step."
+			echo " If you don't walk forward, you'll step on the roots of a flower that is scarier than a dragon."
+			echo " If you want to see her, don't stop ... rip."
+			echo ""
+			echo " move to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 ¥ 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\    0:Quit 'PicniMode'"
 			echo ""
 			echo "... over."
 			echo "Press [q]key to exit."
@@ -583,7 +689,7 @@
 			echo ""
 			echo " kick to...   \  ^  /"
 			echo "               1 2 3 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               7 8 9 "
 			echo "              /  v  \\"
 			echo ""
@@ -638,7 +744,7 @@
 			echo ""
 			echo " attack to...   \  ^  /"
 			echo "                 1 2 3 "
-			echo "                <4 W 6>"
+			echo "                <4 ¥ 6>"
 			echo "                 7 8 9 "
 			echo "                /  v  \\   *range depends wepon."
 			echo ""
@@ -688,7 +794,7 @@
 			echo ""
 			echo " cast to...   \  ^  /"
 			echo "               1 2 3 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               7 8 9 "
 			echo "              /  v  \\   *range depends magic."
 			echo ""
@@ -743,7 +849,7 @@
 			echo ""
 			echo " investigate to...   \  ^  /"
 			echo "                      7 8 9 "
-			echo "                     <4 W 6>"
+			echo "                     <4 ¥ 6>"
 			echo "                      3 2 1 "
 			echo "                     /  v  \\      *[5], foot or self"
 			echo ""
@@ -786,7 +892,7 @@
 			echo ""
 			echo " gets to...   \  ^  /"
 			echo "               7 8 9 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               3 2 1 "
 			echo "              /  v  \\      *[5], foot"
 			echo ""
@@ -830,7 +936,7 @@
 			echo ""
 			echo " throw to...   \  ^  /"
 			echo "                7 8 9 "
-			echo "               <4 W 6>"
+			echo "               <4 ¥ 6>"
 			echo "                3 2 1 "
 			echo "               /  v  \\"
 			echo ""
@@ -880,7 +986,7 @@
 			echo ""
 			echo " talk to...   \  ^  /"
 			echo "               7 8 9 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               3 2 1 "
 			echo "              /  v  \\"
 			echo ""
@@ -1024,6 +1130,9 @@
 		local declare dirct=$1
 		local declare mvX=0
 		local declare mvY=0
+		local declare goX=0
+		local declare goY=0
+
 
 		case "$dirct" in
 			"5"	)	#ピクニックモード
@@ -1069,8 +1178,26 @@
 		esac
 
 		#割り出した座標へjmpPosWrgl関数で移動する。
-		jmpPosWrgl $((10#$posX+mvX)) $((10#$posY+mvY))
+		#但し、範囲外に出ることはしない。
+		##XYの範囲
+		goX=$((10#$posX+mvX))
+		goY=$((10#$posY+mvY))
 
+		if [ $goX -lt 1 ] || [ $goX -gt 60 ] || [ $goY -lt 1 ] || [ $goY -gt 15 ] ; then
+			dspCmdLog "$(sayRnd 1)" 1
+		else
+			clrCmdLog 0
+			jmpPosWrgl $goX $goY
+		fi
+
+	}
+	###########################################
+	##pp
+	## ピクニックモードへのショートカット
+	###########################################
+	function pp(){
+		:
+		#ppコマンドは「mv 5」を発行するので、処理はない。
 	}
 
 	##################################################
@@ -1130,7 +1257,8 @@
 							#wk
 							#clrMsgWin 1
 							;;
-				"mv"*	)	mv "${inKey:3}";;
+				"mv"*	)	mv "${inKey:3}";;                     #mvコマンド
+				"pp"	)	mv 5;;                                #ピクニックモード
 				"??"	)	viewHelp;;                            #コマンドリスト
 				"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
 				"Q"		)	break;;                               #ボスが来た
@@ -1160,4 +1288,4 @@
 	#終了時に文字修飾を除去し、画面をクリアする
 	tput cnorm
 	tput sgr0
-	clear
+#	clear
