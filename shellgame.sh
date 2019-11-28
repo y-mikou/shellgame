@@ -105,7 +105,7 @@
 		tput sgr0
 		tput setab 0
 		tput setaf 7
-		wtput cnorm
+		tput cnorm
 
 	}
 
@@ -138,18 +138,62 @@
 		local declare mapX=$((10#$1))
 		local declare mapY=$((10#$2))
 
-		local declare lStr="${lnSeed[$((mapY+3))]:0:$(($1+3))}"
-		local declare rStr="${lnSeed[$((mapY+3))]:$(($1+4))}"
+		local declare lStr="${lnSeed[$((mapY+3))]:0:$((mapX+3))}"
+		local declare rStr="${lnSeed[$((mapY+3))]:$((mapX+4))}"
 
 		lnSeed[$((mapY+3))]="${lStr} ${rStr}"
 		
-		modDspWrglPos $mapX $mapY
+		modDspWrglPos $1 $2
 		dispAll
-
 
 	}
 
+	##################################################
+	##sayRnd
+	## ランダム出力表現生成
+	##  何度も繰り返すことができる行動に対する出力を
+	##  ランダム生成する。10パターン固定、減らす場合は結果重複で制限する
+    ##   $1:出力するタイプ
+	##################################################
+	function sayRnd(){
 
+		local declare rslt=$(($RANDOM % 10))
+		
+		case "$1" in
+			"1"	)	#ぶつかる音
+					case "$rslt" in
+						"0"	)	echo "Thud!";;
+						"1"	)	echo "Thump!!";;
+						"2"	)	echo "Bonk";;
+						"3"	)	echo "Ou!";;
+						"4"	)	echo "Ouch!";;
+						"5"	)	echo "Can't go any further.";;
+						"6"	)	echo "Do not push!";;
+						"7"	)	echo "Thud.";;
+						"8"	)	echo "Thud!!";;
+						"9"	)	echo "Bonk!";;
+						*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
+					esac
+					;;
+			"2"	)	#おさわり反応
+					case "$rslt" in
+						"0"	)	echo "";;
+						"1"	)	echo "";;
+						"2"	)	echo "";;
+						"3"	)	echo "";;
+						"4"	)	echo "";;
+						"5"	)	echo "";;
+						"6"	)	echo "";;
+						"7"	)	echo "";;
+						"8"	)	echo "";;
+						"9"	)	echo "";;
+						*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
+					esac
+					;;
+			*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
+		esac
+
+	}
 ##画面系
 	##################################################
 	## 画面の初期表示情報
@@ -162,8 +206,8 @@
 		#初期状態 0000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990
 		#文字数   1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 		lnSeed+=("+--+------------------------------------------------------------++------------+----------+---------+") #00
-		lnSeed+=("|//|000000000111111111122222222223333333333444444444455555555556||Wriggle     |Bug       |Fighter  |") #01
-		lnSeed+=("|//|123456789012345678901234567890123456789012345678901234567890|+--+---------+----------+---------+") #02
+		lnSeed+=("|01|000000000111111111122222222223333333333444444444455555555556||Wriggle     |Bug       |Fighter  |") #01
+		lnSeed+=("|01|123456789012345678901234567890123456789012345678901234567890|+--+---------+----------+---------+") #02
 		lnSeed+=("+--+------------------------------------------------------------+|HP| 100/ 100|BLv: 1=     0/    10|") #03
 		lnSeed+=("|01|000000000000000000000000000000000000000000000000000000000000||MP| 100/ 100|JLv: 1=     0/    10|") #04
 		lnSeed+=("|02|000000000000000000000000000000000000000000000000000000000000|+--+--+--+--++-+--++--+--+--+--+--+") #05
@@ -292,7 +336,7 @@
 
 	##################################################
 	##clrMsgWin
-	## lnSeed[22〜26]を初期表示の内容で上書きして画面を更新する
+	## lnSeed[22〜26]を初期表示の内容で上書きして画面をクリア更新する
 	##  $1 lnSeed更新後にmsgウィンドウを更新するか(1:する/他:しない)
 	##################################################
 	function clrMsgWin(){
@@ -304,6 +348,22 @@
 		lnSeed[24]="|93|                                                                                               |" #24
 		lnSeed[25]="|94|                                                                                               |" #25
 		lnSeed[26]="|95|                                                                                               |" #26
+
+		#引数が1だったら、画面を更新する。
+		if [ "$1" = "1" ] ; then
+			dispAll
+		fi
+
+	}
+
+	##################################################
+	##clrCmdLog
+	## lnSeed[20]を初期表示の内容で上書きして画面をクリア更新する
+	##  $1 lnSeed更新後にmsgウィンドウを更新するか(1:する/他:しない)
+	##################################################
+	function clrCmdLog(){
+
+		lnSeed[20]="|COMMAND>                                        |                                                 |"
 
 		#引数が1だったら、画面を更新する。
 		if [ "$1" = "1" ] ; then
@@ -329,6 +389,7 @@
 
 		lnSeed[1]="|$X$row1Right"
 		lnSeed[2]="|$Y$row2Right"
+		dispAll
 
 	}
 
@@ -406,8 +467,8 @@
 
 		#バリデーション
 		##引数の個数
-		if [ -z "$1" ] || [ -n "$3" ] ; then
-			sysOut "e" $LINENO "Set 1 or 2 arguments."
+		if [ -z "$1" ] || [ -n "$3" ] ; then			
+			sysOut "e" $LINENO "Set 1 or 2 arguments. $1/$2"
 			return
 		fi
 
@@ -460,6 +521,7 @@
 		echo ""
 		echo "man [CMD]   : [CMD] CommandManual"
 		echo "mv [n]      : Move in direction [n]"
+		echo "pp          : Start Picnic Mode"
 		echo "ki [m][n]   : Kick in direction [n] with [n]strength"
 		echo "wp [n]      : Attack in direction [n] with Wapon"
 		echo "ct [m][n]   : Cast [m]Magic in direction [n]"
@@ -489,9 +551,10 @@
 	##  引数で渡されたコマンドのマニュアルを表示する。
 	##   $1 参照先コマンド
 	##################################################
-	function man(){
+	function man(){		
 		case "$1" in
 			"mv"	) man_mv ;;
+			"pp"	) man_pp ;;
 			"ki"	) man_ki ;;
 			"wp"	) man_wp ;;
 			"ct"	) man_ct ;;
@@ -503,9 +566,16 @@
 			"ss"	) man_ss ;;
 			"man"	) man_man ;;
 			""		) dspCmdLog "no argment error."  1 ;;
-			*		) dspCmdLog "$1 is Invalid CMD." 1 ;;
+			*		) dspCmdLog "[$1] is Invalid CMD." 1 ;;
 		esac
 	}
+	#-------------------------------------------------
+	#manコマンドによって呼び出される子関数
+	#-------------------------------------------------
+		#-------------------------------------------------
+		#man_mv
+		# mvコマンドのマニュアル表示
+		#-------------------------------------------------
 		function man_mv(){
 
             inKey=""
@@ -527,7 +597,7 @@
 			echo ""
 			echo " move to...   \  ^  /"
 			echo "               7 8 9 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               3 2 1 "
 			echo "              /  v  \\    5/0:Switch 'PicniMode'"
 			echo ""
@@ -546,7 +616,50 @@
 				fi
 			done	
 		}
+		#-------------------------------------------------
+		#man_pp
+		# ppコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_pp(){
 
+            inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[pp] ***"
+			echo "<Format>"
+			echo " pp"
+			echo " * no arg."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle begins a picnic."
+			echo " Wriggle walks without waiting for the Enter key after every [1]-[9] input."
+			echo " * [5] is invalid. Enter [0] to exit picnic mode. Use one turn for each step."
+			echo " If you don't walk forward, you'll step on the roots of a flower that is scarier than a dragon."
+			echo " If you want to see her, don't stop ... rip."
+			echo ""
+			echo " move to...   \  ^  /"
+			echo "               7 8 9 "
+			echo "              <4 ¥ 6>"
+			echo "               3 2 1 "
+			echo "              /  v  \\    0:Quit 'PicniMode'"
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
 		#-------------------------------------------------
 		#man_ki
 		# kiコマンドのマニュアル表示
@@ -576,7 +689,7 @@
 			echo ""
 			echo " kick to...   \  ^  /"
 			echo "               1 2 3 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               7 8 9 "
 			echo "              /  v  \\"
 			echo ""
@@ -631,7 +744,7 @@
 			echo ""
 			echo " attack to...   \  ^  /"
 			echo "                 1 2 3 "
-			echo "                <4 W 6>"
+			echo "                <4 ¥ 6>"
 			echo "                 7 8 9 "
 			echo "                /  v  \\   *range depends wepon."
 			echo ""
@@ -681,7 +794,7 @@
 			echo ""
 			echo " cast to...   \  ^  /"
 			echo "               1 2 3 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               7 8 9 "
 			echo "              /  v  \\   *range depends magic."
 			echo ""
@@ -736,7 +849,7 @@
 			echo ""
 			echo " investigate to...   \  ^  /"
 			echo "                      7 8 9 "
-			echo "                     <4 W 6>"
+			echo "                     <4 ¥ 6>"
 			echo "                      3 2 1 "
 			echo "                     /  v  \\      *[5], foot or self"
 			echo ""
@@ -779,7 +892,7 @@
 			echo ""
 			echo " gets to...   \  ^  /"
 			echo "               7 8 9 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               3 2 1 "
 			echo "              /  v  \\      *[5], foot"
 			echo ""
@@ -823,7 +936,7 @@
 			echo ""
 			echo " throw to...   \  ^  /"
 			echo "                7 8 9 "
-			echo "               <4 W 6>"
+			echo "               <4 ¥ 6>"
 			echo "                3 2 1 "
 			echo "               /  v  \\"
 			echo ""
@@ -873,7 +986,7 @@
 			echo ""
 			echo " talk to...   \  ^  /"
 			echo "               7 8 9 "
-			echo "              <4 W 6>"
+			echo "              <4 ¥ 6>"
 			echo "               3 2 1 "
 			echo "              /  v  \\"
 			echo ""
@@ -1002,13 +1115,13 @@
 
 		#バリデーション
 		##引数の個数
-		if [ $# -ne 1 ]; then
+		if [ $# -ne 1 ] || [ "$1" = "" ]; then
 			dspCmdLog "<mv> Set 1 arguments." 1
 			return
 		fi
 		##$1の範囲
 		if [ $1 -lt 1 ] || [ $1 -gt 9 ]; then
-			dspCmdLog "<mv> Enter 1~9." 1
+			dspCmdLog "<mv> Enter 1~9, or 5." 1
 			return
 		fi
 
@@ -1017,41 +1130,74 @@
 		local declare dirct=$1
 		local declare mvX=0
 		local declare mvY=0
+		local declare goX=0
+		local declare goY=0
+
 
 		case "$dirct" in
-			"5"	)	dspCmdLog "Start PcncMode." 1
+			"5"	)	#ピクニックモード
+					dspCmdLog "Start picnic mode." 1
 					pcncMode
+					#ピクニックモード終了時のみ、posX/Yを更新する必要がある
+					posX=${lnSeed[1]:1:2}
+					posY=${lnSeed[2]:1:2}
 					;;
-			"1"	)	mvX=-1
+			"1"	)	#↙
+					mvX=-1
 					mvY=1
 					;;
-			"2"	)	mvX=0
+			"2"	)	#↓
+					mvX=0
 					mvY=1
 					;;
-			"3"	)	mvX=1
+			"3"	)	#↘
+					mvX=1
 					mvY=1
 					;;
-			"4"	)	mvX=-1
+			"4"	)	#←
+					mvX=-1
 					mvY=0
 					;;
-			"6"	)	mvX=1
+			"6"	)	#→
+					mvX=1
 					mvY=0
 					;;
-			"7"	)	mvX=-1
+			"7"	)	#↖
+					mvX=-1
 					mvY=-1
 					;;
-			"8"	)	mvX=0
+			"8"	)	#↑
+					mvX=0
 					mvY=-1
 					;;
-			"9"	)	mvX=1
+			"9"	)	#↗
+					mvX=1
 					mvY=-1
 					;;
 			*	)	sysOut "e" $LINENO "Direction value Error."
 		esac
 
 		#割り出した座標へjmpPosWrgl関数で移動する。
-		jmpPosWrgl $((10#$posX+mvX)) $((10#$posY+mvY))
+		#但し、範囲外に出ることはしない。
+		##XYの範囲
+		goX=$((10#$posX+mvX))
+		goY=$((10#$posY+mvY))
 
+		if [ $goX -lt 1 ] || [ $goX -gt 60 ] || [ $goY -lt 1 ] || [ $goY -gt 15 ] ; then
+			dspCmdLog "$(sayRnd 1)" 1
+		else
+			clrCmdLog 0
+			jmpPosWrgl $goX $goY
+		fi
+
+	}
+	###########################################
+	##pp
+	## ピクニックモードへのショートカット
+	###########################################
+	function pp(){
+		:
+		#ppコマンドは「mv 5」を発行するので、処理はない。
 	}
 
 	##################################################
@@ -1061,63 +1207,30 @@
 	##  0で終了。
 	##################################################
 	function pcncMode(){
-
-		local declare posX=0
-		local declare posY=0
-		local declare mvX=0
-		local declare mvY=0
-
+		tput civis
 		while :
 		do
-
-			posX=${lnSeed[1]:1:2}
-			posY=${lnSeed[2]:1:2}
-
 			getChrH
-
 			case "$inKey" in
 			"0"	)	dspCmdLog "Quit picnic mode." 1
-					mvX=0
-					mvY=0
+					tput cup 20 10
+					tput cnorm
 					break
 					;;
-			"1"	)	mvX=-1
-					mvY=1
-					;;
-			"2"	)	mvX=0
-					mvY=1
-					;;
-			"3"	)	mvX=1
-					mvY=1
-					;;
-			"4"	)	mvX=-1
-					mvY=0
-					;;
-			"5"	)	mvX=0
-					mvY=0
-					;;
-			"6"	)	mvX=1
-					mvY=0
-					;;
-			"7"	)	mvX=-1
-					mvY=-1
-					;;
-			"8"	)	mvX=0
-					mvY=-1
-					;;
-			"9"	)	mvX=1
-					mvY=-1
-					;;
-			*	)	sysOut "e" $LINENO "Direction value Error."
+			"1"	)	mv 1;;
+			"2"	)	mv 2;;
+			"3"	)	mv 3;;
+			"4"	)	mv 4;;
+			"5"	)	;;
+			"6"	)	mv 6;;
+			"7"	)	mv 7;;
+			"8"	)	mv 8;;
+			"9"	)	mv 9;;
+			*	)	dspCmdLog "<pcnc> Enter 1~9, 5 or 0." 1 
 			esac
-
-			#割り出した座標へjmpPosWrgl関数で移動する。
-			jmpPosWrgl $((10#$posX+mvX)) $((10#$posY+mvY))
-
 		done
 
 	}
-
 
 ##主処理
 	###########################################
@@ -1126,7 +1239,7 @@
 	###########################################
 	#このゲームは黒背景に白文字で稼働する
 	mainLoop(){
-		initDispInfo 
+	
 		jmpPosWrgl 30 10
 		dspCmdLog "Wriggle respowned in X:30/Y:10." 1
 
@@ -1144,7 +1257,8 @@
 							#wk
 							#clrMsgWin 1
 							;;
-				"mv"*	)	mv "${inKey:3}";;
+				"mv"*	)	mv "${inKey:3}";;                     #mvコマンド
+				"pp"	)	mv 5;;                                #ピクニックモード
 				"??"	)	viewHelp;;                            #コマンドリスト
 				"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
 				"Q"		)	break;;                               #ボスが来た
@@ -1162,7 +1276,8 @@
 	tput setaf 7
 
 	clear
-
+	initDispInfo 
+	
 	#安定するまでは不測の無限ループ脱出のためコメントアウトする
 	#	trap '' INT QUIT TSTP 
 	declare -g inKey=""
@@ -1170,6 +1285,7 @@
 	#主処理
 	mainLoop
 
-	#終了時に文字就職を除去し、画面をクリアする
+	#終了時に文字修飾を除去し、画面をクリアする
+	tput cnorm
 	tput sgr0
-	clear
+#	clear
