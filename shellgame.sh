@@ -77,7 +77,7 @@
 	## コマンドを受け取る
 	###########################################
 	function getCmd(){
-		tput cup 20 10
+		tput cup $CNST_POS_CMDWIN
 		getChrV
 	}
 
@@ -89,7 +89,7 @@
 	function wk(){
 
 		tput civis
-		tput cup 26 97
+		tput cup $CNST_POS_WKMK
 		tput blink
 		
 		echo -n "🐛"
@@ -110,43 +110,69 @@
 	}
 
 	###########################################
-	##jgWall
-	## 侵入不能マスの判定
-	## 対象のマスが侵入可能だった場合、1を返す
-	## 対象のマスが侵入不能だった場合、0を返す
+	##jgDrctn
+	## 進入マスの判定
+	## 対象のマスと判別種類ごとに応じた値を返却する
 	##  $1:X座標
 	##  $2:Y座標
+	##  $3:判別種類(1:進入可否/2:オブジェクト種類)
 	###########################################
-	function jgWall(){
+	function jgDrctn(){
 
 		#バリデーション
 		##引数の個数
-		if [ $# -ne 2 ]; then
+		if [ $# -ne 3 ]; then
 			sysOut "e" $LINENO "Set 2 arguments."
 			return
 		fi
 		##$1の範囲
-		if [ $1 -lt 1 ] || [ $1 -gt 60 ]; then
-			sysOut "e" $LINENO "'X' must be between 1 and 60."
+		if [ $1 -lt 1 ] || [ $1 -gt $CNST_SIZ_X ]; then
+			sysOut "e" $LINENO "'X' must be between 1 and $CNST_SIZ_X."
 			return
 		fi
 		##$2の範囲
-		if [ $2 -lt 1 ] || [ $2 -gt 15 ]; then
-			sysOut "e" $LINENO "'Y' must be between 1 and 15."
+		if [ $2 -lt 1 ] || [ $2 -gt $CNST_SIZ_Y ]; then
+			sysOut "e" $LINENO "'Y' must be between 1 and $CNST_SIZ_Y."
 			return
 		fi
-		#移動先のマスが、侵入不能の表示だった場合に、0(侵入不能)を返却する
-		#それ以外の場合、1(侵入可能を返却する)
-		if	[ "${lnSeed[$(($2+3))]:$(($1+3)):1}" = "-" ] || \
-			[ "${lnSeed[$(($2+3))]:$(($1+3)):1}" = "=" ] || \
-			[ "${lnSeed[$(($2+3))]:$(($1+3)):1}" = "+" ] || \
-			[ "${lnSeed[$(($2+3))]:$(($1+3)):1}" = "|" ] || \
-			[ "${lnSeed[$(($2+3))]:$(($1+3)):1}" = "#" ] || \
-			[ "${lnSeed[$(($2+3))]:$(($1+3)):1}" = "D" ] ; then
-				echo 0
-		else
-				echo 1
+		##$3の範囲
+		if [ $3 -lt 1 ] || [ $3 -gt 2 ]; then
+			sysOut "e" $LINENO "Choose 1 or 2."
+			return
 		fi
+
+		local declare objDrction="${lnSeed[$(($2+3))]:$(($1+3)):1}"
+
+		#判定と返却
+		case "$3" in
+			$CNST_JGDIV_ACCESS	)	#進入可否判断
+					case "$objDrction" in
+						" "	)	echo $CNST_ACSS_ACCESSABLE ;;
+						"*"	)	echo $CNST_ACSS_ACCESSABLE ;; #マップ未開示状態の実装後、[*]は無条件進行可能ではなくなる
+						"-"	)	echo $CNST_ACSS_CANTENTER  ;;
+						"="	)	echo $CNST_ACSS_CANTENTER  ;;
+						"+"	)	echo $CNST_ACSS_CANTENTER  ;;
+						"|"	)	echo $CNST_ACSS_CANTENTER  ;;
+						"#"	)	echo $CNST_ACSS_CANTENTER  ;;
+						"D"	)	echo $CNST_ACSS_CANTENTER  ;; 
+						*	)	dspCmdLog "<jgEntr> Unimplemented object." $CNST_DSP_ON
+					esac
+					;;
+			$CNST_JGDIV_OBJECT	)	#オブジェクト種類
+					case "$objDrction" in
+						" "	)	echo $CNST_FLOR_NORMALFLOOR ;;
+						"*"	)	echo $CNST_FLOR_NORMALFLOOR ;; #マップ未開示状態の実装後、[*]は無条件通常床ではなくなる
+						"-"	)	echo $CNST_FLOR_HEAVYWALL   ;;
+						"="	)	echo $CNST_FLOR_HEAVYWALL   ;;
+						"+"	)	echo $CNST_FLOR_HEAVYWALL   ;;
+						"|"	)	echo $CNST_FLOR_HEAVYWALL   ;;
+						"#"	)	echo $CNST_FLOR_HEAVYWALL   ;;
+						"D"	)	echo $CNST_DOR_LOCKED1      ;; 
+						*	)	dspCmdLog "<jgEntr> Unimplemented object." $CNST_DSP_ON
+					esac
+					;;		
+			*	)	dspCmdLog "<jgEntr> Invalid Div:$3" $CNST_DSP_ON
+		esac
 	}
 
 	###########################################
@@ -165,12 +191,12 @@
 			return
 		fi
 		##$1の範囲
-		if [ $1 -lt 1 ] || [ $1 -gt 60 ]; then
+		if [ $1 -lt 1 ] || [ $1 -gt $CNST_SIZ_X ]; then
 			sysOut "e" $LINENO "'X' must be between 1 and 60."
 			return
 		fi
 		##$2の範囲
-		if [ $2 -lt 1 ] || [ $2 -gt 15 ]; then
+		if [ $2 -lt 1 ] || [ $2 -gt $CNST_SIZ_Y ]; then
 			sysOut "e" $LINENO "'Y' must be between 1 and 15."
 			return
 		fi
@@ -189,6 +215,41 @@
 	}
 
 	##################################################
+	##pcncMode
+	## ピクニックモード
+	##  mvの入力を省略して1〜9の入力のみで移動できる
+	##  0で終了。
+	##################################################
+	function pcncMode(){
+		tput civis
+		dspCmdLog "Start picnic mode." $CNST_DSP_ON
+
+		while :
+		do
+			getChrH
+			case "$inKey" in
+			"0"	)	dspCmdLog "Quit picnic mode." $CNST_DSP_ON
+					wk
+					tput cup $CNST_POS_CMDWIN
+					tput cnorm
+					break
+					;;
+			"1"	)	mv 1;;
+			"2"	)	mv 2;;
+			"3"	)	mv 3;;
+			"4"	)	mv 4;;
+			"5"	)	;;
+			"6"	)	mv 6;;
+			"7"	)	mv 7;;
+			"8"	)	mv 8;;
+			"9"	)	mv 9;;
+			*	)	dspCmdLog "<pcnc> Enter 1~9, 5 or 0." $CNST_DSP_ON
+			esac
+		done
+
+	}
+
+	##################################################
 	##sayRnd
 	## ランダム出力表現生成
 	##  何度も繰り返すことができる行動に対する出力を
@@ -200,7 +261,7 @@
 		local declare rslt=$(($RANDOM % 10))
 		
 		case "$1" in
-			"1"	)	#ぶつかる音
+			"$CNST_RND_WALL"	)	#ぶつかる音
 					case "$rslt" in
 						"0"	)	echo "Thud!";;
 						"1"	)	echo "Thump!!";;
@@ -215,7 +276,7 @@
 						*	)	sysOut "e" $LINENO "<sayRnd> Arg Error."
 					esac
 					;;
-			"2"	)	#おさわり反応
+			"$CNST_RND_WEMEN"	)	#おさわり反応
 					case "$rslt" in
 						"0"	)	echo "";;
 						"1"	)	echo "";;
@@ -371,7 +432,6 @@
 				echo "Invalid input. press [q] to exit."
 			fi
 		done
-		die "quit Script."
 	}
 
 	##################################################
@@ -390,7 +450,7 @@
 		lnSeed[26]="|95|                                                                                               |" #26
 
 		#引数が1だったら、画面を更新する。
-		if [ "$1" = "1" ] ; then
+		if [ "$1" = "$CNST_DSP_ON" ] ; then
 			dispAll
 		fi
 
@@ -406,7 +466,7 @@
 		lnSeed[20]="|COMMAND>                                        |                                                 |"
 
 		#引数が1だったら、画面を更新する。
-		if [ "$1" = "1" ] ; then
+		if [ "$1" = $CNST_DSP_ON ] ; then
 			dispAll
 		fi
 
@@ -539,7 +599,7 @@
 		lnSeed[20]="$leftStr$tgtStr`printf %${spCnt}s`|"
 
 		#引数2が1だったら、画面を更新する。
-		if [ "$2" = "1" ] ; then
+		if [ "$2" = $CNST_DSP_ON ] ; then
 			dispAll
 		fi
 	}
@@ -1156,12 +1216,12 @@
 		#バリデーション
 		##引数の個数
 		if [ $# -ne 1 ] || [ "$1" = "" ]; then
-			dspCmdLog "<mv> Set 1 arguments." 1
+			dspCmdLog "<mv> Set 1 arguments." $CNST_DSP_ON
 			return
 		fi
 		##$1の範囲
 		if [ $1 -lt 1 ] || [ $1 -gt 9 ]; then
-			dspCmdLog "<mv> Enter 1~9, or 5." 1
+			dspCmdLog "<mv> Enter 1~9, or 5." $CNST_DSP_ON
 			return
 		fi
 
@@ -1172,7 +1232,6 @@
 		local declare mvY=0
 		local declare goX=0
 		local declare goY=0
-
 
 		case "$dirct" in
 			"5"	)	#ピクニックモード
@@ -1223,12 +1282,12 @@
 		goX=$((10#$posX+mvX))
 		goY=$((10#$posY+mvY))
 
-		if	[ $goX -lt 1 ] || [ $goX -gt 60 ] || \
-			[ $goY -lt 1 ] || [ $goY -gt 15 ] || \
-			[ $(jgWall $goX $goY) != 1 ] ; then
-				dspCmdLog "$(sayRnd 1)" 1
+		if	[ $goX -lt 1 ] || [ $goX -gt $CNST_SIZ_X ] || \
+			[ $goY -lt 1 ] || [ $goY -gt $CNST_SIZ_Y ] || \
+			[ $(jgDrctn $goX $goY $CNST_JGDIV_ACCESS) = $CNST_ACSS_CANTENTER ] ; then
+						dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_DSP_ON
 		else
-			clrCmdLog 0
+			clrCmdLog $CNST_DSP_OFF
 			jmpPosWrgl $goX $goY
 		fi
 
@@ -1242,40 +1301,6 @@
 		#ppコマンドは「mv 5」を発行するので、処理はない。
 	}
 
-	##################################################
-	##pcncMode
-	## ピクニックモード
-	##  mvの入力を省略して1〜9の入力のみで移動できる
-	##  0で終了。
-	##################################################
-	function pcncMode(){
-		tput civis
-		dspCmdLog "Start picnic mode." 1
-
-		while :
-		do
-			getChrH
-			case "$inKey" in
-			"0"	)	dspCmdLog "Quit picnic mode." 1
-					wk
-					tput cup 20 10
-					tput cnorm
-					break
-					;;
-			"1"	)	mv 1;;
-			"2"	)	mv 2;;
-			"3"	)	mv 3;;
-			"4"	)	mv 4;;
-			"5"	)	;;
-			"6"	)	mv 6;;
-			"7"	)	mv 7;;
-			"8"	)	mv 8;;
-			"9"	)	mv 9;;
-			*	)	dspCmdLog "<pcnc> Enter 1~9, 5 or 0." 1 
-			esac
-		done
-
-	}
 
 ##主処理
 	###########################################
@@ -1307,11 +1332,69 @@
 				"??"	)	viewHelp;;                            #コマンドリスト
 				"man"*	)	man "${inKey:4}" ;;                   #マニュアル参照コマンド
 				"Q"		)	break;;                               #ボスが来た
-				""		)	dspCmdLog "Input key." 1 ;;           #エラー
-				*		)	dspCmdLog "[$inKey]is invalid." 1 ;;  #エラー
+				""		)	dspCmdLog "Input key." $CNST_DSP_ON ;;           #エラー
+				*		)	dspCmdLog "[$inKey]is invalid." $CNST_DSP_ON ;;  #エラー
 			esac
 		done
 	}
+
+
+	###########################################
+	##init
+	## 初期処理
+	##  主に定義など
+	###########################################
+	#GLOBAL変数
+	declare -g inKey=""
+
+	#CONSTANT値
+
+	##座標
+	declare -r CNST_POS_CMDWIN="20 10" #コマンド入力ウィンドウ
+	declare -r   CNST_POS_WKMK="26 97" #キー待ち記号表示位置
+
+	##メッセージウィンドウサイズ[SIZ]
+	declare -r CNST_SIZ_X="60" #再描画する
+	declare -r CNST_SIZ_Y="15" #再描画しない
+
+	##画面更新系関数の更新スイッチ[DSP]
+	declare -r  CNST_DSP_ON="1" #再描画する
+	declare -r CNST_DSP_OFF="0" #再描画しない
+
+	##sayRnd関数の種別[RND]
+	declare -r   CNST_RND_WALL="1" #壁激突音
+	declare -r  CNST_RND_WEMEN="2" #女性接触声
+
+	##jgDrctn関数の判断スイッチ[JGDIV]
+	declare -r CNST_JGDIV_ACCESS="1" #進入可否
+	declare -r CNST_JGDIV_OBJECT="2" #オブジェクト種類
+
+	##進入可否[ACSS]
+	declare -r  CNST_ACSS_ACCESSABLE="1" #進入可能
+	declare -r   CNST_ACSS_CANTENTER="0" #進入不可
+
+	##オブジェクト種類_床状態[FLOR]:0系
+	declare -r   CNST_FLOR_HEAVYWALL="000" #[-][+][#][=]
+	declare -r CNST_FLOR_NORMALFLOOR="010" #[ ][*]
+
+	##オブジェクト種類_扉[DOR]:1系
+	declare -r CNST_DOR_LOCKED1="119" #[D] door
+	declare -r CNST_DOR_OPENED1="110" #[:]
+	declare -r CNST_DOR_LOCKED2="129" #[L] lock
+	declare -r CNST_DOR_OPENED2="120" #[:]
+	declare -r CNST_DOR_LOCKED3="139" #[S] seal 
+	declare -r CNST_DOR_OPENED3="130" #[:]
+
+	##オブジェクト種類_アイテム[ITM]:3系
+
+
+	##オブジェクト種類_NPC[DOR]:5系
+	declare -r    CNST_NPC_MEN="510" #[Y] (Look like)Men
+	declare -r  CNST_NPC_WEMEN="511" #[A] (Look like)Wemen
+	declare -r CNST_NPC_ANIMAL="520" #[m] Animal?
+
+	##オブジェクト種類_敵[MOB]:6系
+	declare -r  CNST_MOB_ENEMY="600"
 
 	###########################################
 	##main
@@ -1324,8 +1407,7 @@
 	initDispInfo 
 	
 	#安定するまでは不測の無限ループ脱出のためコメントアウトする
-	#	trap '' INT QUIT TSTP 
-	declare -g inKey=""
+	#trap '' INT QUIT TSTP 
 
 	#主処理
 	mainLoop
@@ -1333,4 +1415,4 @@
 	#終了時に文字修飾を除去し、画面をクリアする
 	tput cnorm
 	tput sgr0
-#	clear
+	#clear
