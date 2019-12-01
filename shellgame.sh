@@ -77,17 +77,17 @@
 	###########################################
 	##getCmd
 	## コマンドを受け取る
-	##  メインループのgetChrHによって冒頭1文字は受信済なので
-	##	左に位置文字ずらしたCNST_POS_CMDWIN2から開始する
+	##  ただの getChrVのラッピング
 	###########################################
 	function getCmd(){
+		tput cup $CNST_POS_CMDWIN
 		getChrV
 	}
 
 	##################################################
 	##wk
 	## キー待ち
-	##  SPACEかENTERをまつ
+	##  キー待ち記号を天っ滅表示し、SPACEかENTERを待つ
 	##################################################
 	function wk(){
 
@@ -150,12 +150,13 @@
 			$CNST_JGDIV_ACCESS	)	#進入可否判断
 					case "$objDrction" in
 						" "	)	echo $CNST_ACSS_ACCESSABLE ;;
+						"#"	)	echo $CNST_ACSS_ACCESSABLE ;;
 						"*"	)	echo $CNST_ACSS_ACCESSABLE ;; #マップ未開示状態の実装後、[*]は無条件進行可能ではなくなる
 						"-"	)	echo $CNST_ACSS_CANTENTER  ;;
 						"="	)	echo $CNST_ACSS_CANTENTER  ;;
 						"+"	)	echo $CNST_ACSS_CANTENTER  ;;
 						"|"	)	echo $CNST_ACSS_CANTENTER  ;;
-						"#"	)	echo $CNST_ACSS_CANTENTER  ;;
+						"X"	)	echo $CNST_ACSS_CANTENTER  ;;
 						"D"	)	echo $CNST_ACSS_CANTENTER  ;; 
 						*	)	dspCmdLog "<jgEntr> Unimplemented object." $CNST_DSP_ON
 					esac
@@ -163,12 +164,13 @@
 			$CNST_JGDIV_OBJECT	)	#オブジェクト種類
 					case "$objDrction" in
 						" "	)	echo $CNST_FLOR_NORMALFLOOR ;;
+						"#"	)	echo $CNST_FLOR_JUNCTION    ;;
 						"*"	)	echo $CNST_FLOR_NORMALFLOOR ;; #マップ未開示状態の実装後、[*]は無条件通常床ではなくなる
 						"-"	)	echo $CNST_FLOR_HEAVYWALL   ;;
 						"="	)	echo $CNST_FLOR_HEAVYWALL   ;;
 						"+"	)	echo $CNST_FLOR_HEAVYWALL   ;;
 						"|"	)	echo $CNST_FLOR_HEAVYWALL   ;;
-						"#"	)	echo $CNST_FLOR_HEAVYWALL   ;;
+						"X"	)	echo $CNST_FLOR_HEAVYWALL   ;;
 						"D"	)	echo $CNST_DOR_LOCKED1      ;; 
 						*	)	dspCmdLog "<jgEntr> Unimplemented object." $CNST_DSP_ON
 					esac
@@ -277,21 +279,21 @@
 		lnSeed+=("|01|000000000111111111122222222223333333333444444444455555555556||Wriggle     |Bug       |Fighter  |") #01
 		lnSeed+=("|01|123456789012345678901234567890123456789012345678901234567890|+--+---------+----------+---------+") #02
 		lnSeed+=("+--+------------------------------------------------------------+|HP| 100/ 100|BLv: 1=     0/    10|") #03
-		lnSeed+=("|01|****************************D*******************************||MP| 100/ 100|JLv: 1=     0/    10|") #04
-		lnSeed+=("|02|****************************+-+*+----------++D+----------+--|+--+--+--+--++-+--++--+--+--+--+--+") #05
-		lnSeed+=("|03|****************************|#|*|##########|*************|##||✝|💊|💤|❔|🔇|👓||💪|🛡|🔯|🏃|🍀|") #06
-		lnSeed+=("|04|****************************|#|*++---------+--------+****|##|+--+--+--+--+--+--++--+--+--+--+--+") #07
-		lnSeed+=("|05|****************************|#|*********************|****|##|| 0| 0| 0| 0| 0| 0|| 0| 0| 0| 0| 0|") #08
-		lnSeed+=("|06|****************************|#+--+******************+----+##|+--+--+--+--+--+--++--+--+--+--+--+") #09
-		lnSeed+=("|07|****************************|####|***********************|##||  VAL - STS - PAR |🔨|⛰|💧|🔥|🌪|") #10
-		lnSeed+=("|08|****************************|####|******************+--+*|##||*  10 < Str > Atk |10|10|10|10|10|") #11
-		lnSeed+=("|09|****************************|####+------------------+##|*|##||   10 < Int > Mat |10|10|10|10|10|") #12
-		lnSeed+=("|10|*v**************************|##########################|*|##||   10 < Vit > Def |10|10|10|10|10|") #13
-		lnSeed+=("|11|----------------------------+--------------------------+D+--||   10 < Mnd > Mdf |10|10|10|10|10|") #14
-		lnSeed+=("|12|************************************************************||   10 < Snc > XBns| 1  %+==+=====+") #15
-		lnSeed+=("|13|--+D+-+-------------------+*+---------------+***************||   10 < Dex > Hit |10  %|Jw|    0|") #16
-		lnSeed+=("|14|******|###################|*|###############|***************||   10 < Agi > Flee|10  %|Gd|    0|") #17
-		lnSeed+=("|15|******|###################|^|###############|***************||   10 < Luk > Cri |10  %|Sv|   50|") #18
+		lnSeed+=("|01|+---------------------------+-----------------------+XXXXXXX||MP| 100/ 100|JLv: 1=     0/    10|") #04
+		lnSeed+=("|02||***************************D***********************|XXXXXXX|+--+--+--+--++-+--++--+--+--+--+--+") #05
+		lnSeed+=("|03||***************************+-+-------------+D+-----+XXXXXXX||✝|💊|💤|❔|🔇|👓||💪|🛡|🔯|🏃|🍀|") #06
+		lnSeed+=("|04|+***************************|X|*********************|XXXXXXX|+--+--+--+--+--+--++--+--+--+--+--+") #07
+		lnSeed+=("|05|#***************************|X|*********************|XXXXXXX|| 0| 0| 0| 0| 0| 0|| 0| 0| 0| 0| 0|") #08
+		lnSeed+=("|06|#***************************|X+--+******************+----+XX|+--+--+--+--+--+--++--+--+--+--+--+") #09
+		lnSeed+=("|07|#***************************|XXXX|***********************|XX||  VAL - STS - PAR |🔨|⛰|💧|🔥|🌪|") #10
+		lnSeed+=("|08|+***************************|XXXX|******************+--+*|XX||*  10 < Str > Atk |10|10|10|10|10|") #11
+		lnSeed+=("|09||***************************|XXXX+------------------+XX|*|XX||   10 < Int > Mat |10|10|10|10|10|") #12
+		lnSeed+=("|10||v**************************|XXXXXXXXXXXXXXXXXXXXXXXXXX|*|XX||   10 < Vit > Def |10|10|10|10|10|") #13
+		lnSeed+=("|11|+---------------------------+--------------------------+D+XX||   10 < Mnd > Mdf |10|10|10|10|10|") #14
+		lnSeed+=("|12||********************************************************|XX||   10 < Snc > XBns| 1  %+==+=====+") #15
+		lnSeed+=("|13|+-+D+-+-------------------+*+---------------+************|XX||   10 < Dex > Hit |10  %|Jw|    0|") #16
+		lnSeed+=("|14||*****|XXXXXXXXXXXXXXXXXXX|*|XXXXXXXXXXXXXXX+------------+XX||   10 < Agi > Flee|10  %|Gd|    0|") #17
+		lnSeed+=("|15|+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX||   10 < Luk > Cri |10  %|Sv|   50|") #18
 		lnSeed+=("+==+=============================================+==============++==================+=====+==+=====+") #19
 		lnSeed+=("|COMMAND>                                        |                                                 |") #20
 		lnSeed+=("+==+=============================================+===========================input '??' to help.===+") #21
@@ -583,8 +585,11 @@
 		echo "***Command List***  Press [q]key to exit."
 		echo ""
 		echo "man [CMD]   : [CMD] CommandManual"
+		echo "[...]can    : Cancel a command being entered."
+		echo "sv [n]      : Save to data [n] the current state."
+		echo "sq [n]      : Save to data [n] the current state and quit this game."
+		echo "qq          : Quit this game (without save)."
 		echo "mv [n]      : Move in direction [n]"
-		echo "pp          : Start Picnic Mode"
 		echo "ki [m][n]   : Kick in direction [n] with [n]strength"
 		echo "wp [n]      : Attack in direction [n] with Wapon"
 		echo "ct [m][n]   : Cast [m]Magic in direction [n]"
@@ -616,6 +621,7 @@
 	##################################################
 	function man(){		
 		case "$1" in
+			"can"	) man_can ;;
 			"mv"	) man_mv ;;
 			"pp"	) man_pp ;;
 			"ki"	) man_ki ;;
@@ -636,33 +642,61 @@
 	#manコマンドによって呼び出される子関数
 	#-------------------------------------------------
 		#-------------------------------------------------
-		#man_mv
-		# mvコマンドのマニュアル表示
+		#man_can
+		# canコマンドのマニュアル表示
 		#-------------------------------------------------
-		function man_mv(){
+		function man_can(){
 
             inKey=""
 			tput smcup
 
 			clear
 
-			echo "*** Command Manual:[mv] ***"
+			echo "*** Command Manual:[can] ***"
 			echo "<Format>"
-			echo " mv [arg]"
-			echo " * arg=1~9."
+			echo " [...]can"
+			echo " * no arg. For all previous inputs."
 			echo ""
 			echo "<Function>"
-			echo " Wriggle moves 1 step [arg]. Consume 1 turn."
-			echo " If select [5] then Switch to 'PicnicMode' what you can skip typing [Enter]key."
-			echo " Entering [0] during picnic mode will exit 'PicnicMode'."
-			echo " Dungeon exploration begins with walking and ends with walking..."
-			echo " ...No, when is the end when I die? Make your picnic feel moderate. GLHF!"
+			echo " When the command input is completed with 'can' at the end,"
+			echo "      all input commands are canceled."
+			echo " There seems to be milk returning from the floor to the cup."
 			echo ""
-			echo " move to...   \  ^  /"
-			echo "               7 8 9 "
-			echo "              <4 ¥ 6>"
-			echo "               3 2 1 "
-			echo "              /  v  \\    5/0:Switch 'PicniMode'"
+			echo "... over."
+			echo "Press [q]key to exit."
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+
+		#-------------------------------------------------
+		#man_sq
+		# sqコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_sq(){
+
+            inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[sq] ***"
+			echo "<Format>"
+			echo " sq [n]"
+			echo " * arg:1-4."
+			echo ""
+			echo "<Function>"
+			echo " Save to data [n] the current state and quit this game."
+			echo " Don't forget to write a diary before going to bed."
 			echo ""
 			echo "... over."
 			echo "Press [q]key to exit."
@@ -680,33 +714,114 @@
 			done	
 		}
 		#-------------------------------------------------
-		#man_pp
-		# ppコマンドのマニュアル表示
+		#man_sv
+		# svコマンドのマニュアル表示
 		#-------------------------------------------------
-		function man_pp(){
+		function man_sv(){
 
             inKey=""
 			tput smcup
 
 			clear
 
-			echo "*** Command Manual:[pp] ***"
+			echo "*** Command Manual:[sv] ***"
 			echo "<Format>"
-			echo " pp"
+			echo " sv [n]"
+			echo " * arg:1-4."
+			echo ""
+			echo "<Function>"
+			echo " Save to data [n] the current state."
+			echo " The diary will help you, unless you look into it."
+			echo ""
+			echo "... over."
+			echo "Press [q]key to exit."
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+
+		#-------------------------------------------------
+		#man_qq
+		# qqコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_qq(){
+
+            inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[qq] ***"
+			echo "<Format>"
+			echo " qq"
 			echo " * no arg."
 			echo ""
 			echo "<Function>"
-			echo " Wriggle begins a picnic."
-			echo " Wriggle walks without waiting for the Enter key after every [1]-[9] input."
-			echo " * [5] is invalid. Enter [0] to exit picnic mode. Use one turn for each step."
-			echo " If you don't walk forward, you'll step on the roots of a flower that is scarier than a dragon."
-			echo " If you want to see her, don't stop ... rip."
+			echo " Quit the game without save. A highly responsive exit command."
+			echo " Holy cow, Yuka came!"
 			echo ""
-			echo " move to...   \  ^  /"
-			echo "               7 8 9 "
-			echo "              <4 ¥ 6>"
-			echo "               3 2 1 "
-			echo "              /  v  \\    0:Quit 'PicniMode'"
+			echo "... over."
+			echo "Press [q]key to exit."
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = "q" ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo "Invalid input. press [q] to exit."
+				fi
+			done	
+		}
+		#-------------------------------------------------
+		#man_mv
+		# mvコマンドのマニュアル表示
+		#-------------------------------------------------
+		function man_mv(){
+
+            inKey=""
+			tput smcup
+
+			clear
+
+			echo "*** Command Manual:[mv] ***"
+			echo "<Format>"
+			echo " mv [arg]"
+			echo " * arg=1~9, [zxcasdqwe] or [ZXCASDQWE]."
+			echo ""
+			echo "<Function>"
+			echo " Wriggle moves 1 step [arg]. Consume 1 turn."
+			echo " The direction of movement is determined by 1-9 or" 
+			echo "     the “ZXCASDQWE” key on the left side of your keyboard"
+			echo " Enter [5]or[S]or[s] to step on the spot."
+			echo " Entering [0] cancels the [mv] command continuation input."
+			echo " You can move even if you omit 'mv', but you may suffer from a disadvantage."
+			echo " If 'mv' is omitted, 'ZXCASDQWE' must be shift qualified."
+			echo " Even if “mv” is omitted, do not use shift qualification when specifying 0-9."
+			echo " This means that instead of omitting ‘mv’, you can simply enter 1-9 as usual or"
+			echo "     enter the capital letter ZXCASDQWE."
+			echo " If you want to move carefully, it is recommended to move with the [mv] command."
+			echo " Dungeon exploration begins with walking and ends with walking..."
+			echo " ...No, when is the end when I die? Make your picnic feel moderate. GLHF!"
+			echo ""
+			echo " move to...   \  ^  /   \  ^  /   \  ^  /"
+			echo "               7 8 9     q w e     Q W E "
+			echo "              <4 5 6>   <a s d>   <A S D>"
+			echo "               3 2 1     z x c     A X C "
+			echo "              /  v  \\  /  v  \\   /  v  \\"
+			echo "              [5]or[s]or[s]  :skipThisTurn"
+			echo "              [0]            :cancel"
 			echo ""
 			echo "... over."
 			echo "Press [q]key to exit."
@@ -1182,9 +1297,9 @@
 			dspCmdLog "<mv> Set 1 arguments." $CNST_DSP_ON
 			return
 		fi
-		##$1の範囲
-		if [ $1 -lt 1 ] || [ $1 -gt 9 ]; then
-			dspCmdLog "<mv> Enter 1~9, or 5." $CNST_DSP_ON
+		##$1のバリエーション
+		if  [ ! $(echo "ZXCASDQWEzxcasdqwe123456789" | grep "$1") ] ; then
+			dspCmdLog "<mv> Enter 1-9 or 1 of'zxcasdqwe(or Capital)'." $CNST_DSP_ON
 			return
 		fi
 
@@ -1197,41 +1312,47 @@
 		local declare goY=0
 
 		case "$dirct" in
-			"5"	)	#何もしない。ターンが実装されたら、その場で足踏みをするものとする。
-					;;
-			"1"	)	#↙
+			[1Zz]	)	#↙
 					mvX=-1
 					mvY=1
 					;;
-			"2"	)	#↓
+			[2Xx]	)	#↓
 					mvX=0
 					mvY=1
 					;;
-			"3"	)	#↘
+			[3Cc]	)	#↘
 					mvX=1
 					mvY=1
 					;;
-			"4"	)	#←
+			[4Aa]	)	#←
 					mvX=-1
 					mvY=0
 					;;
-			"6"	)	#→
+			[5Ss]	)	#何もしない。ターンが実装されたら、その場で足踏みをするものとする。
+					dspCmdLog "Hop,Step,Jump." $CNST_DSP_ON
+					return
+					;;
+			[6Dd]	)	#→
 					mvX=1
 					mvY=0
 					;;
-			"7"	)	#↖
+			[7Qq]	)	#↖
 					mvX=-1
 					mvY=-1
 					;;
-			"8"	)	#↑
+			[8Ww]	)	#↑
 					mvX=0
 					mvY=-1
 					;;
-			"9"	)	#↗
+			[9Ee]	)	#↗
 					mvX=1
 					mvY=-1
 					;;
-			*	)	sysOut "e" $LINENO "Direction value Error."
+			"0"		)	#キャンセル
+					dspCmdLog "[mv] canceled."  $CNST_DSP_ON
+					return
+					;;
+			*		)	sysOut "e" $LINENO "Direction value Error."
 		esac
 
 		#割り出した座標へjmpPosWrgl関数で移動する。
@@ -1256,6 +1377,7 @@
 	###########################################
 	##mainLoop
 	## 主処理の基幹
+	## 移動とコマンド呼び出しを反復し続ける。
 	###########################################
 		mainLoop(){
 		jmpPosWrgl 28 15
@@ -1265,45 +1387,67 @@
 		do
 			tput cup $CNST_POS_CMDWIN
 			getChrH
+			#移動入力として1文字受け付ける。移動を指示しない入力だった場合
+			#任意長のコマンド受付にリダイレクトされる。
 			case "$inKey" in
-				"1"	)	mv 1;;
-				"2"	)	mv 2;;
-				"3"	)	mv 3;;
-				"4"	)	mv 4;;
-				"5"	)	mv 5;;
-				"6"	)	mv 6;;
-				"7"	)	mv 7;;
-				"8"	)	mv 8;;
-				"9"	)	mv 9;;
-				"Q"	)	break;;
-				" "	)	dspCmdLog "Input key." $CNST_DSP_ON ;;
-				*	)	tput cup $CNST_POS_CMDWIN
-						inKey2="$inKey"
-						printf "$inKey2"
-						getCmd
-						inKey="${inKey2}${inKey}"
-						case "$inKey" in
-							"ci"	)	dspCmdLog "チルノ？どうかした？" $CNST_DSP_OFF
-										modMsg 1 1 "チルノ[え？]" $CNST_DSP_ON
-										wk
-										modMsg 2 1 "チルノ[¥ど、どうもしねーよ……///]" $CNST_DSP_ON
-										wk
-										modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" $CNST_DSP_OFF
-										dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" $CNST_DSP_ON
-										wk
-										clrMsgWin $CNST_DSP_ON
-										;;
-							"??"	)	viewHelp;; 
-							"man"*	)	man "${inKey:4}";;
-							"mv"*	)	mv "${inKey:3}";;
-							*		)	dspCmdLog "[$inKey]is invalid." $CNST_DSP_ON ;;  #エラー
-						esac
+				[1Z]	)	mv 1;;
+				[2X]	)	mv 2;;
+				[3C]	)	mv 3;;
+				[4A]	)	mv 4;;
+				[5S]	)	mv 5;;
+				[6D]	)	mv 6;;
+				[7Q]	)	mv 7;;
+				[8W]	)	mv 8;;
+				[9E]	)	mv 9;;
+				*	)	getCmdInMain;;
 			esac
 		done
-
 	}
 
-
+	###########################################
+	##getCmdInMain
+	## mainLoopから呼び出される任意長コマンド受付
+	## 各種コマンド割り振りと制御
+	###########################################
+	function getCmdInMain(){
+		inKey2="$inKey"
+		printf "$inKey2"
+		getChrV
+		inKey="${inKey2}${inKey}"
+		case "$inKey" in
+			"man can")	man can;;
+			*"can"	)	dspCmdLog "Alright, Command canceled :)" $CNST_DSP_ON;;
+			"ci"	)	dspCmdLog "チルノ？どうかした？" $CNST_DSP_OFF
+						modMsg 1 1 "チルノ[え？]" $CNST_DSP_ON
+						wk
+						modMsg 2 1 "チルノ[¥ど、どうもしねーよ……///]" $CNST_DSP_ON
+						wk
+						modMsg 3 1 "!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。" $CNST_DSP_OFF
+						dspCmdLog "ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！" $CNST_DSP_ON
+						wk
+						clrMsgWin $CNST_DSP_ON
+						;;
+			"??"	)	viewHelp;; 
+			"man"*	)	man "${inKey:4}";;
+			"mv"*	)	mv "${inKey:3}";;
+			"sv"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"sq"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"ki"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"wp"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"ct"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"in"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"gt"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"tr"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"tk"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"pr"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"ss"	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"sv"	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"sq"	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
+			"qq"	)	exit;;
+			" "		)	dspCmdLog "Input key." $CNST_DSP_ON ;;
+			*		)	dspCmdLog "[$inKey]is invalid." $CNST_DSP_ON ;;
+		esac
+	}
 	###########################################
 	##init
 	## 初期処理
@@ -1341,8 +1485,9 @@
 	declare -r   CNST_ACSS_CANTENTER="0" #進入不可
 
 	##オブジェクト種類_床状態[FLOR]:0系
-	declare -r   CNST_FLOR_HEAVYWALL="000" #[-][+][#][=]
+	declare -r   CNST_FLOR_HEAVYWALL="000" #[-][+][X][=]
 	declare -r CNST_FLOR_NORMALFLOOR="010" #[ ][*]
+	declare -r    CNST_FLOR_JUNCTION="020" #[#]
 
 	##オブジェクト種類_扉[DOR]:1系
 	declare -r CNST_DOR_LOCKED1="119" #[D] door
