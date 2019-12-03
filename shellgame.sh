@@ -109,7 +109,6 @@
 		tput cvvis
 
 	}
-
 	###########################################
 	##jgDrctn
 	## 進入マスの判定
@@ -177,6 +176,68 @@
 					;;		
 			*	)	dspCmdLog "<jgEntr> Invalid Div:$3" $CNST_DSP_ON
 		esac
+	}
+
+	###########################################
+	##clcDirPos
+	## 進入マスの座標計算
+	##  $1:方向指示(1-9,zxcasdqwe)
+	###########################################
+	function clcDirPos(){
+		local declare posX=${lnSeed[1]:1:2}
+		local declare posY=${lnSeed[2]:1:2}
+		local declare dirct=$1
+		local declare dirX=0
+		local declare dirY=0
+		local declare tgtX=0
+		local declare tgtY=0
+
+		case "$dirct" in
+			[1Zz]	)	#↙
+					dirX=-1
+					dirY=1
+					;;
+			[2Xx]	)	#↓
+					dirX=0
+					dirY=1
+					;;
+			[3Cc]	)	#↘
+					dirX=1
+					dirY=1
+					;;
+			[4Aa]	)	#←
+					dirX=-1
+					dirY=0
+					;;
+			[5Ss]	);;
+			[6Dd]	)	#→
+					dirX=1
+					dirY=0
+					;;
+			[7Qq]	)	#↖
+					dirX=-1
+					dirY=-1
+					;;
+			[8Ww]	)	#↑
+					dirX=0
+					dirY=-1
+					;;
+			[9Ee]	)	#↗
+					dirX=1
+					dirY=-1
+					;;
+			"0"		)	#キャンセル
+					dspCmdLog "Cmd canceled."  $CNST_DSP_ON
+					return
+					;;
+			*		)	sysOut "e" $LINENO "Direction value Error."
+		esac
+
+		tgtX=$((10#$posX+dirX))
+		tgtY=$((10#$posY+dirY))
+
+		echo "$tgtX:$tgtY"
+
 	}
 
 	###########################################
@@ -590,6 +651,7 @@
 		echo "sq [n]      : Save to data [n] the current state and quit this game."
 		echo "qq          : Quit this game (without save)."
 		echo "mv [n]      : Move in direction [n]"
+		echo "op [n]      : Open the door in the direction of [n] (by suitable key)."
 		echo "ki [m][n]   : Kick in direction [n] with [n]strength"
 		echo "wp [n]      : Attack in direction [n] with Wapon"
 		echo "ct [m][n]   : Cast [m]Magic in direction [n]"
@@ -623,6 +685,7 @@
 		case "$1" in
 			"can"	) man_can ;;
 			"mv"	) man_mv ;;
+#			"op"	) man_op ;;
 			"pp"	) man_pp ;;
 			"ki"	) man_ki ;;
 			"wp"	) man_wp ;;
@@ -838,6 +901,49 @@
 				fi
 			done	
 		}
+		#-------------------------------------------------
+		#man_op
+		# opコマンドのマニュアル表示
+		#-------------------------------------------------
+#		function man_op(){
+#
+#            inKey=""
+#			tput smcup
+#
+#			clear
+#
+#			echo "*** Command Manual:[op] ***"
+#			echo "<Format>"
+#			echo " op [arg]"
+#			echo " * arg=1~9, [zxcasdqwe] or [ZXCASDQWE]."
+#			echo ""
+#			echo "<Function>"
+#			echo " Wriggle opens the door in the direction of [9]."
+#			echo "      (for locked doors, only if you have a suitable key)."
+#			echo " Consume 1 turn."
+#			echo " She over the door of the thorn is not always waiting for me favorably."
+#			echo ""
+#			echo " open the door...   \  ^  /   \  ^  /   \  ^  /"
+#			echo "                     7 8 9     q w e     Q W E "
+#			echo "                    <4 ¥ 6>   <a ¥ d>   <A ¥ D>"
+#			echo "                     3 2 1     z x c     A X C "
+#			echo "                    /  v  \\  /  v  \\   /  v  \\  *5 is invalid."
+#			echo ""
+#			echo "... over."
+#			echo "Press [q]key to exit."
+#			
+#            while :
+#			do
+#				getChrH
+#				if [ "$inKey" = "q" ]; then
+#					tput rmcup
+#					dispAll
+#					break
+#				else
+#					echo "Invalid input. press [q] to exit."
+#				fi
+#			done	
+#		}
 		#-------------------------------------------------
 		#man_ki
 		# kiコマンドのマニュアル表示
@@ -1285,11 +1391,13 @@
 
 	###########################################
 	##mv
-	## キャラ('W'で示す)が動く        7 8 9
-	##  $1 移動先座標(1〜9)           4 W 6
-	##                                3 2 1
+	## キャラ('W'で示す)が動く           7 8 9  q w e
+	##  $1 移動先座標(1〜9,zxcasdqwe)    4 ¥ 6  a ¥ d
+	##        ※大文字でも良い           3 2 1  z x c
 	###########################################
 	function mv(){
+		local declare goX=""
+		local declare goY=""
 
 		#バリデーション
 		##引数の個数
@@ -1303,75 +1411,73 @@
 			return
 		fi
 
-		local declare posX=${lnSeed[1]:1:2}
-		local declare posY=${lnSeed[2]:1:2}
-		local declare dirct=$1
-		local declare mvX=0
-		local declare mvY=0
-		local declare goX=0
-		local declare goY=0
+		tput civis
 
-		case "$dirct" in
-			[1Zz]	)	#↙
-					mvX=-1
-					mvY=1
-					;;
-			[2Xx]	)	#↓
-					mvX=0
-					mvY=1
-					;;
-			[3Cc]	)	#↘
-					mvX=1
-					mvY=1
-					;;
-			[4Aa]	)	#←
-					mvX=-1
-					mvY=0
-					;;
-			[5Ss]	)	#何もしない。ターンが実装されたら、その場で足踏みをするものとする。
-					dspCmdLog "Hop,Step,Jump." $CNST_DSP_ON
-					return
-					;;
-			[6Dd]	)	#→
-					mvX=1
-					mvY=0
-					;;
-			[7Qq]	)	#↖
-					mvX=-1
-					mvY=-1
-					;;
-			[8Ww]	)	#↑
-					mvX=0
-					mvY=-1
-					;;
-			[9Ee]	)	#↗
-					mvX=1
-					mvY=-1
-					;;
-			"0"		)	#キャンセル
-					dspCmdLog "[mv] canceled."  $CNST_DSP_ON
-					return
-					;;
-			*		)	sysOut "e" $LINENO "Direction value Error."
-		esac
-
-		#割り出した座標へjmpPosWrgl関数で移動する。
-		#但し、範囲外に出ることはしない。
-		#侵入不可能マスだった場合も移動しない。
-		##XYの範囲
-		goX=$((10#$posX+mvX))
-		goY=$((10#$posY+mvY))
-
-		if	[ $goX -lt 1 ] || [ $goX -gt $CNST_SIZ_X ] || \
-			[ $goY -lt 1 ] || [ $goY -gt $CNST_SIZ_Y ] || \
-			[ $(jgDrctn $goX $goY $CNST_JGDIV_ACCESS) = $CNST_ACSS_CANTENTER ] ; then
-						dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_DSP_ON
+		if  [ $(echo "5Ss" | grep "$1") ] ; then
+			dspCmdLog "Hoppn'nnnnn!" $CNST_DSP_ON
 		else
-			clrCmdLog $CNST_DSP_OFF
-			jmpPosWrgl $goX $goY
+			#一時的に区切り文字を変更する
+			IFS=':'
+			set -- $(clcDirPos "$1")
+			goX=$1
+			goY=$2
+			#区切り文字を戻す
+			IFS="$CNST_IFS_DEFAULT"
+
+			if	[ $goX -lt 1 ] || [ $goX -gt $CNST_SIZ_X ] || \
+				[ $goY -lt 1 ] || [ $goY -gt $CNST_SIZ_Y ] || \
+				[ $(jgDrctn $goX $goY $CNST_JGDIV_ACCESS) = $CNST_ACSS_CANTENTER ] ; then
+							dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_DSP_ON
+			else
+				clrCmdLog $CNST_DSP_OFF
+				jmpPosWrgl $goX $goY
+			fi
 		fi
+	
+		tput cvvis
 
 	}
+
+	###########################################
+	##op
+	## ドアを開く。但し、適合する鍵を持っている場合のみ。
+	##  $1 移動先座標(1〜9,zxcasdqwe)
+	##                        ※大文字でも良い
+	###########################################
+#	function op(){
+#
+#		local declare oldIFS=$IFS
+#		local declare retPosStr=""
+#		local declare opX=""
+#		local declare opY=""
+#
+#		#バリデーション
+#		##引数の個数
+#		if [ $# -ne 1 ] || [ "$1" = "" ]; then
+#			dspCmdLog "<op> Set 1 arguments." $CNST_DSP_ON
+#			return
+#		fi
+#		##$1のバリエーション
+#		if  [ ! $(echo "ZXCASDQWEzxcasdqwe123456789" | grep "$1") ] ; then
+#			dspCmdLog "<op> Enter 1-9 or 1 of'zxcasdqwe(or Capital)'." $CNST_DSP_ON
+#			return
+#		fi
+#
+#		IFS=':'
+#		retPosStr=$(clcDirPos)
+#		set -- $retPosStr
+#		opX="$1"
+#		opY="$2"
+#		IFS=$oldIFS
+#
+#		if	[ $(jgDrctn $opX $opY $CNST_JGDIV_OBJECT) != $CNST_DOR_LOCKED1 ] ; then
+#						dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_DSP_ON
+#		else
+#			clrCmdLog $CNST_DSP_OFF
+#			modMsg 1 1 "ひらけごま！" $CNST_DSP_ON
+#		fi
+#
+#	}
 
 ##主処理
 	###########################################
@@ -1380,29 +1486,28 @@
 	## 移動とコマンド呼び出しを反復し続ける。
 	###########################################
 		mainLoop(){
-		jmpPosWrgl 28 15
-		dspCmdLog "Wriggle respowned in X:30/Y:10." $CNST_DSP_ON
-
-		while :
-		do
-			tput cup $CNST_POS_CMDWIN
-			getChrH
-			#移動入力として1文字受け付ける。移動を指示しない入力だった場合
-			#任意長のコマンド受付にリダイレクトされる。
-			case "$inKey" in
-				[1Z]	)	mv 1;;
-				[2X]	)	mv 2;;
-				[3C]	)	mv 3;;
-				[4A]	)	mv 4;;
-				[5S]	)	mv 5;;
-				[6D]	)	mv 6;;
-				[7Q]	)	mv 7;;
-				[8W]	)	mv 8;;
-				[9E]	)	mv 9;;
-				*	)	getCmdInMain;;
-			esac
-		done
-	}
+			jmpPosWrgl 28 15
+			dspCmdLog "Wriggle respowned in X:30/Y:10." $CNST_DSP_ON
+			while :
+			do
+				tput cup $CNST_POS_CMDWIN
+				getChrH
+				#移動入力として1文字受け付ける。移動を指示しない入力だった場合
+				#任意長のコマンド受付にリダイレクトされる。
+				case "$inKey" in
+					[1Z]	)	mv 1;;
+					[2X]	)	mv 2;;
+					[3C]	)	mv 3;;
+					[4A]	)	mv 4;;
+					[5S]	)	mv 5;;
+					[6D]	)	mv 6;;
+					[7Q]	)	mv 7;;
+					[8W]	)	mv 8;;
+					[9E]	)	mv 9;;
+					*	)	getCmdInMain;;
+				esac
+			done
+		}
 
 	###########################################
 	##getCmdInMain
@@ -1430,6 +1535,7 @@
 			"??"	)	viewHelp;; 
 			"man"*	)	man "${inKey:4}";;
 			"mv"*	)	mv "${inKey:3}";;
+#			"op"*	)	op "${inKey:3}";;
 			"sv"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
 			"sq"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
 			"ki"*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
@@ -1458,6 +1564,8 @@
 	declare -g inKey2=""
 
 	#CONSTANT値
+	##IFS
+	declare -r CNST_IFS_DEFAULT=$IFS
 
 	##座標                       XX YY
 	declare -r  CNST_POS_CMDWIN="20 10" #コマンド入力ウィンドウ
@@ -1490,12 +1598,20 @@
 	declare -r    CNST_FLOR_JUNCTION="020" #[#]
 
 	##オブジェクト種類_扉[DOR]:1系
+	##開閉状態を持つ
 	declare -r CNST_DOR_LOCKED1="119" #[D] door
 	declare -r CNST_DOR_OPENED1="110" #[:]
 	declare -r CNST_DOR_LOCKED2="129" #[L] lock
 	declare -r CNST_DOR_OPENED2="120" #[:]
-	declare -r CNST_DOR_LOCKED3="139" #[S] seal 
+	declare -r CNST_DOR_LOCKED3="139" #[K] keylock 
 	declare -r CNST_DOR_OPENED3="130" #[:]
+	##オブジェクト種類_封印[SEAL]:2系
+	##一度開くと完全に消えるので開閉状態を持たない
+	declare -r CNST_SEAL_LOCKED1="201" #[S]
+	declare -r CNST_SEAL_LOCKED2="202" #[S]
+	declare -r CNST_SEAL_LOCKED3="203" #[S]
+	declare -r CNST_SEAL_LOCKED4="204" #[S]
+	declare -r CNST_SEAL_LOCKED5="205" #[S]
 
 	##オブジェクト種類_アイテム[ITM]:3系
 
@@ -1515,7 +1631,6 @@
 
 	clear
 	initDispInfo 
-	
 	#安定するまでは不測の無限ループ脱出のためコメントアウトする
 	#trap '' INT QUIT TSTP 
 
@@ -1525,4 +1640,5 @@
 	#終了時に文字修飾を除去し、画面をクリアする
 	tput cvvis
 	tput sgr0
+	IFS="$CNST_IFS_DEFAULT"
 	clear
