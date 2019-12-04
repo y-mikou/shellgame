@@ -241,6 +241,43 @@
 	}
 
 	###########################################
+	##openDoor
+	## ドアを消す
+	##  $1:X座標
+	##  $2:Y座標
+	##   $1$2が指す座標がドアマスであることが確定してから呼ぶこと
+	###########################################
+	function openDoor(){
+		#バリデーション
+		##引数の個数
+		if [ $# -ne 2 ]; then
+			sysOut 'e' $LINENO 'Set 2 arguments.'
+			return
+		fi
+		##$1の範囲
+		if [ $1 -lt 1 ] || [ $1 -gt $CNST_MAP_SIZ_X ]; then
+			sysOut 'e' $LINENO "'X' must be between 1 and $CNST_MAP_SIZ_X."
+			return
+		fi
+		##$2の範囲
+		if [ $2 -lt 1 ] || [ $2 -gt $CNST_MAP_SIZ_Y ]; then
+			sysOut 'e' $LINENO "'Y' must be between 1 and $CNST_MAP_SIZ_Y."
+			return
+		fi
+
+		local declare mapX=$((10#$1))
+		local declare mapY=$((10#$2))
+
+		local declare lStr="${lnSeed[$((mapY+3))]:0:$((mapX+3))}"
+		local declare rStr="${lnSeed[$((mapY+3))]:$((mapX+4))}"
+
+		lnSeed[$((mapY+3))]="${lStr} ${rStr}"
+		
+		dispAll
+
+	}
+
+	###########################################
 	##jmpPosWrgl
 	## Wriggleの位置をx,y指定で移動する
 	## この関数は強制的に画面を再描画する。
@@ -306,6 +343,21 @@
 						*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
 					esac
 					;;
+			$CNST_RND_DOOR	)	#扉じゃないところを開けようとする
+					case "$rslt" in
+						'0'	)	echo 'Open social window...?';;
+						'1'	)	echo 'There is no door.';;
+						'2'	)	echo 'There is no door.';;
+						'3'	)	echo 'There is no door.';;
+						'4'	)	echo 'There is no door.';;
+						'5'	)	echo 'There is no door.';;
+						'6'	)	echo 'There is no door.';;
+						'7'	)	echo 'There is no door.';;
+						'8'	)	echo 'There is no door.';;
+						'9'	)	echo 'There is no door.';;
+						*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
+					esac
+					;;
 			$CNST_RND_WEMEN	)	#おさわり反応
 					case "$rslt" in
 						'0'	)	echo '';;
@@ -325,6 +377,7 @@
 		esac
 
 	}
+
 ##画面系
 	##################################################
 	## 画面の初期表示情報
@@ -352,7 +405,7 @@
 		lnSeed+=('|10||v**************************|XXXXXXXXXXXXXXXXXXXXXXXXXX|*|XX||   10 < Vit > Def |10|10|10|10|10|') #13
 		lnSeed+=('|11|+---------------------------+--------------------------+D+XX||   10 < Mnd > Mdf |10|10|10|10|10|') #14
 		lnSeed+=('|12||********************************************************|XX||   10 < Snc > XBns| 1  %+==+=====+') #15
-		lnSeed+=('|13|+-+D+-+-------------------+*+---------------+************|XX||   10 < Dex > Hit |10  %|Jw|    0|') #16
+		lnSeed+=('|13|+-+D+-+-------------------+D+---------------+************|XX||   10 < Dex > Hit |10  %|Jw|    0|') #16
 		lnSeed+=('|14||*****|XXXXXXXXXXXXXXXXXXX|*|XXXXXXXXXXXXXXX+------------+XX||   10 < Agi > Flee|10  %|Gd|    0|') #17
 		lnSeed+=('|15|+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX||   10 < Luk > Cri |10  %|Sv|   50|') #18
 		lnSeed+=('+==+=============================================+==============++==================+=====+==+=====+') #19
@@ -685,7 +738,7 @@
 		case "$1" in
 			'can'	) man_can ;;
 			'mv'	) man_mv ;;
-#			'op'	) man_op ;;
+			'op'	) man_op ;;
 			'pp'	) man_pp ;;
 			'ki'	) man_ki ;;
 			'wp'	) man_wp ;;
@@ -905,45 +958,45 @@
 		#man_op
 		# opコマンドのマニュアル表示
 		#-------------------------------------------------
-#		function man_op(){
-#
-#            inKey=''
-#			tput smcup
-#
-#			clear
-#
-#			echo '*** Command Manual:[op] ***'
-#			echo '<Format>'
-#			echo ' op [arg]'
-#			echo ' * arg=1~9, [zxcasdqwe] or [ZXCASDQWE].'
-#			echo ''
-#			echo '<Function>'
-#			echo ' Wriggle opens the door in the direction of [9].'
-#			echo '      (for locked doors, only if you have a suitable key).'
-#			echo ' Consume 1 turn.'
-#			echo ' She over the door of the thorn is not always waiting for me favorably.'
-#			echo ''
-#			echo ' open the door...   \  ^  /   \  ^  /   \  ^  /'
-#			echo '                     7 8 9     q w e     Q W E '
-#			echo '                    <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
-#			echo '                     3 2 1     z x c     A X C '
-#			echo '                    /  v  \   /  v  \   /  v  \  *5 is invalid.'
-#			echo ''
-#			echo '... over.'
-#			echo 'Press [q]key to exit.'
-#			
-#            while :
-#			do
-#				getChrH
-#				if [ "$inKey" = 'q' ]; then
-#					tput rmcup
-#					dispAll
-#					break
-#				else
-#					echo 'Invalid input. press [q] to exit.'
-#				fi
-#			done	
-#		}
+		function man_op(){
+
+            inKey=''
+			tput smcup
+
+			clear
+
+			echo '*** Command Manual:[op] ***'
+			echo '<Format>'
+			echo ' op [arg]'
+			echo ' * arg=1~9, [zxcasdqwe] or [ZXCASDQWE].'
+			echo ''
+			echo '<Function>'
+			echo ' Wriggle opens the door in the direction of [9].'
+			echo '      (for locked doors, only if you have a suitable key).'
+			echo ' Consume 1 turn.'
+			echo ' She over the door of the thorn is not always waiting for me favorably.'
+			echo ''
+			echo ' open the door...   \  ^  /   \  ^  /   \  ^  /'
+			echo '                     7 8 9     q w e     Q W E '
+			echo '                    <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
+			echo '                     3 2 1     z x c     A X C '
+			echo '                    /  v  \   /  v  \   /  v  \  *5 is invalid.'
+			echo ''
+			echo '... over.'
+			echo 'Press [q]key to exit.'
+			
+            while :
+			do
+				getChrH
+				if [ "$inKey" = 'q' ]; then
+					tput rmcup
+					dispAll
+					break
+				else
+					echo 'Invalid input. press [q] to exit.'
+				fi
+			done	
+		}
 		#-------------------------------------------------
 		#man_ki
 		# kiコマンドのマニュアル表示
@@ -1427,7 +1480,7 @@
 			if	[ $goX -lt 1 ] || [ $goX -gt $CNST_MAP_SIZ_X ] || \
 				[ $goY -lt 1 ] || [ $goY -gt $CNST_MAP_SIZ_Y ] || \
 				[ "$(jgDrctn $goX $goY $CNST_JGDIV_ACCESS)" = $CNST_ACSS_CANTENTER ] ; then
-							dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_DSP_ON
+					dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_DSP_ON
 			else
 				clrCmdLog $CNST_DSP_OFF
 				jmpPosWrgl $goX $goY
@@ -1444,40 +1497,45 @@
 	##  $1 移動先座標(1〜9,zxcasdqwe)
 	##                        ※大文字でも良い
 	###########################################
-#	function op(){
-#
-#		local declare oldIFS=$IFS
-#		local declare retPosStr=''
-#		local declare opX=''
-#		local declare opY=''
-#
-#		#バリデーション
-#		##引数の個数
-#		if [ $# -ne 1 ] || [ "$1" = '' ]; then
-#			dspCmdLog '<op> Set 1 arguments.' $CNST_DSP_ON
-#			return
-#		fi
-#		##$1のバリエーション
-#		if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
-#			dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_DSP_ON
-#			return
-#		fi
-#
-#		IFS=':'
-#		retPosStr=$(clcDirPos)
-#		set -- $retPosStr
-#		opX="$1"
-#		opY="$2"
-#		IFS=$oldIFS
-#
-#		if	[ "$(jgDrctn $opX $opY $CNST_JGDIV_OBJECT)" != $CNST_DOR_LOCKED1 ] ; then
-#						dspCmdLog "$(sayRnd "$CNST_RND_WALL")" $CNST_DSP_ON
-#		else
-#			clrCmdLog $CNST_DSP_OFF
-#			modMsg 1 1 'ひらけごま！' $CNST_DSP_ON
-#		fi
-#
-#	}
+	function op(){
+
+		local declare opX=''
+		local declare opY=''
+
+		#バリデーション
+		##引数の個数
+		if [ $# -ne 1 ] || [ "$1" = '' ]; then
+			dspCmdLog '<op> Set 1 arguments.' $CNST_DSP_ON
+			return
+		fi
+		##$1のバリエーション
+		if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
+			dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_DSP_ON
+			return
+		fi
+
+		if  [ $(echo '5Ss' | grep "$1") ] ; then
+			:
+		else
+			#一時的に区切り文字を変更する
+			IFS=':'
+			set -- $(clcDirPos "$1")
+			opX=$1
+			opY=$2
+			#区切り文字を戻す
+			IFS=$CNST_IFS_DEFAULT
+
+			if	[ "$(jgDrctn $opX $opY $CNST_JGDIV_OBJECT)" != $CNST_DOR_LOCKED1 ] ; then
+				dspCmdLog "$(sayRnd "$CNST_RND_DOOR")" $CNST_DSP_ON
+			else
+				clrCmdLog $CNST_DSP_OFF
+				modMsg 1 1 'ひらけごま！' $CNST_DSP_ON
+				openDoor $opX $opY 
+			fi
+		fi
+
+	}
+
 
 ##主処理
 	###########################################
@@ -1485,29 +1543,29 @@
 	## 主処理の基幹
 	## 移動とコマンド呼び出しを反復し続ける。
 	###########################################
-		mainLoop(){
-			jmpPosWrgl 28 15
-			dspCmdLog 'Wriggle respowned in X:30/Y:10.' $CNST_DSP_ON
-			while :
-			do
-				tput cup $CNST_POS_CMDWIN
-				getChrH
-				#移動入力として1文字受け付ける。移動を指示しない入力だった場合
-				#任意長のコマンド受付にリダイレクトされる。
-				case "$inKey" in
-					[1Z]	)	mv 1;;
-					[2X]	)	mv 2;;
-					[3C]	)	mv 3;;
-					[4A]	)	mv 4;;
-					[5S]	)	mv 5;;
-					[6D]	)	mv 6;;
-					[7Q]	)	mv 7;;
-					[8W]	)	mv 8;;
-					[9E]	)	mv 9;;
-					*	)	getCmdInMain;;
-				esac
-			done
-		}
+	mainLoop(){
+		jmpPosWrgl 28 15
+		dspCmdLog 'Wriggle respowned in X:30/Y:10.' $CNST_DSP_ON
+		while :
+		do
+			tput cup $CNST_POS_CMDWIN
+			getChrH
+			#移動入力として1文字受け付ける。移動を指示しない入力だった場合
+			#任意長のコマンド受付にリダイレクトされる。
+			case "$inKey" in
+				[1Z]	)	mv 1;;
+				[2X]	)	mv 2;;
+				[3C]	)	mv 3;;
+				[4A]	)	mv 4;;
+				[5S]	)	mv 5;;
+				[6D]	)	mv 6;;
+				[7Q]	)	mv 7;;
+				[8W]	)	mv 8;;
+				[9E]	)	mv 9;;
+				*	)	getCmdInMain;;
+			esac
+		done
+	}
 
 	###########################################
 	##getCmdInMain
@@ -1535,7 +1593,7 @@
 			'??'	)	viewHelp;; 
 			'man'*	)	man "${inKey:4}";;
 			'mv'*	)	mv "${inKey:3}";;
-#			'op'*	)	op "${inKey:3}";;
+			'op'*	)	op "${inKey:3}";;
 			'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
 			'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
 			'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
@@ -1549,11 +1607,25 @@
 			'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
 			'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
 			'sq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_DSP_ON ;;
-			'qq'	)	exit;;
+			'qq'	)	quitGame;;
 			' '		)	dspCmdLog 'Input key.' $CNST_DSP_ON ;;
 			*		)	dspCmdLog "[$inKey]is invalid." $CNST_DSP_ON ;;
 		esac
 	}
+
+	##################################################
+	##quitGame
+	## 終了処理
+	##################################################
+	function quitGame(){
+		#終了時に文字修飾を除去し、画面をクリアする
+		tput cvvis
+		tput sgr0
+		IFS=$CNST_IFS_DEFAULT
+		clear
+		exit
+	}
+
 	###########################################
 	##init
 	## 初期処理
@@ -1594,7 +1666,8 @@
 
 	##sayRnd関数の種別[RND]
 	declare -r   CNST_RND_WALL='1' #壁激突音
-	declare -r  CNST_RND_WEMEN='2' #女性接触声
+	declare -r   CNST_RND_DOOR='2' #扉じゃないところを扉
+	declare -r  CNST_RND_WEMEN='3' #女性接触声
 
 	##jgDrctn関数の判断スイッチ[JGDIV]
 	declare -r CNST_JGDIV_ACCESS='1' #進入可否
@@ -1636,6 +1709,8 @@
 	##オブジェクト種類_敵[MOB]:6系
 	declare -r  CNST_MOB_ENEMY='600'
 
+
+
 	###########################################
 	##main
 	## mainLoopをキックする主制御
@@ -1650,7 +1725,4 @@
 	mainLoop
 
 	#終了時に文字修飾を除去し、画面をクリアする
-	tput cvvis
-	tput sgr0
-	IFS=$CNST_IFS_DEFAULT
-	clear
+	quitGame
