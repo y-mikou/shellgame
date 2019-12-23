@@ -249,7 +249,10 @@
 			local declare lStr="${lnSeed[$((mapY+3))]:0:$((mapX+3))}"
 			local declare rStr="${lnSeed[$((mapY+3))]:$((mapX+4))}"
 
-			lnSeed[$((mapY+3))]="${lStr} ${rStr}"
+			#ドアなど変化情報をセーブデータに残す必要のあるマップチップ
+			#は、lnSeedとlnMapInfoの両方を更新する必要がある。
+			lnMapInfo[$((mapY))]="${lStr}[${rStr}"
+			lnSeed[$((mapY+3))]="${lStr}[${rStr}"
 			
 			dispAll
 
@@ -1741,8 +1744,8 @@
 				declare -r CNST_CMDLGW_IDX=50 #横
 				}
 		: 'マップチップ系コンスタント値' && {
-				#00:大分類       英記号1桁(マップ上表記)
-				#01:中分類       英字3桁(意味を持った略称)
+				#00:表示         英記号1桁(マップ上表記)
+				#01:大分類       英字3桁(意味を持った略称)
 				#02:小分類       数字2桁(実質的なID)
 				#03:細分類       数字1桁(状態変化を持つ場合の状態)
 				#04:進入可否     0:不可 1:可能  8:条件            /CNST_YN
@@ -1762,7 +1765,8 @@
 				declare -r -a  CNST_MAP_6=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
 				declare -r -a  CNST_MAP_7=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
 				declare -r -a  CNST_MAP_8=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
-				declare -r -a  CNST_MAP_9=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoor')
+				declare -r -a  CNST_MAP_9=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
+				declare -r -a CNST_MAP_10=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
 				declare -r -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
 
 				: '属性値設定' && {
