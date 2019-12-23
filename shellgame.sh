@@ -177,8 +177,8 @@
 		##  $1:方向指示(1-9,zxcasdqwe)
 		###########################################
 		function clcDirPos(){
-			local declare posX=${lnSeed[1]:1:2}
-			local declare posY=${lnSeed[2]:1:2}
+			local declare posX=$((10#${lnSeed[1]:1:2}-1))
+			local declare posY=$((10#${lnSeed[2]:1:2}-1))
 			local declare dirct=$1
 			local declare dirX=0
 			local declare dirY=0
@@ -246,13 +246,17 @@
 			local declare mapX=$((10#$1))
 			local declare mapY=$((10#$2))
 
-			local declare lStr="${lnSeed[$((mapY+3))]:0:$((mapX+3))}"
-			local declare rStr="${lnSeed[$((mapY+3))]:$((mapX+4))}"
+			#表示情報の更新
+			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			#正解マップ情報への反映
+			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
 
-			#ドアなど変化情報をセーブデータに残す必要のあるマップチップ
-			#は、lnSeedとlnMapInfoの両方を更新する必要がある。
-			lnMapInfo[$((mapY))]="${lStr}[${rStr}"
-			lnSeed[$((mapY+3))]="${lStr}[${rStr}"
+			#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
+			#lnSeedとlnMapInfoの両方を更新する必要がある。
+			lnSeed[$((mapY+4))]="${lStrD}[${rStrD}"
+			lnMapInfo[$((mapY))]="${lStrM}[${rStrM}"
 			
 			dispAll
 
@@ -288,12 +292,12 @@
 			local declare mapX=$((10#$1))
 			local declare mapY=$((10#$2))
 
-			local declare lStr="${lnSeed[$((mapY+3))]:0:$((mapX+3))}"
-			local declare rStr="${lnSeed[$((mapY+3))]:$((mapX+4))}"
+			local declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 
-			lnSeed[$((mapY+3))]="${lStr} ${rStr}"
+			lnSeed[$((mapY+4))]="${lStr} ${rStr}"
 			
-			modDspWrglPos $1 $2
+			modDspWrglPos $(($1+1)) $(($2+1))
 			dispAll
 
 		}
@@ -374,8 +378,8 @@
 			declare -a -g lnDspMap=() #15行60文字
 
 			#「#」が未踏襲マス。それ以外は踏襲済み。
-			#初期状態   000000000111111111122222222223333333333444444444455555555556
-			#文字数     123456789012345678901234567890123456789012345678901234567890
+			#初期状態   000000000011111111112222222222333333333344444444445555555555
+			#文字数     012345678901234567890123456789012345678901234567890123456789
 			lnDspMap+=('############################################################') #00
 			lnDspMap+=('############################################################') #01
 			lnDspMap+=('############################################################') #02
@@ -401,7 +405,7 @@
 		##################################################
 		function defMapInfo() {
 
-			declare -a -g lnMapInfo=() ##0から25までの26要素用意するつもり。
+			declare -a -g lnMapInfo=()
 
 			#初期状態    000000000011111111112222222222333333333344444444445555555555
 			#文字数      012345678901234567890123456789012345678901234567890123456789
@@ -1211,17 +1215,17 @@
 					done	
 				}
 				}
-			: 'inコマンドマニュアル' && {
-				function man_in(){
+			: 'ivコマンドマニュアル' && {
+				function man_iv(){
 
 					inKey=''
 
 					tput smcup
 					clear
 
-					echo '*** Command Manual:[in] ***'
+					echo '*** Command Manual:[iv] ***'
 					echo '<Format>'
-					echo ' in [arg]'
+					echo ' iv [arg]'
 					echo ' * arg=1~9.'
 					echo ''
 					echo '<Function>'
@@ -1575,17 +1579,17 @@
 
 		}
 		}
-	: 'inコマンド' && {
+	: 'ivコマンド' && {
 		###########################################
-		##in
+		##iv
 		## 調べる
-		##  $1 移動先座標(1〜9,zxcasdqwe)
+		##  $1 調べる方向(1〜9,zxcasdqwe)
 		##                        ※大文字でも良い
 		###########################################
-		function in(){
+		function iv(){
 
-			local declare opX=''
-			local declare opY=''
+			local declare ivX=''
+			local declare ivY=''
 
 			#バリデーション
 			##引数の個数
@@ -1601,22 +1605,18 @@
 
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
 				:#足元を調べる処理を書く
-			elseT
+			else
 				#一時的に区切り文字を変更する
 				IFS=':'
 				set -- $(clcDirPos "$1")
-				opX=$1
-				opY=$2
+				ivX=$1
+				ivY=$2
 				#区切り文字を戻す
 				IFS=$CNST_IFS_DEFAULT
 
-				if	[ "$(jgDrctn $opX $opY $CNST_JGDIV_OBJECT)" != $CNST_DOOR_LOCKED1 ] ; then
-					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")" $CNST_YN_Y
-				else
-					clrCmdLog $CNST_YN_N
-					modMsg 1 1 'ひらけごま！' $CNST_YN_Y
-					openDoor $opX $opY 
-				fi
+				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
+				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))" $CNST_YN_Y
+				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)." $CNST_YN_Y
 			fi
 
 		}
@@ -1692,7 +1692,7 @@
 				'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'wp'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'ct'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'in'*	)	inspect "${inKey:3}";;
+				'iv'*	)	iv "${inKey:3}";;
 				'gt'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'tr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'tk'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
