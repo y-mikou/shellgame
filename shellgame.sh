@@ -294,10 +294,11 @@
 
 			local declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
 			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			local declare maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
 
-			lnSeed[$((mapY+4))]="${lStr} ${rStr}"
+			lnSeed[$((mapY+4))]="${lStr}$maptipFoot${rStr}"
 			
-			modDspWrglPos $(($1+1)) $(($2+1))
+			modDspWrglPos $(($1+1)) $(($2+1)) "$maptipFoot"
 			dispAll
 
 		}
@@ -407,23 +408,23 @@
 
 			declare -a -g lnMapInfo=()
 
-			#初期状態    000000000011111111112222222222333333333344444444445555555555
-			#文字数      012345678901234567890123456789012345678901234567890123456789
-			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00
-			lnMapInfo+=('|                           D                       |XXXXXXX') #01
-			lnMapInfo+=('|                           +-+-------------+D+-----+XXXXXXX') #02
-			lnMapInfo+=('+                           |X|                     |XXXXXXX') #03
-			lnMapInfo+=('#                           |X|                     |XXXXXXX') #04
-			lnMapInfo+=('#                           |X+--+                  +----+XX') #05
-			lnMapInfo+=('#                           |XXXX|                       |XX') #06
-			lnMapInfo+=('+                           |XXXX|                  +--+ |XX') #07
-			lnMapInfo+=('|                           |XXXX+------------------+XX| |XX') #18
-			lnMapInfo+=('|v                          |XXXXXXXXXXXXXXXXXXXXXXXXXX| |XX') #19
-			lnMapInfo+=('+---------------------------+--------------------------+D+XX') #10
-			lnMapInfo+=('|                                                        |XX') #11
-			lnMapInfo+=('+-+D+-+-------------------+D+---------------+            |XX') #12
-			lnMapInfo+=('|     |XXXXXXXXXXXXXXXXXXX|*|XXXXXXXXXXXXXXX+------------+XX') #13
-			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14
+			#初期状態    000000000011111111112222222222333333333344444444445555555555+1
+			#文字数      012345678901234567890123456789012345678901234567890123456789+1
+			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00+1
+			lnMapInfo+=('|                           D                       |XXXXXXX') #01+1
+			lnMapInfo+=('|                           +-+-------------+D+-----+XXXXXXX') #02+1
+			lnMapInfo+=('+                           |X|                     |XXXXXXX') #03+1
+			lnMapInfo+=('#                           |X|                     |XXXXXXX') #04+1
+			lnMapInfo+=('#                           |X+--+                  +----+XX') #05+1
+			lnMapInfo+=('#                           |XXXX|                       |XX') #06+1
+			lnMapInfo+=('+                           |XXXX|                  +--+ |XX') #07+1
+			lnMapInfo+=('|                           |XXXX+------------------+XX| |XX') #18+1
+			lnMapInfo+=('|v                          |XXXXXXXXXXXXXXXXXXXXXXXXXX| |XX') #19+1
+			lnMapInfo+=('+---------------------------+--------------------------+D+XX') #10+1
+			lnMapInfo+=('|                                                        |XX') #11+1
+			lnMapInfo+=('+-+D+-+-------------------+D+---------------+            |XX') #12+1
+			lnMapInfo+=('|     |XXXXXXXXXXXXXXXXXXX|*|XXXXXXXXXXXXXXX+------------+XX') #13+1
+			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14+1
 			}
 		}						
 
@@ -458,9 +459,9 @@
 			lnSeed+=('|13|                                                            ||   10 < Dex > Hit |10  %|Jw|    0|') #16
 			lnSeed+=('|14|                                                            ||   10 < Agi > Flee|10  %|Gd|    0|') #17
 			lnSeed+=('|15|                                                            ||   10 < Luk > Cri |10  %|Sv|   50|') #18
-			lnSeed+=('+==+=============================================+==============++==================+=====+==+=====+') #19
-			lnSeed+=('|COMMAND>                                        |                                                 |') #20
-			lnSeed+=('+==+=============================================+===========================input [??] to help.===+') #21
+			lnSeed+=('+==+=========================================+===+==============++==================+=====+==+=====+') #19
+			lnSeed+=('|COMMAND>                                    |   |                                                 |') #20
+			lnSeed+=('+==+=========================================+===+===========================input [??] to help.===+') #21
 			lnSeed+=('|91|                                                                                               |') #22
 			lnSeed+=('|92|                                                                                               |') #23
 			lnSeed+=('|93|                                                                                               |') #24
@@ -620,14 +621,17 @@
 
 		}
 		}
-	: '現在位置座標を左上に反映' && {
+	: '現在座標、足元マップチップを画面に反映' && {
 		###########################################
 		##modDspWrglPos
-		## Wriggleの現在座標を画面表示情報へ反映する
+		## Wriggleの現在座標情報を画面表示へ反映する
+		## ・左上に現在座標
+		## ・コマンドウィンドウの右に足元のマップチップ
 		## この関数は座標移動処理を行う他の関数から呼び出されるのみで
 		## 直接mainから呼び出されることはない
 		##  $1 X座標(1 〜 CNST_MAP_SIZ_X)
 		##  $2 Y座標(1 〜 CNST_MAP_SIZ_Y)
+		##  $3 足元マップチップ表示
 		###########################################
 		function modDspWrglPos(){
 			local declare X=$(printf "%02d" "$1")
@@ -638,6 +642,7 @@
 
 			lnSeed[1]="|$X$row1Right"
 			lnSeed[2]="|$Y$row2Right"
+			lnSeed[20]="${lnSeed[20]:0:45}| $(printf "%1s" "$3") |${lnSeed[20]:50}"
 			dispAll
 
 		}
@@ -1604,7 +1609,20 @@
 			fi
 
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
-				:#足元を調べる処理を書く
+				##今は足元以外を調べる行動と足元を調べる行動は、マスが違うだけで処理内容は同じ。
+				##いずれ足元と足元以外で範囲を変更するなどあるかもしれないのでif分岐は残置する
+
+				#一時的に区切り文字を変更する
+				IFS=':'
+				set -- $(clcDirPos "$1")
+				ivX=$1
+				ivY=$2
+				#区切り文字を戻す
+				IFS=$CNST_IFS_DEFAULT
+
+				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
+				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))" $CNST_YN_Y
+				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)." $CNST_YN_Y
 			else
 				#一時的に区切り文字を変更する
 				IFS=':'
@@ -1719,14 +1737,14 @@
 				
 				#CONSTANT値
 				##IFS
-				#declare -r CNST_IFS_DEFAULT=$' ¥t¥n'
 				declare -r CNST_IFS_DEFAULT=$IFS
 			}
 		: '画面レイアウト系コンスタント値定義' && {
 				##座標                       XX YY
-				declare -r  CNST_POS_CMDWIN='20 10' #コマンド入力ウィンドウ
-				declare -r CNST_POS_CMDWIN2='20 11' #コマンド入力ウィンドウ
-				declare -r    CNST_POS_WKMK='26 97' #キー待ち記号表示位置
+				declare -r     CNST_POS_CMDWIN='20 10' #コマンド入力ウィンドウ
+				declare -r    CNST_POS_CMDWIN2='20 11' #コマンド入力ウィンドウ
+				declare -r CNST_POS_MAPTIPFOOT='20 47' #現在マップチップ表示窓
+				declare -r       CNST_POS_WKMK='26 97' #キー待ち記号表示位置
 
 				##マップサイズ[MAP_SIZ]
 				declare -r CNST_MAP_SIZ_X=60 #横
