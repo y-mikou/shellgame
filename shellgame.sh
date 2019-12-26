@@ -233,6 +233,24 @@
 
 		}
 		}
+	: '周囲マス開示' && {
+		###########################################
+		##opnArndMaptip
+		## 現在マスの周囲8方向のマップを開示する
+		##  lnSeed[xx]の8方向分の情報を、正解マップチップから転写する
+		##  引数なし(左上の座標表示を使用)
+		###########################################
+		function opnArndMaptip(){
+			local declare posX=$((10#${lnSeed[1]:1:2}-1))
+			local declare posY=$((10#${lnSeed[2]:1:2}-1))
+
+			#上の行、同じ行、下の行
+			lnSeed[$((posY+3))]="${lnSeed[$((posY+3))]:0:$((posX+3))}${lnMapInfo[$((posY-1))]:$((posX-1)):3}${lnSeed[$((posY+3))]:$((posX+6))}"
+			lnSeed[$((posY+4))]="${lnSeed[$((posY+4))]:0:$((posX+3))}${lnMapInfo[$((posY+0))]:$((posX-1)):3}${lnSeed[$((posY+4))]:$((posX+6))}"
+			lnSeed[$((posY+5))]="${lnSeed[$((posY+5))]:0:$((posX+3))}${lnMapInfo[$((posY+1))]:$((posX-1)):3}${lnSeed[$((posY+5))]:$((posX+6))}"
+
+		}
+		}
 	: 'ドア開ける' && {
 		###########################################
 		##openDoor
@@ -296,9 +314,10 @@
 			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 			local declare maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
 
-			lnSeed[$((mapY+4))]="${lStr}$maptipFoot${rStr}"
+#			lnSeed[$((mapY+4))]="${lStr}$maptipFoot${rStr}"
 			
 			modDspWrglPos $(($1+1)) $(($2+1)) "$maptipFoot"
+			opnArndMaptip
 			dispAll
 
 		}
