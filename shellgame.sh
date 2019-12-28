@@ -1,4 +1,111 @@
 : '■内部処理系' && {
+	: '初期処理' && {
+		###########################################
+		## 初期処理
+		##  主に定数定義など
+		###########################################
+		initDef(){
+		: 'GLOBAL変数定義' && {
+				declare -g  inKey=''
+				declare -g inKey2=''
+				
+				#CONSTANT値
+				##IFS
+				##IFS=$' \t\n'
+				declare -r -g CNST_IFS_DEFAULT=$IFS
+			}
+		: '画面レイアウト系コンスタント値定義' && {
+				##座標							   XX YY
+				declare -r -g     CNST_POS_CMDWIN='20 10' #コマンド入力ウィンドウ
+				declare -r -g    CNST_POS_CMDWIN2='20 11' #コマンド入力ウィンドウ
+				declare -r -g CNST_POS_MAPTIPFOOT='20 47' #現在マップチップ表示窓
+				declare -r -g       CNST_POS_WKMK='26 97' #キー待ち記号表示位置
+
+				##マップサイズ[MAP_SIZ]
+				declare -r -g CNST_MAP_SIZ_X=60 #横
+				declare -r -g CNST_MAP_SIZ_Y=15 #縦
+
+				##メッセージウィンドウサイズ[MSG_SIZ]
+				declare -r -g CNST_MSG_SIZ_X=99 #横
+				declare -r -g CNST_MSG_SIZ_Y=5 #縦
+
+				##全体サイズ[ALL_SIZ]
+				declare -r -g CNST_ALL_SIZ_X=100 #横
+				declare -r -g CNST_ALL_SIZ_Y=28 #縦
+
+				##コマンドログ小窓の開始位置[CMDLGW_IDX]
+				declare -r -g CNST_CMDLGW_IDX=50 #横
+				}
+		: 'マップチップ系コンスタント値' && {
+				#00:表示         英記号1桁(マップ上表記)
+				#01:大分類       英字3桁(意味を持った略称)
+				#02:小分類       数字2桁(実質的なID)
+				#03:細分類       数字1桁(状態変化を持つ場合の状態)
+				#04:進入可否     0:不可 1:可能  8:条件            /CNST_YN
+				#05:進入後残留   0:消滅 1:残留  8:条件            /CNST_YN                      
+				#06:開示方式     0:足元 1:眼前  8:条件 9:連鎖開示 /CNST_AMNT
+				#07:破壊可否     0:不能 1:可能  8:条件            /CNST_YN
+				#08:イベント     0:進入 1:接触  8:条件 9:接触戦闘 /CNST_EVT
+				#09:和名         メッセージ表示が必要な場合の呼称
+										#  0   1     2    3   4   5   6   7   8   9   
+										#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
+				declare -r -g -a  CNST_MAP_0=('*' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
+				declare -r -g -a  CNST_MAP_1=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_2=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_3=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_4=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_5=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_6=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
+				declare -r -g -a  CNST_MAP_7=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
+				declare -r -g -a  CNST_MAP_8=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
+				declare -r -g -a  CNST_MAP_9=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
+				declare -r -g -a CNST_MAP_10=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
+				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
+
+				: '属性値設定' && {
+					declare -r -g DSP=0
+					declare -r -g CNM=1
+					declare -r -g CID=2
+					declare -r -g STS=3
+					declare -r -g ENT=4
+					declare -r -g STY=5
+					declare -r -g OPN=6
+					declare -r -g DST=7
+					declare -r -g EVE=8
+					declare -r -g NME=9
+				}
+
+				: '汎用コード値' && {
+					#可否
+					declare -r -g CNST_YN_Y='1' #肯定/可能
+					declare -r -g CNST_YN_N='0' #否定/不可能
+					declare -r -g CNST_YN_C='8' #/条件次第
+
+					#固定的な数値
+					declare -r -g CNST_AMNT_MIN='0' #無もしくは十分に小さい値
+					declare -r -g CNST_AMNT_STP1='1' #数量1
+					#declare -r -g CNST_AMNT_STEP2='2' #数量2
+					declare -r -g CNST_AMNT_CND='8' #他の条件
+					declare -r -g CNST_AMNT_MAX='9' #十分に大きい値
+
+					#イベント判定
+					declare -r -g CNST_EVT_ENTR='0' #上に乗ったとき
+					declare -r -g CNST_EVT_TUCH='1' #隣接したとき
+					declare -r -g CNST_EVT_COND='8' #他の条件
+					declare -r -g CNST_EVT_BTTL='9' #隣接時戦闘
+				}
+
+			}
+		: 'その他コンスタント値定義' && { 
+				##sayRnd関数の種別
+				declare -r -g  CNST_RND_WALL='1' #壁激突音
+				declare -r -g  CNST_RND_DOOR='2' #扉じゃないところを扉
+				declare -r -g CNST_RND_WEMEN='3' #女性接触声
+				declare -r -g  CNST_RND_DASH='4' #ダッシュ音
+				}
+			}
+		}
+
 	: '終了処理' && { 
 		##################################################
 		##quitGame
@@ -170,6 +277,7 @@
 
 		}
 		}
+
 	: '指示マス座標計算' && {
 		###########################################
 		##clcDirPos
@@ -233,24 +341,6 @@
 
 		}
 		}
-	: '周囲マス開示' && {
-		###########################################
-		##opnArndMaptip
-		## 現在マスの周囲8方向のマップを開示する
-		##  lnSeed[xx]の8方向分の情報を、正解マップチップから転写する
-		##  引数なし(左上の座標表示を使用)
-		###########################################
-		function opnArndMaptip(){
-			local declare posX=$((10#${lnSeed[1]:1:2}-1))
-			local declare posY=$((10#${lnSeed[2]:1:2}-1))
-
-			#上の行、同じ行、下の行
-			lnSeed[$((posY+3))]="${lnSeed[$((posY+3))]:0:$((posX+3))}${lnMapInfo[$((posY-1))]:$((posX-1)):3}${lnSeed[$((posY+3))]:$((posX+6))}"
-			lnSeed[$((posY+4))]="${lnSeed[$((posY+4))]:0:$((posX+3))}${lnMapInfo[$((posY+0))]:$((posX-1)):3}${lnSeed[$((posY+4))]:$((posX+6))}"
-			lnSeed[$((posY+5))]="${lnSeed[$((posY+5))]:0:$((posX+3))}${lnMapInfo[$((posY+1))]:$((posX-1)):3}${lnSeed[$((posY+5))]:$((posX+6))}"
-
-		}
-		}
 	: 'ドア開ける' && {
 		###########################################
 		##openDoor
@@ -289,6 +379,8 @@
 		##  $2 Y座標(1 〜 CNST_MAP_SIZ_Y) 
 		###########################################
 		function jmpPosWrgl(){
+			
+			declare local dspNowYN="$3"
 
 			#バリデーション
 			##引数の個数
@@ -314,13 +406,43 @@
 			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 			local declare maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
 
-#			lnSeed[$((mapY+4))]="${lStr}$maptipFoot${rStr}"
-			
 			modDspWrglPos $(($1+1)) $(($2+1)) "$maptipFoot"
 			opnArndMaptip
 			dispAll
 
+			}
 		}
+	: 'ダッシュ用移動' &&{
+		###########################################
+		##goAheadWrgl
+		## jmpPosWrgl+modDspWrglPosのダッシュ用略式
+		## Wriggleの位置をx,y指定で移動する
+		## この関数は画面を描画しない。
+		##  $1 X座標(1 〜 CNST_MAP_SIZ_X)
+		##  $2 Y座標(1 〜 CNST_MAP_SIZ_Y) 
+		###########################################
+		function goAheadWrgl(){
+
+			local declare mapX=$((10#$1))
+			local declare mapY=$((10#$2))
+
+			local declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+
+			local declare X=$(printf "%02d" $(($1+1)))
+			local declare Y=$(printf "%02d" $(($2+1)))
+
+			local declare row1Right="${lnSeed[1]:3}"
+			local declare row2Right="${lnSeed[2]:3}"
+
+			lnSeed[1]="|$X$row1Right"
+			lnSeed[2]="|$Y$row2Right"
+
+			#ダッシュ移動中のマス開示は足元のマスのみ?
+			opnArndMaptip
+			#lnSeed[$((mapY+4))]="$lStr${lnMapInfo[$((mapY))]:$((mapX)):1}$rStr"
+
+			}
 		}
 	: 'ランダム出力生成' && {
 		##################################################
@@ -377,6 +499,21 @@
 							'7'	)	echo '';;
 							'8'	)	echo '';;
 							'9'	)	echo '';;
+							*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
+						esac
+						;;
+				$CNST_RND_DASH	)	#ダッシュ音
+						case "$rslt" in
+							'0'	)	echo 'ksksksksksksksk...';;
+							'1'	)	echo 'Scurry...';;
+							'2'	)	echo 'Scamper!!';;
+							'3'	)	echo 'ksksksksksksksk...';;
+							'4'	)	echo 'Zoooooooooom';;
+							'5'	)	echo 'Zoooooooooom!';;
+							'6'	)	echo 'ksksksksksksksk...';;
+							'7'	)	echo 'ksksksksksksksk...';;
+							'8'	)	echo 'Dashhhhh!';;
+							'9'	)	echo 'Go!Go!Go!';;
 							*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
 						esac
 						;;
@@ -662,7 +799,23 @@
 			lnSeed[1]="|$X$row1Right"
 			lnSeed[2]="|$Y$row2Right"
 			lnSeed[20]="${lnSeed[20]:0:45}| $(printf "%1s" "$3") |${lnSeed[20]:50}"
-			dispAll
+		}
+		}
+	: '周囲マス開示' && {
+		###########################################
+		##opnArndMaptip
+		## 現在マスの周囲8方向(と足元)のマップを開示する
+		##  lnSeed[xx]の8方向(と足元)へ、正解マップチップから転写する
+		##  引数なし(左上の座標表示を使用)
+		###########################################
+		function opnArndMaptip(){
+			local declare posX=$((10#${lnSeed[1]:1:2}-1))
+			local declare posY=$((10#${lnSeed[2]:1:2}-1))
+
+			#上の行、同じ行、下の行
+			lnSeed[$((posY+3))]="${lnSeed[$((posY+3))]:0:$((posX+3))}${lnMapInfo[$((posY-1))]:$((posX-1)):3}${lnSeed[$((posY+3))]:$((posX+6))}"
+			lnSeed[$((posY+4))]="${lnSeed[$((posY+4))]:0:$((posX+3))}${lnMapInfo[$((posY+0))]:$((posX-1)):3}${lnSeed[$((posY+4))]:$((posX+6))}"
+			lnSeed[$((posY+5))]="${lnSeed[$((posY+5))]:0:$((posX+3))}${lnMapInfo[$((posY+1))]:$((posX-1)):3}${lnSeed[$((posY+5))]:$((posX+6))}"
 
 		}
 		}
@@ -798,8 +951,8 @@
 			echo 'man [CMD]   : [CMD] CommandManual'
 			echo '[...]can    : Cancel a command being entered.'
 			echo 'sv [n]      : Save to data [n] the current state.'
-			echo 'sq [n]      : Save to data [n] the current state and quit this game.'
-			echo 'qq          : Quit this game (without save).'
+			echo 'svq [n]     : Save to data [n] the current state and quit this game.'
+			echo 'qqq         : Quit this game (without save).'
 			echo 'mv [n]      : Move in direction [n]'
 			echo 'op [n]      : Open the door in the direction of [n] (by suitable key).'
 			echo 'ki [m][n]   : Kick in direction [n] with [n]strength'
@@ -896,9 +1049,9 @@
 
 					clear
 
-					echo '*** Command Manual:[sq] ***'
+					echo '*** Command Manual:[svq] ***'
 					echo '<Format>'
-					echo ' sq [n]'
+					echo ' svq [n]'
 					echo ' * arg:1-4.'
 					echo ''
 					echo '<Function>'
@@ -922,7 +1075,7 @@
 				}
 				}
 			: 'svコマンドマニュアル' && {
-				function man_sv(){
+				function man_svq(){
 
 					inKey=''
 					tput smcup
@@ -954,17 +1107,17 @@
 					done	
 				}
 				}
-			: 'qqコマンドマニュアル' && {
-				function man_qq(){
+			: 'qqqコマンドマニュアル' && {
+				function man_qqq(){
 
 					inKey=''
 					tput smcup
 
 					clear
 
-					echo '*** Command Manual:[qq] ***'
+					echo '*** Command Manual:[qqq] ***'
 					echo '<Format>'
-					echo ' qq'
+					echo ' qqq'
 					echo ' * no arg.'
 					echo ''
 					echo '<Function>'
@@ -1509,22 +1662,23 @@
 	: 'mvコマンド' && {
 		###########################################
 		##mv
-		## キャラ('W'で示す)が動く           7 8 9  q w e
+		## キャラ('¥'で示す)が動く           7 8 9  q w e
 		##  $1 移動先座標(1〜9,zxcasdqwe)    4 ¥ 6  a ¥ d
 		##        ※大文字でも良い           3 2 1  z x c
 		###########################################
 		function mv(){
 			local declare goX=''
 			local declare goY=''
+			local declare direction="$1"
 
 			#バリデーション
 			##引数の個数
-			if [ $# -ne 1 ] || [ "$1" = '' ]; then
+			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
 				dspCmdLog '<mv> Set 1 arguments.' $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
-			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
+			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$direction") ] ; then
 				dspCmdLog '<mv> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_YN_Y
 				return
 			fi
@@ -1532,12 +1686,12 @@
 			tput civis
 
 			#5Ssだったら足踏み
-			if  [ $(echo '5Ss' | grep "$1") ] ; then
+			if  [ $(echo '5Ss' | grep "$direction") ] ; then
 				dspCmdLog 'Hoppn'"'"'nnnnn!' $CNST_YN_Y
 			else
 				#一時的に区切り文字を変更する
 				IFS=':'
-				set -- $(clcDirPos "$1")
+				set -- $(clcDirPos "$direction")
 				goX=$1
 				goY=$2
 				#区切り文字を戻す
@@ -1658,6 +1812,70 @@
 
 		}
 		}
+	: 'daコマンド' && {
+		###########################################
+		##da
+		## キャラ('¥'で示す)がダッシュする
+		## 進入不能マスに当たるか「+」マスに隣接するまで直進を続ける。
+		##  $1 移動先座標(1〜9,zxcasdqwe)   
+		##        ※大文字でも良い
+		###########################################
+		function da(){
+			local declare goX=''
+			local declare goY=''
+			local declare direction=$1
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
+				dspCmdLog '<da> Set 1 arguments.' $CNST_YN_Y
+				return
+			fi
+			##$1のバリエーション
+			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$direction") ] ; then
+				dspCmdLog '<da> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_YN_Y
+				return
+			fi
+
+			tput civis
+
+			#5Ssだったら足踏み
+			if  [ $(echo '5Ss' | grep "$direction") ] ; then
+				dspCmdLog 'Hoppn'"'"'nnnnn!' $CNST_YN_Y
+			else
+
+				#一時的に区切り文字を変更する
+				IFS=':'
+				set -- $(clcDirPos "$direction")
+				goX=$1
+				goY=$2
+
+				#進行方向が通常床である限り直進する
+				while [ $(getMapInfo $goX $goY 'DSP') = ' ' ]
+				do
+					goAheadWrgl $goX $goY
+					#jmpPosWrgl $goX $goY
+					set -- $(clcDirPos "$direction")
+					goX=$1
+					goY=$2
+				done
+
+				#区切り文字を戻す
+				IFS=$CNST_IFS_DEFAULT
+
+			fi
+
+			#終着マスのみ周囲開示
+			#opnArndMaptip
+			
+			#実行メッセージ出力(画面更新を兼ねる)
+			dspCmdLog $(sayRnd $CNST_RND_DASH) $CNST_YN_Y
+
+			tput cvvis
+
+		}
+		}
+
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
 		function ci(){
@@ -1683,7 +1901,7 @@
 		###########################################
 		mainLoop(){
 			jmpPosWrgl 20 6
-			dspCmdLog 'Wriggle respowned in X:30/Y:10.' $CNST_YN_Y
+			dspCmdLog 'Wriggle respowned.' $CNST_YN_Y
 			while :
 			do
 				tput cup $CNST_POS_CMDWIN
@@ -1724,6 +1942,15 @@
 				'man'*	)	man "${inKey:4}";;
 				'mv'*	)	mv "${inKey:3}";;
 				'op'*	)	op "${inKey:3}";;
+				'da'*	)	da "${inKey:3}";;
+				'qq'	)	da 7;;
+				'ww'	)	da 8;;
+				'ee'	)	da 9;;
+				'aa'	)	da 4;;
+				'dd'	)	da 6;;
+				'zz'	)	da 1;;
+				'xx'	)	da 2;;
+				'cc'	)	da 3;;
 				'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
@@ -1736,117 +1963,16 @@
 				'pr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
 				'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'sq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'qq'	)	quitGame;;
+				'svq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
+				'qqq'	)	quitGame;;
 				' '		)	dspCmdLog 'Input key.' $CNST_YN_Y ;;
 				*		)	dspCmdLog "[$inKey]is invalid." $CNST_YN_Y ;;
 			esac
 		}
 		}
 	}
-: '■メイン ※関数ではない' && {
-	: '■初期処理' && {
-		###########################################
-		## 初期処理
-		##  主に定数定義など
-		###########################################
-		: 'GLOBAL変数定義' && {
-				declare -g  inKey=''
-				declare -g inKey2=''
-				
-				#CONSTANT値
-				##IFS
-				declare -r CNST_IFS_DEFAULT=$IFS
-			}
-		: '画面レイアウト系コンスタント値定義' && {
-				##座標                       XX YY
-				declare -r     CNST_POS_CMDWIN='20 10' #コマンド入力ウィンドウ
-				declare -r    CNST_POS_CMDWIN2='20 11' #コマンド入力ウィンドウ
-				declare -r CNST_POS_MAPTIPFOOT='20 47' #現在マップチップ表示窓
-				declare -r       CNST_POS_WKMK='26 97' #キー待ち記号表示位置
+: '■メイン' && {
 
-				##マップサイズ[MAP_SIZ]
-				declare -r CNST_MAP_SIZ_X=60 #横
-				declare -r CNST_MAP_SIZ_Y=15 #縦
-
-				##メッセージウィンドウサイズ[MSG_SIZ]
-				declare -r CNST_MSG_SIZ_X=99 #横
-				declare -r CNST_MSG_SIZ_Y=5 #縦
-
-				##全体サイズ[ALL_SIZ]
-				declare -r CNST_ALL_SIZ_X=100 #横
-				declare -r CNST_ALL_SIZ_Y=28 #縦
-
-				##コマンドログ小窓の開始位置[CMDLGW_IDX]
-				declare -r CNST_CMDLGW_IDX=50 #横
-				}
-		: 'マップチップ系コンスタント値' && {
-				#00:表示         英記号1桁(マップ上表記)
-				#01:大分類       英字3桁(意味を持った略称)
-				#02:小分類       数字2桁(実質的なID)
-				#03:細分類       数字1桁(状態変化を持つ場合の状態)
-				#04:進入可否     0:不可 1:可能  8:条件            /CNST_YN
-				#05:進入後残留   0:消滅 1:残留  8:条件            /CNST_YN                      
-				#06:開示方式     0:足元 1:眼前  8:条件 9:連鎖開示 /CNST_AMNT
-				#07:破壊可否     0:不能 1:可能  8:条件            /CNST_YN
-				#08:イベント     0:進入 1:接触  8:条件 9:接触戦闘 /CNST_EVT
-				#09:和名         メッセージ表示が必要な場合の呼称
-										#  0   1     2    3   4   5   6   7   8   9   
-										#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
-				declare -r -a  CNST_MAP_0=('*' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
-				declare -r -a  CNST_MAP_1=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -a  CNST_MAP_2=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -a  CNST_MAP_3=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -a  CNST_MAP_4=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -a  CNST_MAP_5=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -a  CNST_MAP_6=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
-				declare -r -a  CNST_MAP_7=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
-				declare -r -a  CNST_MAP_8=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
-				declare -r -a  CNST_MAP_9=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
-				declare -r -a CNST_MAP_10=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
-				declare -r -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
-
-				: '属性値設定' && {
-					declare -r DSP=0
-					declare -r CNM=1
-					declare -r CID=2
-					declare -r STS=3
-					declare -r ENT=4
-					declare -r STY=5
-					declare -r OPN=6
-					declare -r DST=7
-					declare -r EVE=8
-					declare -r NME=9
-				}
-
-				: '汎用コード値' && {
-					#可否
-					declare -g -r CNST_YN_Y='1' #肯定/可能
-					declare -g -r CNST_YN_N='0' #否定/不可能
-					declare -g -r CNST_YN_C='8' #/条件次第
-
-					#固定的な数値
-					declare -r CNST_AMNT_MIN='0' #無もしくは十分に小さい値
-					declare -r CNST_AMNT_STP1='1' #数量1
-					#declare -r CNST_AMNT_STEP2='2' #数量2
-					declare -r CNST_AMNT_CND='8' #他の条件
-					declare -r CNST_AMNT_MAX='9' #十分に大きい値
-
-					#イベント判定
-					declare -r CNST_EVT_ENTR='0' #上に乗ったとき
-					declare -r CNST_EVT_TUCH='1' #隣接したとき
-					declare -r CNST_EVT_COND='8' #他の条件
-					declare -r CNST_EVT_BTTL='9' #隣接時戦闘
-				}
-
-			}
-		: 'その他コンスタント値定義' && { 
-				##sayRnd関数の種別
-				declare -r   CNST_RND_WALL='1' #壁激突音
-				declare -r   CNST_RND_DOOR='2' #扉じゃないところを扉
-				declare -r  CNST_RND_WEMEN='3' #女性接触声				
-				}
-		}
 	###########################################
 	##main
 	## mainLoopをキックする主制御
@@ -1856,6 +1982,7 @@
 	#安定するまでは不測の無限ループ脱出のためコメントアウトする
 	#trap '' INT QUIT TSTP 
 
+	initDef
 	defMapInfo
 	dspMapInfo
 	initDispInfo 
