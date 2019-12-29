@@ -47,20 +47,23 @@
 				#07:破壊可否     0:不能 1:可能  8:条件            /CNST_YN
 				#08:イベント     0:進入 1:接触  8:条件 9:接触戦闘 /CNST_EVT
 				#09:和名         メッセージ表示が必要な場合の呼称
+
 											#  0   1     2    3   4   5   6   7   8   9   
 											#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
-				#declare -r -g -a  CNST_MAP_0=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
-				declare -r -g -a  CNST_MAP_1=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_2=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_3=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_4=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_5=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_6=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
-				declare -r -g -a  CNST_MAP_7=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
-				declare -r -g -a  CNST_MAP_8=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
-				declare -r -g -a  CNST_MAP_9=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
-				declare -r -g -a CNST_MAP_10=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
+				declare -r -g -a  CNST_MAP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' 'Wall')
+				declare -r -g -a  CNST_MAP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
+				declare -r -g -a  CNST_MAP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
+				declare -r -g -a  CNST_MAP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
+				declare -r -g -a  CNST_MAP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
+				declare -r -g -a  CNST_MAP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
+				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '1' '1' '1' '1' '1' '1' 'StairsDOWN')
+				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '1' '1' '1' '1' '1' '1' 'StairsUP')
 				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
+				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 
 				: '属性値設定' && {
 					declare -r -g DSP=0
@@ -1700,12 +1703,21 @@
 				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
 						dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_YN_Y
 				else
-					if [ "$(getMapInfo $goX $goY 'DSP')" = '#' ] ; then
-						modMsg 1 1 'マップ切替は未実装です' $CNST_YN_Y
-					else
-						clrCmdLog $CNST_YN_N
-						jmpPosWrgl $goX $goY
-					fi
+					case "$(getMapInfo $goX $goY 'DSP')" in
+						'#'	)	#マップ切り替え
+								modMsg 1 1 'マップ切替は未実装です' $CNST_YN_Y;;
+						'^'	)	#上り階段
+								clrCmdLog $CNST_YN_N
+								jmpPosWrgl $goX $goY
+								modMsg 1 1 '上り階段は未実装です' $CNST_YN_Y;;
+						'v'	)	#下り階段
+								clrCmdLog $CNST_YN_N
+								jmpPosWrgl $goX $goY
+								modMsg 1 1 '下り階段は未実装です' $CNST_YN_Y;;
+						*)		#他
+								clrCmdLog $CNST_YN_N
+								jmpPosWrgl $goX $goY
+					esac
 				fi
 			fi
 		
