@@ -331,7 +331,8 @@
 						dirY=-1
 						;;
 				"0"		)	#キャンセル
-						dspCmdLog 'Cmd canceled.'  $CNST_YN_Y
+						dspCmdLog 'Cmd canceled.'
+						dispAll
 						return
 						;;
 				*		)	sysOut 'e' $LINENO 'Direction value Error.'
@@ -409,7 +410,6 @@
 
 			modDspWrglPos $(($1+1)) $(($2+1)) "$maptipFoot"
 			opnArndMaptip
-			dispAll
 
 			}
 		}
@@ -742,11 +742,8 @@
 		##################################################
 		##clrMsgWin
 		## lnSeed[22〜26]を初期表示の内容で上書きして画面をクリア更新する
-		##  $1 lnSeed更新後にmsgウィンドウを更新するか(CNST_YN_Y:する/他:しない)
 		##################################################
 		function clrMsgWin(){
-
-			lnSeed[20]='|COMMAND>                                        |                                                 |' #20
 
 			lnSeed[22]='|91|                                                                                               |' #22
 			lnSeed[23]='|92|                                                                                               |' #23
@@ -754,27 +751,18 @@
 			lnSeed[25]='|94|                                                                                               |' #25
 			lnSeed[26]='|95|                                                                                               |' #26
 
-			#引数が1だったら、画面を更新する。
-			if [ "$1" = $CNST_YN_Y ] ; then
-				dispAll
-			fi
-
 		}
 		}
 	: 'コマンドログウィンドウのクリア' && {
 		##################################################
 		##clrCmdLog
 		## lnSeed[20]を初期表示の内容で上書きして画面をクリア更新する
-		##  $1 lnSeed更新後にmsgウィンドウを更新するか(CNST_YN_Y:する/他:しない)
 		##################################################
 		function clrCmdLog(){
 
-			lnSeed[20]='|COMMAND>                                        |                                                 |'
+			declare local maptipFoot="${lnSeed[20]:48:1}"
 
-			#引数が1だったら、画面を更新する。
-			if [ "$1" = $CNST_YN_Y ] ; then
-				dispAll
-			fi
+			lnSeed[20]='|COMMAND>                                    | '"$maptipFoot"' |                                                 |'
 
 		}
 		}
@@ -797,9 +785,12 @@
 			local declare row1Right="${lnSeed[1]:3}"
 			local declare row2Right="${lnSeed[2]:3}"
 
+			local declare  row20Left="${lnSeed[20]:0:47}"
+			local declare row20Right="${lnSeed[20]:48}"
+
 			lnSeed[1]="|$X$row1Right"
 			lnSeed[2]="|$Y$row2Right"
-			lnSeed[20]="${lnSeed[20]:0:45}| $(printf "%1s" "$3") |${lnSeed[20]:50}"
+			lnSeed[20]="$row20Left$3$row20Right"
 		}
 		}
 	: '周囲マス開示' && {
@@ -829,13 +820,12 @@
 		##  $1 メッセージウィンドウの何行目か
 		##  $2 メッセージウィンドウ$1行目の何文字目からか
 		##  $3 表示する文字
-		##  $4 lnSeed更新後にmsgウィンドウを更新するか(CNST_YN_Y:する/他:しない)
 		##################################################
 		function modMsg(){
 
 			#バリデーション
 			##引数の個数
-			if [ $# -ne 4 ] ; then
+			if [ $# -ne 3 ] ; then
 				sysOut 'e' $LINENO 'Set 4 arguments.'
 				return
 			fi
@@ -878,11 +868,6 @@
 
 			lnSeed[$((21+$tgtRow))]="$leftStr$tgtStr`printf %${spCnt}s`|"
 
-			#引数4が1だったら、画面を更新する。
-			if [ "$4" = $CNST_YN_Y ] ; then
-				dispAll
-			fi
-
 		}
 		}
 	: 'コマンドログウィンドウの内容変更' && {
@@ -890,7 +875,6 @@
 		##dspCmdLog
 		## コマンド結果等簡易表示ウィンドウの更新
 		##   $1 表示内容
-		##   $2 lnSeed更新後にmsgウィンドウを更新するか(CNST_YN_Y:する/他:しない)
 		##################################################
 		function dspCmdLog(){
 
@@ -926,10 +910,6 @@
 
 			lnSeed[20]="$leftStr$tgtStr`printf %${spCnt}s`|"
 
-			#引数2が1だったら、画面を更新する。
-			if [ "$2" = $CNST_YN_Y ] ; then
-				dispAll
-			fi
 			}
 		}
 	}
@@ -989,22 +969,22 @@
 		##################################################
 		function man(){		
 			case "$1" in
-				'can'	) man_can ;;
-				'mv'	) man_mv ;;
-				'op'	) man_op ;;
-				'pp'	) man_pp ;;
-				'ki'	) man_ki ;;
-				'wp'	) man_wp ;;
-				'ct'	) man_ct ;;
-				'in'	) man_in ;;
-				'gt'	) man_gt ;;
-				'tr'	) man_tr ;;
-				'tk'	) man_tk ;;
-				'pr'	) man_pr ;;
-				'ss'	) man_ss ;;
-				'man'	) man_man ;;
-				''		) dspCmdLog 'no argment error.'  1 ;;
-				*		) dspCmdLog "[$1] is Invalid CMD." 1 ;;
+				'can'	)	man_can ;;
+				'mv'	)	man_mv ;;
+				'op'	)	man_op ;;
+				'pp'	)	man_pp ;;
+				'ki'	)	man_ki ;;
+				'wp'	)	man_wp ;;
+				'ct'	)	man_ct ;;
+				'in'	)	man_in ;;
+				'gt'	)	man_gt ;;
+				'tr'	)	man_tr ;;
+				'tk'	)	man_tk ;;
+				'pr'	)	man_pr ;;
+				'ss'	)	man_ss ;;
+				'man'	)	man_man ;;
+				*		)	dspCmdLog "[$1] is Invalid CMD."
+							dispAll;;
 			esac
 			}
 		: '■マニュアル詳細' && {
@@ -1675,12 +1655,15 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<mv> Set 1 arguments.' $CNST_YN_Y
+				dspCmdLog '<mv> Set 1 arguments.'
+				dispAll
 				return
 			fi
+
 			##$1のバリエーション
 			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$direction") ] ; then
-				dspCmdLog '<mv> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_YN_Y
+				dspCmdLog '<mv> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
+				dispAll
 				return
 			fi
 
@@ -1688,7 +1671,7 @@
 
 			#5Ssだったら足踏み
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
-				dspCmdLog 'Hoppn'"'"'nnnnn!' $CNST_YN_Y
+				dspCmdLog 'Hoppn'"'"'nnnnn!'
 			else
 				#一時的に区切り文字を変更する
 				IFS=':'
@@ -1701,26 +1684,27 @@
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
 				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
-						dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_YN_Y
+						dspCmdLog "$(sayRnd $CNST_RND_WALL)"
 				else
 					case "$(getMapInfo $goX $goY 'DSP')" in
 						'#'	)	#マップ切り替え
-								modMsg 1 1 'マップ切替は未実装です' $CNST_YN_Y;;
+								modMsg 1 1 'マップ切替は未実装です';;
 						'^'	)	#上り階段
-								clrCmdLog $CNST_YN_N
+								clrCmdLog
 								jmpPosWrgl $goX $goY
-								modMsg 1 1 '上り階段は未実装です' $CNST_YN_Y;;
+								modMsg 1 1 '上り階段は未実装です';;
 						'v'	)	#下り階段
-								clrCmdLog $CNST_YN_N
+								clrCmdLog
 								jmpPosWrgl $goX $goY
-								modMsg 1 1 '下り階段は未実装です' $CNST_YN_Y;;
+								modMsg 1 1 '下り階段は未実装です';;
 						*)		#他
-								clrCmdLog $CNST_YN_N
+								clrCmdLog
 								jmpPosWrgl $goX $goY
 					esac
 				fi
 			fi
 		
+			dispAll
 			tput cvvis
 
 		}
@@ -1740,12 +1724,14 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$1" = '' ]; then
-				dspCmdLog '<op> Set 1 arguments.' $CNST_YN_Y
+				dspCmdLog '<op> Set 1 arguments.'
+				dispAll
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
-				dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_YN_Y
+				dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
+				dispAll
 				return
 			fi
 
@@ -1761,12 +1747,13 @@
 				IFS=$CNST_IFS_DEFAULT
 
 				if	[ "$(getMapInfo $opX $opY 'CNM')" != 'DOR' ] ; then
-					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")" $CNST_YN_Y
+					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
 				else
-					clrCmdLog $CNST_YN_N
-					modMsg 1 1 'ひらけごま！' $CNST_YN_Y
+					clrCmdLog
+					modMsg 1 1 'ひらけごま！'
 					openDoor $opX $opY 
 				fi
+				dispAll
 			fi
 
 		}
@@ -1786,12 +1773,14 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$1" = '' ]; then
-				dspCmdLog '<op> Set 1 arguments.' $CNST_YN_Y
+				dspCmdLog '<op> Set 1 arguments.'
+				dispAll
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
-				dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_YN_Y
+				dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
+				dispAll
 				return
 			fi
 
@@ -1808,8 +1797,8 @@
 				IFS=$CNST_IFS_DEFAULT
 
 				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
-				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))" $CNST_YN_Y
-				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)." $CNST_YN_Y
+				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))"
+				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)."
 			else
 				#一時的に区切り文字を変更する
 				IFS=':'
@@ -1820,9 +1809,10 @@
 				IFS=$CNST_IFS_DEFAULT
 
 				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
-				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))" $CNST_YN_Y
-				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)." $CNST_YN_Y
+				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))"
+				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)."
 			fi
+			dispAll
 
 		}
 		}
@@ -1842,12 +1832,14 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<da> Set 1 arguments.' $CNST_YN_Y
+				dspCmdLog '<da> Set 1 arguments.'
+				dispAll
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$direction") ] ; then
-				dspCmdLog '<da> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".' $CNST_YN_Y
+				dspCmdLog '<da> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
+				dispAll
 				return
 			fi
 
@@ -1855,7 +1847,7 @@
 
 			#5Ssだったら足踏み
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
-				dspCmdLog 'Hoppn'"'"'nnnnn!' $CNST_YN_Y
+				dspCmdLog 'Hoppn'"'"'nnnnn!'
 			else
 
 				#一時的に区切り文字を変更する
@@ -1874,17 +1866,23 @@
 					goY=$2
 				done
 
+				local declare posX=$((10#${lnSeed[1]:1:2}))
+				local declare posY=$((10#${lnSeed[2]:1:2}))
+
+				modDspWrglPos $posX $posY "$(getMapInfo $((posX-1)) $((posY-1)) 'DSP')"
+				
 				#区切り文字を戻す
 				IFS=$CNST_IFS_DEFAULT
+				
+				#実行メッセージ
+				dspCmdLog $(sayRnd $CNST_RND_DASH)
 
 			fi
 
 			#終着マスのみ周囲開示
 			#opnArndMaptip
-			
-			#実行メッセージ出力(画面更新を兼ねる)
-			dspCmdLog $(sayRnd $CNST_RND_DASH) $CNST_YN_Y
 
+			dispAll
 			tput cvvis
 
 		}
@@ -1893,15 +1891,19 @@
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
 		function ci(){
-			dspCmdLog 'チルノ？どうかした？' $CNST_YN_N
-			modMsg 1 1 'チルノ[え？]' $CNST_YN_Y
+			dspCmdLog 'チルノ？どうかした？'
+			modMsg 1 1 'チルノ[え？]'
+			dispAll
 			wk
-			modMsg 2 1 'チルノ[¥ど、どうもしねーよ……///]' $CNST_YN_Y
+			modMsg 2 1 'チルノ[¥ど、どうもしねーよ……///]'
+			dispAll
 			wk
-			modMsg 3 1 '!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。' $CNST_YN_N
-			dspCmdLog 'ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！' $CNST_YN_Y
+			modMsg 3 1 '!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。'
+			dspCmdLog 'ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！'
+			dispAll
 			wk
-			clrMsgWin $CNST_YN_Y
+			clrMsgWin
+			dispAll
 		}
 		}
 
@@ -1915,7 +1917,8 @@
 		###########################################
 		mainLoop(){
 			jmpPosWrgl 20 6
-			dspCmdLog 'Wriggle respowned.' $CNST_YN_Y
+			dspCmdLog 'Wriggle respowned.'
+			dispAll
 			while :
 			do
 				tput cup $CNST_POS_CMDWIN
@@ -1950,7 +1953,7 @@
 			inKey="${inKey2}${inKey}"
 			case "$inKey" in
 				'man can')	man can;;
-				*'can'	)	dspCmdLog 'Alright, Command canceled :)' $CNST_YN_Y;;
+				*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
 				'ci'	)	ci ;;
 				'??'	)	viewHelp;; 
 				'man'*	)	man "${inKey:4}";;
@@ -1965,23 +1968,24 @@
 				'zz'	)	da 1;;
 				'xx'	)	da 2;;
 				'cc'	)	da 3;;
-				'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'wp'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'ct'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
+				'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'wp'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'ct'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
 				'iv'*	)	iv "${inKey:3}";;
-				'gt'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'tr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'tk'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'pr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
-				'svq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented." $CNST_YN_Y ;;
+				'gt'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'tr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'tk'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'pr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+				'svq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
 				'qqq'	)	quitGame;;
-				' '		)	dspCmdLog 'Input key.' $CNST_YN_Y ;;
-				*		)	dspCmdLog "[$inKey]is invalid." $CNST_YN_Y ;;
+				' '		)	dspCmdLog 'Input key.';;
+				*		)	dspCmdLog "[$inKey]is invalid.";;
 			esac
+			dispAll
 		}
 		}
 	}
