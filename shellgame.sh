@@ -47,9 +47,9 @@
 				#07:破壊可否     0:不能 1:可能  8:条件            /CNST_YN
 				#08:イベント     0:進入 1:接触  8:条件 9:接触戦闘 /CNST_EVT
 				#09:和名         メッセージ表示が必要な場合の呼称
-										#  0   1     2    3   4   5   6   7   8   9   
-										#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
-				declare -r -g -a  CNST_MAP_0=('*' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
+											#  0   1     2    3   4   5   6   7   8   9   
+											#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
+				#declare -r -g -a  CNST_MAP_0=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 				declare -r -g -a  CNST_MAP_1=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
 				declare -r -g -a  CNST_MAP_2=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
 				declare -r -g -a  CNST_MAP_3=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
@@ -379,8 +379,6 @@
 		##  $2 Y座標(1 〜 CNST_MAP_SIZ_Y) 
 		###########################################
 		function jmpPosWrgl(){
-			
-			declare local dspNowYN="$3"
 
 			#バリデーション
 			##引数の個数
@@ -389,13 +387,13 @@
 				return
 			fi
 			##$1の範囲
-			if [ $1 -lt 1 ] || [ $1 -gt $CNST_MAP_SIZ_X ]; then
-				sysOut 'e' $LINENO "'X' must be between 1 and $CNST_MAP_SIZ_X."
+			if [ $1 -lt 0 ] || [ $1 -gt $CNST_MAP_SIZ_X ]; then
+				sysOut 'e' $LINENO "'X' must be between 1 and $CNST_MAP_SIZ_X."'$1'"=$1"
 				return
 			fi
 			##$2の範囲
-			if [ $2 -lt 1 ] || [ $2 -gt $CNST_MAP_SIZ_Y ]; then
-				sysOut 'e' $LINENO "'Y' must be between 1 and $CNST_MAP_SIZ_Y."
+			if [ $2 -lt 0 ] || [ $2 -gt $CNST_MAP_SIZ_Y ]; then
+				sysOut 'e' $LINENO "'Y' must be between 1 and $CNST_MAP_SIZ_Y."'$2'"=$2"
 				return
 			fi
 
@@ -579,7 +577,7 @@
 			lnMapInfo+=('+---------------------------+--------------------------+D+XX') #10+1
 			lnMapInfo+=('|                                                        |XX') #11+1
 			lnMapInfo+=('+-+D+-+-------------------+D+---------------+            |XX') #12+1
-			lnMapInfo+=('|     |XXXXXXXXXXXXXXXXXXX|*|XXXXXXXXXXXXXXX+------------+XX') #13+1
+			lnMapInfo+=('|     |XXXXXXXXXXXXXXXXXXX| |XXXXXXXXXXXXXXX+------------+XX') #13+1
 			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14+1
 			}
 		}						
@@ -1699,11 +1697,15 @@
 
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
-				if	[ $(getMapInfo $goX $goY 'ENT') = $CNST_YN_N ] ; then
+				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
 						dspCmdLog "$(sayRnd $CNST_RND_WALL)" $CNST_YN_Y
 				else
-					clrCmdLog $CNST_YN_N
-					jmpPosWrgl $goX $goY
+					if [ "$(getMapInfo $goX $goY 'DSP')" = '#' ] ; then
+						modMsg 1 1 'マップ切替は未実装です' $CNST_YN_Y
+					else
+						clrCmdLog $CNST_YN_N
+						jmpPosWrgl $goX $goY
+					fi
 				fi
 			fi
 		
@@ -1851,7 +1853,7 @@
 				goY=$2
 
 				#進行方向が通常床である限り直進する
-				while [ $(getMapInfo $goX $goY 'DSP') = ' ' ]
+				while [ "$(getMapInfo $goX $goY 'DSP')" = ' ' ]
 				do
 					goAheadWrgl $goX $goY
 					#jmpPosWrgl $goX $goY
