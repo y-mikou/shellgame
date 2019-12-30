@@ -120,6 +120,7 @@
 			tput sgr0
 			IFS=$CNST_IFS_DEFAULT
 			clear
+			echo 'exit'
 			exit
 		}
 		}
@@ -1998,7 +1999,7 @@
 
 	clear
 	#安定するまでは不測の無限ループ脱出のためコメントアウトする
-	#trap '' INT QUIT TSTP 
+	trap 'quitGame' INT QUIT TSTP
 
 	initDef
 	defMapInfo
