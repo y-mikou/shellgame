@@ -5,15 +5,6 @@
 		##  主に定数定義など
 		###########################################
 		initDef(){
-		: 'GLOBAL変数定義' && {
-				declare -g  inKey=''
-				declare -g inKey2=''
-				
-				#CONSTANT値
-				##IFS
-				##IFS=$' \t\n'
-				declare -r -g CNST_IFS_DEFAULT=$IFS
-			}
 		: '画面レイアウト系コンスタント値定義' && {
 				##座標							   XX YY
 				declare -r -g     CNST_POS_CMDWIN='20 10' #コマンド入力ウィンドウ
@@ -35,6 +26,11 @@
 
 				##コマンドログ小窓の開始位置[CMDLGW_IDX]
 				declare -r -g CNST_CMDLGW_IDX=50 #横
+
+				##右上表示表示モード
+				declare -r -g CNST_MENUDISP_MODE_STATUS='0'
+				declare -r -g CNST_MENUDISP_MODE_MENU1='1'
+
 				}
 		: 'マップチップ系コンスタント値' && {
 				#00:表示         英記号1桁(マップ上表記)
@@ -64,7 +60,7 @@
 				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '1' '1' '1' '1' '1' '1' 'StairsUP')
 				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
 				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
-
+					}
 				: '属性値設定' && {
 					declare -r -g DSP=0
 					declare -r -g CNM=1
@@ -76,7 +72,7 @@
 					declare -r -g DST=7
 					declare -r -g EVE=8
 					declare -r -g NME=9
-				}
+					}
 
 				: '汎用コード値' && {
 					#可否
@@ -96,9 +92,8 @@
 					declare -r -g CNST_EVT_TUCH='1' #隣接したとき
 					declare -r -g CNST_EVT_COND='8' #他の条件
 					declare -r -g CNST_EVT_BTTL='9' #隣接時戦闘
-				}
+					}
 
-			}
 		: 'その他コンスタント値定義' && { 
 				##sayRnd関数の種別
 				declare -r -g  CNST_RND_WALL='1' #壁激突音
@@ -106,7 +101,18 @@
 				declare -r -g CNST_RND_WEMEN='3' #女性接触声
 				declare -r -g  CNST_RND_DASH='4' #ダッシュ音
 				}
+		: 'GLOBAL変数定義' && {
+				declare -g  inKey=''
+				declare -g inKey2=''
+				
+				declare -g dspMenuMode=$CNST_MENUDISP_MODE_STATUS
+
+				#CONSTANT値
+				##IFS
+				##IFS=$' \t\n'
+				declare -r -g CNST_IFS_DEFAULT=$IFS
 			}
+		}
 		}
 
 	: '終了処理' && { 
@@ -632,26 +638,26 @@
 
 			#初期状態       000000000011111111112222222222333+65
 			#文字数         012345678901234567890123456789012+65
-			lnMenuInfo+=('+=================================+') #00
-			lnMenuInfo+=('|menu                             |') #01
-			lnMenuInfo+=('|                                 |') #02
-			lnMenuInfo+=('|                                 |') #03
-			lnMenuInfo+=('|                                 |') #04
-			lnMenuInfo+=('|                                 |') #05
-			lnMenuInfo+=('|                                 |') #06
-			lnMenuInfo+=('|                                 |') #07
-			lnMenuInfo+=('|                                 |') #08
-			lnMenuInfo+=('|                                 |') #09
-			lnMenuInfo+=('|                                 |') #10
-			lnMenuInfo+=('|                                 |') #11
-			lnMenuInfo+=('|                                 |') #12
-			lnMenuInfo+=('|                                 |') #13
-			lnMenuInfo+=('|                                 |') #14
-			lnMenuInfo+=('|                                 |') #15
-			lnMenuInfo+=('|                                 |') #16
-			lnMenuInfo+=('|                                 |') #17
-			lnMenuInfo+=('|                                 |') #18
-			lnMenuInfo+=('+=================================+') #19
+			lnMenuInfo+=('+ M E N U ====================+===+') #00
+			lnMenuInfo+=('|[*] Invocation [dir]         |iv |') #01
+			lnMenuInfo+=('|[ ] Open Door [dir]          |op |') #02
+			lnMenuInfo+=('|[ ] Talk [dir]               |tk |') #03
+			lnMenuInfo+=('|[ ]                          |   |') #04
+			lnMenuInfo+=('|[ ]                          |   |') #05
+			lnMenuInfo+=('|[ ]                          |   |') #06
+			lnMenuInfo+=('|[ ]                          |   |') #07
+			lnMenuInfo+=('|[ ]                          |   |') #08
+			lnMenuInfo+=('|[ ]                          |   |') #09
+			lnMenuInfo+=('|[ ]                          |   |') #10
+			lnMenuInfo+=('|[ ]                          |   |') #11
+			lnMenuInfo+=('|[ ]                          |   |') #12
+			lnMenuInfo+=('|[ ]                          |   |') #13
+			lnMenuInfo+=('|[ ]                          |   |') #14
+			lnMenuInfo+=('|[ ] View manual [cmd]        |man|') #15
+			lnMenuInfo+=('|[ ] View help  　            |?? |') #16
+			lnMenuInfo+=('|[ ] Exit Menu  　            |cm |') #17
+			lnMenuInfo+=('|[ ] Quit game  　            |qqq|') #18
+			lnMenuInfo+=('+=============================+===+') #19
 			}
 		}						
 
@@ -688,7 +694,7 @@
 			lnSeed+=('|15|                                                            ||                                 |') #18
 			lnSeed+=('+==+=========================================+===+==============++=================================+') #19
 			lnSeed+=('|COMMAND>                                    |   |                                                 |') #20
-			lnSeed+=('+==+=========================================+===+===========================input [??] to help.===+') #21
+			lnSeed+=('+==+======input [om] to Menu.================+===+========================== input [??] to help.===+') #21
 			lnSeed+=('|91|                                                                                               |') #22
 			lnSeed+=('|92|                                                                                               |') #23
 			lnSeed+=('|93|                                                                                               |') #24
@@ -978,8 +984,8 @@
 
 			#バリデーション
 			##引数の個数
-			if [ -z "$1" ] || [ -n "$3" ] ; then			
-				sysOut 'e' $LINENO "Set 1 or 2 arguments. $1/$2"
+			if [ $# -ne 1 ] ; then			
+				sysOut 'e' $LINENO "Set 1 arguments. $1/$2"
 				return
 			fi
 
@@ -1993,7 +1999,7 @@
 		##  引数なし
 		###########################################
 		function om(){
-
+			dspMenuMode="$CNST_MENUDISP_MODE_MENU1"
 			joinFrameOnMenu
 			dispAll
 			}
@@ -2005,7 +2011,7 @@
 		##  引数なし
 		###########################################
 		function cm(){
-
+			dspMenuMode="$CNST_MENUDISP_MODE_STATUS"
 			joinFrameOnStatus
 			dispAll
 			}
@@ -2048,18 +2054,28 @@
 				getChrH
 				#移動入力として1文字受け付ける。移動を指示しない入力だった場合
 				#任意長のコマンド受付にリダイレクトされる。
-				case "$inKey" in
-					[1Z]	)	mv 1;;
-					[2X]	)	mv 2;;
-					[3C]	)	mv 3;;
-					[4A]	)	mv 4;;
-					[5S]	)	mv 5;;
-					[6D]	)	mv 6;;
-					[7Q]	)	mv 7;;
-					[8W]	)	mv 8;;
-					[9E]	)	mv 9;;
-					*	)	getCmdInMain;;
-				esac
+				if [ $dspMenuMode = '0' ] ; then
+					case "$inKey" in
+						[1Z]	)	mv 1;;
+						[2X]	)	mv 2;;
+						[3C]	)	mv 3;;
+						[4A]	)	mv 4;;
+						[5S]	)	mv 5;;
+						[6D]	)	mv 6;;
+						[7Q]	)	mv 7;;
+						[8W]	)	mv 8;;
+						[9E]	)	mv 9;;
+						*	)	getCmdInMain;;
+					esac
+				else
+					case "$inKey" in
+						[2X]	)	dspCmdLog 'dwn'
+									dispAll;;
+						[8W]	)	dspCmdLog 'up'
+									dispAll;;
+						*	)	getCmdInMain;;
+					esac
+				fi
 			done
 		}
 		}
@@ -2074,43 +2090,55 @@
 			printf "$inKey2"
 			getChrV
 			inKey="${inKey2}${inKey}"
-			case "$inKey" in
-				'man can')	man can;;
-				*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
-				'ci'	)	ci ;;
-				'??'	)	viewHelp;; 
-				'man'*	)	man "${inKey:4}";;
-				'mv'*	)	mv "${inKey:3}";;
-				'op'*	)	op "${inKey:3}";;
-				'da'*	)	da "${inKey:3}";;
-				'qq'	)	da 7;;
-				'ww'	)	da 8;;
-				'ee'	)	da 9;;
-				'aa'	)	da 4;;
-				'dd'	)	da 6;;
-				'zz'	)	da 1;;
-				'xx'	)	da 2;;
-				'cc'	)	da 3;;
-				'om'	)	om;;
-				'cm'	)	cm;;
-				'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'wp'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'ct'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'iv'*	)	iv "${inKey:3}";;
-				'gt'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'tr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'tk'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'pr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'svq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-				'qqq'	)	quitGame;;
-				' '		)	dspCmdLog 'Input key.';;
-				*		)	dspCmdLog "[$inKey]is invalid.";;
-			esac
-			dispAll
+			if [ $dspMenuMode = '0' ] ; then
+				case "$inKey" in
+					'man can')	man can;;
+					*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
+					'ci'	)	ci ;;
+					'??'	)	viewHelp;; 
+					'man'*	)	man "${inKey:4}";;
+					'mv'*	)	mv "${inKey:3}";;
+					'op'*	)	op "${inKey:3}";;
+					'da'*	)	da "${inKey:3}";;
+					'qq'	)	da 7;;
+					'ww'	)	da 8;;
+					'ee'	)	da 9;;
+					'aa'	)	da 4;;
+					'dd'	)	da 6;;
+					'zz'	)	da 1;;
+					'xx'	)	da 2;;
+					'cc'	)	da 3;;
+					'om'	)	om;;
+					'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'wp'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'ct'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'iv'*	)	iv "${inKey:3}";;
+					'gt'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'tr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'tk'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'pr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					'qqq'	)	quitGame;;
+					#'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					#'sq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
+					' '		)	dspCmdLog 'Input key.';;
+					*		)	dspCmdLog "[$inKey]is invalid.";;
+				esac
+				dispAll
+			else
+				case "$inKey" in
+					'man can')	man can;;
+					*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
+					'man'*	)	man "${inKey:4}";;
+					'??'	)	viewHelp;; 
+					'mv'*	)	mv "${inKey:3}";;
+					'cm'	)	cm;;
+					'qqq'	)	quitGame;;
+					*		)	dspCmdLog "[$inKey]is invalid.";;
+				esac
+			fi
 		}
 		}
 	}
