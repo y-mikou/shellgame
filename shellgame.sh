@@ -11,6 +11,16 @@
 				declare -r -g    CNST_POS_CMDWIN2='20 11' #コマンド入力ウィンドウ
 				declare -r -g CNST_POS_MAPTIPFOOT='20 47' #現在マップチップ表示窓
 				declare -r -g       CNST_POS_WKMK='26 97' #キー待ち記号表示位置
+				declare -r -g      CNST_CSR_DIR_1='69 9'  #メニュー2用方向指示カーソル位置_↙
+				declare -r -g      CNST_CSR_DIR_2='75 9'  #メニュー2用方向指示カーソル位置_↓
+				declare -r -g      CNST_CSR_DIR_3='81 9'  #メニュー2用方向指示カーソル位置_➘
+				declare -r -g      CNST_CSR_DIR_4='69 7'  #メニュー2用方向指示カーソル位置_←
+				declare -r -g      CNST_CSR_DIR_5='75 7'  #メニュー2用方向指示カーソル位置_・
+				declare -r -g      CNST_CSR_DIR_6='81 7'  #メニュー2用方向指示カーソル位置_→
+				declare -r -g      CNST_CSR_DIR_7='69 5'  #メニュー2用方向指示カーソル位置_↖
+				declare -r -g      CNST_CSR_DIR_8='75 5'  #メニュー2用方向指示カーソル位置_↑
+				declare -r -g      CNST_CSR_DIR_9='81 5'  #メニュー2用方向指示カーソル位置_➚
+				declare -r -g      CNST_CSR_DIR_0='69 11' #メニュー2用方向指示カーソル位置_Cancel
 
 				##マップサイズ[MAP_SIZ]
 				declare -r -g CNST_MAP_SIZ_X=60 #横
@@ -27,13 +37,15 @@
 				##コマンドログ小窓の開始位置[CMDLGW_IDX]
 				declare -r -g CNST_CMDLGW_IDX=50 #横
 
-				##右上表示表示モード
-				declare -r -g CNST_MENUDISP_MODE_STATUS='0'
-				declare -r -g CNST_MENUDISP_MODE_MENU1='1'
+				##コマンド受付モード
+				declare -r -g CNST_CMDMODE_NRML='0' #通常
+				declare -r -g CNST_CMDMODE_MENU='1' #メニュー内の選択
+				declare -r -g CNST_CMDMODE_CLCD='2'
 
 				##メニュー内カーソル移動方向
 				declare -r -g CNST_CSR_MVTO_UP='8'
-				declare -r -g CNST_CSR_MVTO_DWN='2'
+				declare -r -g CNST_CSR_MVTO_DN='2'
+
 
 				}
 		: 'マップチップ系コンスタント値' && {
@@ -111,13 +123,13 @@
 				declare -g inKey2=''
 				
 				##右上の領域は初期状態ではステータス表示
-				declare -g dspMenuMode=$CNST_MENUDISP_MODE_STATUS
+				declare -g cmdMode=$CNST_CMDMODE_NRML
 
 				##メニュー表示時の現在座標退避
 				declare -g posEsc=''
 
 				##メニュー表示時の現在座標退避
-				declare -g selMenuId
+				declare -g selMenuId=''
 
 				#CONSTANT値
 				##IFS
@@ -570,7 +582,7 @@
 						selMenuId=$((selMenuId-1))
 					fi;;
 
-				$CNST_CSR_MVTO_DWN)
+				$CNST_CSR_MVTO_DN)
 					lnSeed[$selMenuId]=${lnSeed[$selMenuId]:0:67}' '${lnSeed[$selMenuId]:68}
 
 					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に*マークを表示する
@@ -587,6 +599,60 @@
 				#エラー
 				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selMenuId";;
 			esac
+			}
+		}
+	: 'メニュー2方向指示カーソル移動' && {
+		##################################################
+		##movDirCsr
+		## メニュー2画面の方向指示用カーソルを移動する
+		##  メニュー2画面表示中に呼び出すこと
+		##################################################
+		function movDirCsr(){
+
+			#初期は左上にセット
+			declare local chcDir='7'
+			declare local posLX="${CNST_CSR_DIR_7:0:2}"
+			declare local posRX="$((posLX+4))"
+			declare local posY="${CNST_CSR_DIR_7:3}"
+
+			lnSeed[$posY]="${lnSeed[$posY]:0:$posLX}[${lnSeed[$posY]:$((posLX+1)):3}]${lnSeed[$posY]:$((posLX+5))}"
+			dispAll
+			
+			while :
+			do
+				clrCmdLog
+				getChrH
+				case $inKey	in
+					''						)	getCmdInMenu $chcDir
+												joinFrameOnStatus
+												cmdMode=$CNST_CMDMODE_NRML
+												dispAll
+												break
+												;;
+					[0-9vzxcasdqweVZXCASDQWE])	case $inKey in
+													[Zz]	)	chcDir='1';;
+													[Xx]	)	chcDir='2';;
+													[Cc]	)	chcDir='3';;
+													[Aa]	)	chcDir='4';;
+													[Ss]	)	chcDir='5';;
+													[Dd]	)	chcDir='6';;
+													[Qq]	)	chcDir='7';;
+													[Ww]	)	chcDir='8';;
+													[Ee]	)	chcDir='9';;
+													[Vv]	)	chcDir='0';;
+													*		)	chcDir=$inKey;;
+												esac
+
+												lnSeed[$posY]="${lnSeed[$posY]:0:$posLX} ${lnSeed[$posY]:$((posLX+1)):3} ${lnSeed[$posY]:$((posLX+5))}"
+												eval 'posLX="${CNST_CSR_DIR_'$chcDir':0:2}"'
+												posRX="$((posLX+4))"
+												eval 'posY="${CNST_CSR_DIR_'$chcDir':3}"'
+												lnSeed[$posY]="${lnSeed[$posY]:0:$posLX}[${lnSeed[$posY]:$((posLX+1)):3}]${lnSeed[$posY]:$((posLX+5))}"
+												;;
+					*						)	dspCmdLog "[$inKey]is invalid.";;
+				esac
+				dispAll
+			done
 			}
 		}
 : '■画面表示系' && {
@@ -630,7 +696,7 @@
 
 			declare -a -g lnMapInfo=()
 
-			#初期状態    000000000011111111112222222222333333333344444444445555555555+1
+			#初期状態    000000000011111111112222222222333333333344444444445555555555
 			#文字数      012345678901234567890123456789012345678901234567890123456789+1
 			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00+1
 			lnMapInfo+=('|                           D                       |XXXXXXX') #01+1
@@ -660,8 +726,8 @@
 
 			declare -a -g lnStatusInfo=()
 
-			#初期状態       000000000011111111112222222222333+65
-			#文字数         012345678901234567890123456789012+65
+			#               00000000001111111111222222222233333
+			#               01234567890123456789012345678901233+66
 			lnStatusInfo+=('+------------+----------+---------+') #00
 			lnStatusInfo+=('|Wriggle     |Bug       |Fighter  |') #01
 			lnStatusInfo+=('+--+---------+----------+---------+') #02
@@ -694,12 +760,12 @@
 
 			declare -a -g lnMenuInfo=()
 
-			#初期状態       000000000011111111112222222222333+65
-			#文字数         012345678901234567890123456789012+65
+			#初期状態     00000000001111111111222222222233333
+			#文字数       01234567890123456789012345678901234+66
 			lnMenuInfo+=('+ M E N U ====================+===+') #00
-			lnMenuInfo+=('| > Invocation [dir]          |iv |') #01
-			lnMenuInfo+=('|   Open Door [dir]           |op |') #02
-			lnMenuInfo+=('|   Talk [dir]                |tk |') #03
+			lnMenuInfo+=('| > Invocation [1-9]          |iv |') #01
+			lnMenuInfo+=('|   Open Door [1-9]           |op |') #02
+			lnMenuInfo+=('|   Talk [1-9]                |tk |') #03
 			lnMenuInfo+=('|                             |   |') #04
 			lnMenuInfo+=('|                             |   |') #05
 			lnMenuInfo+=('|                             |   |') #06
@@ -716,6 +782,42 @@
 			lnMenuInfo+=('|   Exit Menu  　             |cm |') #17
 			lnMenuInfo+=('|   Quit game  　             |qqq|') #18
 			lnMenuInfo+=('+=============================+===+') #19
+			}
+		}						
+	: 'メニュー画面表示内容(コマンド選択後_引数選択)' && {
+		##################################################
+		## defMenuInfo2
+		##  メニュー画面2表示。レイヤー2。
+		##   メニュー画面1で選択したコマンドの引数(方向とか)を選択する画面
+		##   lnMenuInfo2[]にメニュー画面2表示内容を格納する
+		##   メニュー画面1から1行ずらして表示する
+		##################################################
+		function defMenuInfo2() {
+
+			declare -a -g lnMenuInfo2=()
+
+			#              00000000001111111111222222222233333
+			#              01234567890123456789012345678901234+66
+			lnMenuInfo2+=('+ M E N U ========================+') #00
+			lnMenuInfo2+=('|                                 |') #01
+			lnMenuInfo2+=('+---------------------------------+') #02
+			lnMenuInfo2+=('| Specify the direction.          |') #03
+			lnMenuInfo2+=('|                                 |') #04
+			lnMenuInfo2+=('|    7Qq   8Ww   9Ee              |') #05
+			lnMenuInfo2+=('|                                 |') #06
+			lnMenuInfo2+=('|    4Aa   =¥=   6Dd              |') #07
+			lnMenuInfo2+=('|                                 |') #08
+			lnMenuInfo2+=('|    1Zz   2Xx   3Cc              |') #09
+			lnMenuInfo2+=('|                                 |') #10
+			lnMenuInfo2+=('|    0Vv > Cancel                 |') #11
+			lnMenuInfo2+=('|                                 |') #12
+			lnMenuInfo2+=('|                                 |') #13
+			lnMenuInfo2+=('|                                 |') #14
+			lnMenuInfo2+=('|                                 |') #15
+			lnMenuInfo2+=('|                                 |') #16
+			lnMenuInfo2+=('|                                 |') #17
+			lnMenuInfo2+=('|                                 |') #18
+			lnMenuInfo2+=('+=================================+') #19
 			}
 		}						
 
@@ -790,7 +892,7 @@
 			}
 		}
 
-		: 'メニューレイヤー結合' && {
+	: 'メニューレイヤー結合' && {
 		##################################################
 		## joinFrameOnMenu
 		##  画面フレームと、メニュー表示情報を結合する
@@ -802,6 +904,28 @@
 				lnSeed[i]="${lnSeed[i]:0:65}${lnMenuInfo[i]}"
 				}
 			}
+		}
+	: 'メニュー2レイヤー結合' && {
+		##################################################
+		## joinFrameOnMenu2
+		##  画面フレームと、メニュー2表示情報を結合する
+		##   lnSeedのマップ枠の中にlnStatusInfo2をはめ込む。
+		##################################################
+		function joinFrameOnMenu2 (){
+			
+			declare local cmd=''
+
+			cmd="${lnSeed[$selMenuId]:69:26}"
+
+			lnSeed[1]="${lnSeed[1]:0:66}$cmd       |"
+
+			for ((i = 2; i <= 19; i++)) {
+				lnSeed[i]="${lnSeed[i]:0:65}${lnMenuInfo2[i]}"
+			}
+			dispAll
+
+			movDirCsr
+		}
 		}
 
 	: '全画面更新' && {
@@ -2057,7 +2181,7 @@
 		##  引数なし
 		###########################################
 		function om(){
-			dspMenuMode="$CNST_MENUDISP_MODE_MENU1"
+			cmdMode="$CNST_CMDMODE_MENU"
 			joinFrameOnMenu
 			selMenuId=1
 			}
@@ -2069,7 +2193,7 @@
 		##  引数なし
 		###########################################
 		function cm(){
-			dspMenuMode="$CNST_MENUDISP_MODE_STATUS"
+			cmdMode="$CNST_CMDMODE_NRML"
 			joinFrameOnStatus
 			}
 		}
@@ -2111,28 +2235,35 @@
 				getChrH
 				#移動入力として1文字受け付ける。移動を指示しない入力だった場合
 				#任意長のコマンド受付にリダイレクトされる。
-				if [ $dspMenuMode = '0' ] ; then
-					case "$inKey" in
-						[1Z]	)	mv 1;;
-						[2X]	)	mv 2;;
-						[3C]	)	mv 3;;
-						[4A]	)	mv 4;;
-						[5S]	)	mv 5;;
-						[6D]	)	mv 6;;
-						[7Q]	)	mv 7;;
-						[8W]	)	mv 8;;
-						[9E]	)	mv 9;;
-						*	)	getCmdInMain;;
-					esac
-				else
-					case "$inKey" in
-						[2X]	)	movMenuCsr $CNST_CSR_MVTO_DWN
-									dispAll;;
-						[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP
-									dispAll;;
-						*	)	getCmdInMain;;
-					esac
-				fi
+				case "$cmdMode" in
+					'0'	)
+						case "$inKey" in
+							[1Z]	)	mv 1;;
+							[2X]	)	mv 2;;
+							[3C]	)	mv 3;;
+							[4A]	)	mv 4;;
+							[5S]	)	mv 5;;
+							[6D]	)	mv 6;;
+							[7Q]	)	mv 7;;
+							[8W]	)	mv 8;;
+							[9E]	)	mv 9;;
+							*	)	getCmdInMain;;
+						esac
+						;;
+					'1'	)
+						case "$inKey" in
+							''		)	joinFrameOnMenu2;;
+							[2X]	)	movMenuCsr $CNST_CSR_MVTO_DN;;
+							[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP;;
+							*	)	getCmdInMain;;
+						esac
+
+						#いずれにしても全画面の更新再表示は行う
+						dispAll
+						;;
+					'2'	)
+					;;
+				esac
 			done
 		}
 		}
@@ -2147,7 +2278,7 @@
 			printf "$inKey2"
 			getChrV
 			inKey="${inKey2}${inKey}"
-			case "$dspMenuMode" in
+			case "$cmdMode" in
 				'0'	)	case "$inKey" in
 							'man can')	man can;;
 							*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
@@ -2180,7 +2311,7 @@
 							'qqq'	)	quitGame;;
 							#'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
 							#'sq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							' '		)	dspCmdLog 'Input key.';;
+							''		)	dspCmdLog 'Input key.';;
 							*		)	dspCmdLog "[$inKey]is invalid.";;
 						esac;;
 				'1'	)	case "$inKey" in
@@ -2191,15 +2322,46 @@
 							'mv'*	)	mv "${inKey:3}";;
 							'cm'	)	cm;;
 							'qqq'	)	quitGame;;
-							' '		)	dspCmdLog 'Input key.';;
+							''		)	dspCmdLog 'Input key.';;
 							*		)	dspCmdLog "[$inKey]is invalid.";;
 						esac;;
 				*	) dspCmdLog "[$inKey]is invalid.";;
 			esac
 			dispAll
+			}
+			}
 		}
+	: 'コマンド受付(メニューから)' && {
+		###########################################
+		##getCmdInMenu
+		## メニュー内からのコマンド呼出
+		## 各種コマンド割り振りと制御
+		##  $1:各コマンドの引数
+		###########################################
+		function getCmdInMenu(){
+			case $selMenuId in
+				'1' )	iv $1;;
+				'2' )	op $1;;
+				'3' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'4' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'5' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'6' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'7' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'8' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'9' )	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'10')	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'11')	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'12')	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'13')	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'14')	dspCmdLog "Sorry, [$selMenuId]Cmd is not yet implemented.";;
+				'15')	man ;;
+				'16')	??  ;;
+				'17')	cm  ;;
+				'18')	quitGame ;;
+				*		)	dspCmdLog "[$selMenuId]is invalid.";;
+			esac
+			}
 		}
-	}
 : '■メイン' && {
 
 	###########################################
@@ -2215,10 +2377,12 @@
 	defMapInfo
 	defStatusInfo
 	defMenuInfo
+	defMenuInfo2
 	dspMapInfo
 	initDispInfo 
 	joinFrameOnMap
 	joinFrameOnStatus
+
 	dispAll
 
 	#主処理
