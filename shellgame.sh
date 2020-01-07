@@ -38,9 +38,9 @@
 				declare -r -g CNST_CMDLGW_IDX=50 #横
 
 				##コマンド受付モード
-				declare -r -g CNST_CMDMODE_NRML='0' #通常
-				declare -r -g CNST_CMDMODE_MENU='1' #メニュー内の選択
-				declare -r -g CNST_CMDMODE_CLCD='2'
+				declare -r -g CNST_CMDMODE_NRML0='0' #通常
+				declare -r -g CNST_CMDMODE_MENU1='1' #メニュー内の選択
+				#declare -r -g CNST_CMDMODE_MENU2='2' #メニュー内の方向選択など
 
 				##メニュー内カーソル移動方向
 				declare -r -g CNST_CSR_MVTO_UP='8'
@@ -119,7 +119,7 @@
 				declare -g inKey2=''
 				
 				##右上の領域は初期状態ではステータス表示
-				declare -g cmdMode=$CNST_CMDMODE_NRML
+				declare -g cmdMode=$CNST_CMDMODE_NRML0
 
 				##メニュー表示時の現在座標退避
 				declare -g posEsc=''
@@ -613,9 +613,10 @@
 				clrCmdLog
 				getChrH
 				case $inKey	in
-					''						)	getCmdInMenu $chcDir
+					''						)	cmdMode=$CNST_CMDMODE_MENU2
+												getCmdInMain $chcDir
 												joinFrameOnStatus
-												cmdMode=$CNST_CMDMODE_NRML
+												cmdMode=$CNST_CMDMODE_NRML0
 												dispAll
 												break
 												;;
@@ -770,7 +771,7 @@
 			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #13
 			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #14
 			lnMenuInfo+=('|   マニュアルを見る　　　　　|man|') #15
-			lnMenuInfo+=('|   ヘルプ(コマンドリスト)　　|?? |') #16
+			lnMenuInfo+=('|   ヘルプ（コマンドリスト）　|?? |') #16
 			lnMenuInfo+=('|   戻る　　　　　　　　　　　|cm |') #17
 			lnMenuInfo+=('|   終了　　　　　　　　　　　|qqq|') #18
 			lnMenuInfo+=('+=============================+===+') #19
@@ -1211,6 +1212,7 @@
 			echo '[...]can    : can以前の入力すべてをキャンセルする。'
 			echo 'qqq         : ゲームを終了する。'
 			echo 'mv [n]      : [n]で指定した方向へ1歩移動する。'
+			echo 'da [n]      : [n]で指定した方向へ直進する。'
 			echo 'op [n]      : [n]で指定した方向にある扉を開ける(鍵が必要かも)。'
 			echo 'ki [m][n]   : [n]で指定した方向に、強度[n]のリグルキックを放つ。'
 			echo 'wp [n]      : [n]で指定した方向へ武器を振るう。'
@@ -1220,6 +1222,7 @@
 			echo 'tr [m][n]   : [n]で指定した方向へ、[m]のアイテムを投げる。'
 			echo 'tk [n]      : [n]で指定した方向へ話しかける。'
 			echo 'pr [n]      : [n]で指定した対象へ祈る。'
+			echo 'mn          : メニュー画面を開く。'
 			echo 'ss          : 自殺する。次のリグルはもっと上手くやるでしょう。'
 
 			while :
@@ -1230,7 +1233,7 @@
 					dispAll
 					break
 				else
-					echo "$inKey は不適合な入力です。 [q]キーで戻る。"
+					echo "$inKey は無効な入力です。 [q]キーで戻る。"
 				fi
 			done
 
@@ -1247,6 +1250,7 @@
 			case "$1" in
 				'can'	)	man_can ;;
 				'mv'	)	man_mv ;;
+				'da'	)	man_da ;;
 				'op'	)	man_op ;;
 				'pp'	)	man_pp ;;
 				'ki'	)	man_ki ;;
@@ -1258,6 +1262,7 @@
 				'tk'	)	man_tk ;;
 				'pr'	)	man_pr ;;
 				'ss'	)	man_ss ;;
+				'mn'	)	man_mn ;;
 				'man'	)	man_man ;;
 				*		)	dspCmdLog "[$1] :存在しないコマンド"
 							dispAll;;
@@ -1418,7 +1423,51 @@
 						echo ' ――ダンジョン探索は足に始まり足に終わる...いや終わるのは死か？'
 						echo ' 　　ピクニックはさぞ楽しいことだろう。GLHF!'
 						echo ''
-						echo ' 移動先指定...   \  ^  /   \  ^  /   \  ^  /'
+						echo ' 移動先指定...  \  ^  /   \  ^  /   \  ^  /'
+						echo '                 7 8 9     q w e     Q W E '
+						echo '                <4 5 6>   <a s d>   <A S D>'
+						echo '                 3 2 1     z x c     A X C '
+						echo '                /  v  \   /  v  \   /  v  \'
+						echo '                [5]or[s]or[s]  :足踏み(移動なし)'
+						echo '                [0]or[v]or[V]  :キャンセル'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'daコマンドマニュアル' && {
+					function man_da(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** daコマンド ***'
+						echo '<文法>'
+						echo ' da [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向へ直進する。通常の床以外の手前で停止する。' 
+						echo ' 5/S/sを指定するとその場で足踏みする。'
+						echo ' 0/V/vを指定するとキャンセルする。'
+						echo ' ――ダンジョンでは慎重に歩かなければドラゴンの尾を踏むことになる。'
+						echo ' 　　まあ彼にとっては木の根を踏む方が恐ろしいだろうがね。'
+						echo ''
+						echo ' ダッシュ方向...\  ^  /   \  ^  /   \  ^  /'
 						echo '                 7 8 9     q w e     Q W E '
 						echo '                <4 5 6>   <a s d>   <A S D>'
 						echo '                 3 2 1     z x c     A X C '
@@ -1460,7 +1509,7 @@
 						echo ' 施錠された扉の場合は適合する鍵を所持している場合のみ、開く。'
 						echo ' ――茨扉の向こう側が、いつも好意的であるとは限らない。'
 						echo ''
-						echo ' 扉の方向指示...   \  ^  /   \  ^  /   \  ^  /'
+						echo ' 扉の方向指示...  \  ^  /   \  ^  /   \  ^  /'
 						echo '                   7 8 9     q w e     Q W E '
 						echo '                  <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
 						echo '                   3 2 1     z x c     A X C '
@@ -1556,7 +1605,7 @@
 						echo ' ――彼はいつも、ダンジョンでストレスを発散しているように見える。'
 						echo '     ストレスの原因は、彼の妻(達)だろうか...？'
 						echo ''
-						echo ' 武器を振る方向...   \  ^  /'
+						echo ' 武器を振る方向...  \  ^  /'
 						echo '                     1 2 3 '
 						echo '                    <4 ¥ 6>'
 						echo '                     7 8 9 '
@@ -1787,7 +1836,7 @@
 						echo ' [n]の方向へ話しかける。'
 						echo ' 会話が上手なら誰とでも仲良くなれる。でも妻の視線に気をつけて。'
 						echo ''
-						echo ' 声をかける方向...   \  ^  /'
+						echo ' 声をかける方向...  \  ^  /'
 						echo '                     7 8 9 '
 						echo '                    <4 ¥ 6>'
 						echo '                     3 2 1 '
@@ -1880,6 +1929,40 @@
 						done
 						}
 					}
+				: 'mnコマンドマニュアル' && {
+					function man_mn(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** mnコマンド ***'
+						echo '<文法>'
+						echo ' mn'
+						echo ' ※引数なし'
+						echo ''
+						echo '<機能>'
+						echo ' メニュー画面を開く。その後は上下カーソルで行動を選んで実行する。'
+						echo ' 行動によっては追加で方向や対象を選択する必要がある。'
+						echo ' ――今日のご飯は何だろう♪'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
 				: 'manコマンドマニュアル' && {
 					function man_man(){
 
@@ -1960,7 +2043,7 @@
 						'#'	)	#マップ切り替え
 								modMsg 1 1 'マップ切替は未実装です';;
 						'^'	)	#上り階段
-\								jmpPosWrgl $goX $goY
+								jmpPosWrgl $goX $goY
 								modMsg 1 1 '上り階段は未実装です';;
 						'v'	)	#下り階段
 								jmpPosWrgl $goX $goY
@@ -2075,7 +2158,7 @@
 
 				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
-				modMsg 1 1 "リグル:ここには$(getMapInfo $ivX $ivY $NME)だよ。"
+				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))は$(getMapInfo $ivX $ivY $NME)だ。"
 			else
 				#一時的に区切り文字を変更する
 				IFS=':'
@@ -2167,14 +2250,14 @@
 			}
 		}
 
-	: 'omコマンド' && {
+	: 'mnコマンド' && {
 		###########################################
 		##om
 		## メニューを開く
 		##  引数なし
 		###########################################
-		function om(){
-			cmdMode="$CNST_CMDMODE_MENU"
+		function mn(){
+			cmdMode="$CNST_CMDMODE_MENU1"
 			joinFrameOnMenu
 			selMenuId=1
 			}
@@ -2186,7 +2269,7 @@
 		##  引数なし
 		###########################################
 		function cm(){
-			cmdMode="$CNST_CMDMODE_NRML"
+			cmdMode="$CNST_CMDMODE_NRML0"
 			joinFrameOnStatus
 			}
 		}
@@ -2220,7 +2303,7 @@
 		###########################################
 		mainLoop(){
 			jmpPosWrgl 20 6
-			dspCmdLog 'リグルがリスポーンしました。'
+			dspCmdLog 'リグルくん爆誕！！'
 			dispAll
 			while :
 			do
@@ -2229,7 +2312,8 @@
 				#移動入力として1文字受け付ける。移動を指示しない入力だった場合
 				#任意長のコマンド受付にリダイレクトされる。
 				case "$cmdMode" in
-					'0'	)
+					#通常時はmvコマンドのショートカットが有効
+					"$CNST_CMDMODE_NRML0"	)
 						case "$inKey" in
 							[1Z]	)	mv 1;;
 							[2X]	)	mv 2;;
@@ -2243,12 +2327,30 @@
 							*	)	getCmdInMain;;
 						esac
 						;;
-					'1'	)
+
+					"$CNST_CMDMODE_MENU1"	)
+						#メニュー表示時はmvコマンドのショートカットが無効化され
+						#メニューないカーソルの移動といくつかのコマンドが生存する
 						case "$inKey" in
-							''		)	joinFrameOnMenu2;;
+							''		)	
+										case "$selMenuId" in
+										16	)
+											cmdMode=$CNST_CMDMODE_MENU2
+											getCmdInMain $selMenuId
+											cmdMode=$CNST_CMDMODE_NRML0
+											joinFrameOnStatus
+											;;
+										17	)
+											cmdMode=$CNST_CMDMODE_NRML0
+											joinFrameOnStatus
+											;;
+										*	)
+											joinFrameOnMenu2;;
+										esac
+										;;
 							[2X]	)	movMenuCsr $CNST_CSR_MVTO_DN;;
 							[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP;;
-							*	)	getCmdInMain;;
+							*		)	;;
 						esac
 
 						#いずれにしても全画面の更新再表示は行う
@@ -2264,94 +2366,100 @@
 		##getCmdInMain
 		## mainLoopから呼び出される任意長コマンド受付
 		## 各種コマンド割り振りと制御
+		##  $1:メニュー内コマンド選択で呼び出された場合の引数
 		###########################################
 		function getCmdInMain(){
-			inKey2="$inKey"
-			printf "$inKey2"
-			getChrV
-			inKey="${inKey2}${inKey}"
+
 			case "$cmdMode" in
-				'0'	)	case "$inKey" in
-							'man can')	man can;;
-							*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
-							'ci'	)	ci ;;
-							'??'	)	viewHelp;; 
-							'man'*	)	man "${inKey:4}";;
-							'mv'*	)	mv "${inKey:3}";;
-							'op'*	)	op "${inKey:3}";;
-							'da'*	)	da "${inKey:3}";;
-							'qq'	)	da 7;;
-							'ww'	)	da 8;;
-							'ee'	)	da 9;;
-							'aa'	)	da 4;;
-							'dd'	)	da 6;;
-							'zz'	)	da 1;;
-							'xx'	)	da 2;;
-							'cc'	)	da 3;;
-							'om'	)	om;;
-							'sv'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'sq'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'ki'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'wp'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'ct'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'iv'*	)	iv "${inKey:3}";;
-							'gt'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'tr'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'tk'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'pr'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'ss'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							'qqq'	)	quitGame;;
-							#'sv'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							#'sq'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-							''		)	dspCmdLog '入力してください。';;
-							*		)	dspCmdLog "[$inKey]は無効です。";;
-						esac;;
-				'1'	)	case "$inKey" in
-							'man can')	man can;;
-							*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
-							'man'*	)	man "${inKey:4}";;
-							'??'	)	viewHelp;; 
-							'mv'*	)	mv "${inKey:3}";;
-							'cm'	)	cm;;
-							'qqq'	)	quitGame;;
-							''		)	dspCmdLog '入力してください。';;
-							*		)	dspCmdLog "[$inKey]は無効です。";;
-						esac;;
+				#通常時は続けてコマンドを取得し、各種コマンドを起動する
+				"$CNST_CMDMODE_NRML0"	)
+					inKey2="$inKey"
+					printf "$inKey2"
+					getChrV
+					inKey="${inKey2}${inKey}"
+	
+					case "$inKey" in
+						'man can')	man can;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
+						'ci'	)	ci ;;
+						'??'	)	viewHelp;; 
+						'man'*	)	man "${inKey:4}";;
+						'mv'*	)	mv "${inKey:3}";;
+						'op'*	)	op "${inKey:3}";;
+						'da'*	)	da "${inKey:3}";;
+						'qq'	)	da 7;;
+						'ww'	)	da 8;;
+						'ee'	)	da 9;;
+						'aa'	)	da 4;;
+						'dd'	)	da 6;;
+						'zz'	)	da 1;;
+						'xx'	)	da 2;;
+						'cc'	)	da 3;;
+						'mn'	)	mn;;
+						'sv'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'sq'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ki'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'wp'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ct'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'iv'*	)	iv "${inKey:3}";;
+						'gt'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'tr'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'tk'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'pr'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ss'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'qqq'	)	quitGame;;
+						#'sv'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						#'sq'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						''		)	dspCmdLog '入力してください。';;
+						*		)	dspCmdLog "[$inKey]は無効です。";;
+					esac;;
+
+				#メニュー表示時は
+				"$CNST_CMDMODE_MENU1"	)
+					inKey2="$inKey"
+					printf "$inKey2"
+					getChrV
+					inKey="${inKey2}${inKey}"
+
+					case "$inKey" in
+						'man can')	man can;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
+						'man'*	)	man "${inKey:4}";;
+						'??'	)	viewHelp;; 
+						'mv'*	)	mv "${inKey:3}";;
+						'cm'	)	cm;;
+						'qqq'	)	quitGame;;
+						''		)	dspCmdLog '入力してください。';;
+						*		)	dspCmdLog "[$inKey]は無効です。";;
+					esac;;
+
+				"$CNST_CMDMODE_MENU2"	)
+					case $selMenuId in
+						'1' )	iv $1;;
+						'2' )	op $1;;
+						'3' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'4' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'5' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'6' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'7' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'8' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'9' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'10')	dspCmdLog "[$selMenuId]は未実装です。";;
+						'11')	dspCmdLog "[$selMenuId]は未実装です。";;
+						'12')	dspCmdLog "[$selMenuId]は未実装です。";;
+						'13')	dspCmdLog "[$selMenuId]は未実装です。";;
+						'14')	dspCmdLog "[$selMenuId]は未実装です。";;
+						'15')	man ;;
+						'16')	viewHelp ;;
+						'17')	cm ;;
+						'18')	quitGame ;;
+						*		)	dspCmdLog "[$selMenuId]は無効です。";;
+					esac
+				;;
 				*	) dspCmdLog "[$inKey]は無効です。";;
 			esac
 			dispAll
 		}
-		}
-	: 'コマンド受付(メニューから)' && {
-		###########################################
-		##getCmdInMenu
-		## メニュー内からのコマンド呼出
-		## 各種コマンド割り振りと制御
-		##  $1:各コマンドの引数
-		###########################################
-		function getCmdInMenu(){
-			case $selMenuId in
-				'1' )	iv $1;;
-				'2' )	op $1;;
-				'3' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'4' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'5' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'6' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'7' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'8' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'9' )	dspCmdLog "[$selMenuId]は未実装です。";;
-				'10')	dspCmdLog "[$selMenuId]は未実装です。";;
-				'11')	dspCmdLog "[$selMenuId]は未実装です。";;
-				'12')	dspCmdLog "[$selMenuId]は未実装です。";;
-				'13')	dspCmdLog "[$selMenuId]は未実装です。";;
-				'14')	dspCmdLog "[$selMenuId]は未実装です。";;
-				'15')	man ;;
-				'16')	??  ;;
-				'17')	cm  ;;
-				'18')	quitGame ;;
-				*		)	dspCmdLog "[$selMenuId]は無効です。";;
-			esac
-			}
 		}
 	}
 : '■メイン' && {
@@ -2359,9 +2467,8 @@
 	##main
 	## mainLoopをキックする主制御
 	###########################################
-
+	
 	clear
-	#安定するまでは不測の無限ループ脱出のためコメントアウトする
 	trap 'quitGame' INT QUIT TSTP
 
 	initDef
@@ -2376,8 +2483,8 @@
 
 	dispAll
 
-	#主処理
 	mainLoop
+	#主処理
 
 	#終了時に文字修飾を除去し、画面をクリアする
 	quitGame
