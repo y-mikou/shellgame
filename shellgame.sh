@@ -124,8 +124,11 @@
 				##メニュー表示時の現在座標退避
 				declare -g posEsc=''
 
-				##メニュー表示時の現在座標退避
+				##メニューID
 				declare -g selMenuId=''
+
+				##足元マップチップ
+				#declare -g maptipFoot=''
 
 				#CONSTANT値
 				##IFS
@@ -377,7 +380,7 @@
 		## ドアを消す
 		##  $1:X座標
 		##  $2:Y座標
-		##   $1$2が指す座標がドアマスであることが確定してから呼ぶこと
+		##   $1$2が指す座標が閉じドアマスであることが確定してから呼ぶこと
 		###########################################
 		function openDoor(){
 
@@ -395,6 +398,63 @@
 			#lnSeedとlnMapInfoの両方を更新する必要がある。
 			lnSeed[$((mapY+4))]="${lStrD}[${rStrD}"
 			lnMapInfo[$((mapY))]="${lStrM}[${rStrM}"
+			
+			dispAll
+
+			}
+		}
+	: '足元のものを拾う' && {
+		###########################################
+		##pickUp
+		## 拾う
+		##  $1:X座標
+		##  $2:Y座標
+		###########################################
+		function pickup(){
+
+			local declare mapX=$((10#$1))
+			local declare mapY=$((10#$2))
+
+			#表示情報の更新
+			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			#正解マップ情報への反映
+			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+
+			#アイテムなど変化情報をセーブデータに残す必要のあるマップチップは、
+			#lnSeedとlnMapInfoの両方を更新する必要がある。
+			lnSeed[$((mapY+4))]="${lStrD} ${rStrD}"
+			lnMapInfo[$((mapY))]="${lStrM} ${rStrM}"
+			
+			dispAll
+
+			}
+		}
+	: 'ドア閉じる' && {
+		###########################################
+		##closeDoor
+		## ドアを出す
+		##  $1:X座標
+		##  $2:Y座標
+		##   $1$2が指す座標が開きドアマスであることが確定してから呼ぶこと
+		###########################################
+		function closeDoor(){
+
+			local declare mapX=$((10#$1))
+			local declare mapY=$((10#$2))
+
+			#表示情報の更新
+			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			#正解マップ情報への反映
+			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+
+			#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
+			#lnSeedとlnMapInfoの両方を更新する必要がある。
+			lnSeed[$((mapY+4))]="${lStrD}D${rStrD}"
+			lnMapInfo[$((mapY))]="${lStrM}D${rStrM}"
 			
 			dispAll
 
@@ -430,7 +490,7 @@
 			local declare mapX=$((10#$1))
 			local declare mapY=$((10#$2))
 
-			local declare maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
+			maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
 
 			modDspWrglPos $(($1+1)) $(($2+1)) "$maptipFoot"
 			opnArndMaptip
@@ -726,19 +786,19 @@
 			lnStatusInfo+=('|HP| 100/ 100|BLv: 1=     0/    10|') #03
 			lnStatusInfo+=('|MP| 100/ 100|JLv: 1=     0/    10|') #04
 			lnStatusInfo+=('+--+--+--+--++-+--++--+--+--+--+--+') #05
-			lnStatusInfo+=('|✝|💊|💤|❔|🔇|👓||💪|🛡|🔯|🏃|🍀|') #06
+			lnStatusInfo+=('|絶|毒|黙|乱|眠|闇||攻|防|魔|速|運|') #06
 			lnStatusInfo+=('+--+--+--+--+--+--++--+--+--+--+--+') #07
 			lnStatusInfo+=('| 0| 0| 0| 0| 0| 0|| 0| 0| 0| 0| 0|') #08
 			lnStatusInfo+=('+--+--+--+--+--+--++--+--+--+--+--+') #09
-			lnStatusInfo+=('|  VAL - STS - PAR |🔨|⛰|💧|🔥|🌪|') #10
-			lnStatusInfo+=('|*  10 < Str > Atk |10|10|10|10|10|') #11
-			lnStatusInfo+=('|   10 < Int > Mat |10|10|10|10|10|') #12
-			lnStatusInfo+=('|   10 < Vit > Def |10|10|10|10|10|') #13
-			lnStatusInfo+=('|   10 < Mnd > Mdf |10|10|10|10|10|') #14
-			lnStatusInfo+=('|   10 < Snc > XBns| 1  %+==+=====+') #15
-			lnStatusInfo+=('|   10 < Dex > Hit |10  %|Jw|    0|') #16
-			lnStatusInfo+=('|   10 < Agi > Flee|10  %|Gd|    0|') #17
-			lnStatusInfo+=('|   10 < Luk > Cri |10  %|Sv|   50|') #18
+			lnStatusInfo+=('|  値 - ステ - パラ|物|地|水|火|風|') #10
+			lnStatusInfo+=('|  10 < 腕力 > 物攻|10|10|10|10|10|') #11
+			lnStatusInfo+=('|  10 < 知能 > 魔攻|10|10|10|10|10|') #12
+			lnStatusInfo+=('|  10 < 体力 > 物防|10|10|10|10|10|') #13
+			lnStatusInfo+=('|  10 < 精神 > 魔防|10|10|10|10|10|') #14
+			lnStatusInfo+=('|  10 < 知覚 > 抵抗| 1  %+==+=====+') #15
+			lnStatusInfo+=('|  10 < 器用 > 命中|10  %|金|    0|') #16
+			lnStatusInfo+=('|  10 < 敏捷 > 回避|10  %|銀|    0|') #17
+			lnStatusInfo+=('|  10 < 幸運 > クリ|10  %|銅|   50|') #18
 			lnStatusInfo+=('+==================+=====+==+=====+') #19
 			}
 		}						
@@ -758,9 +818,9 @@
 			lnMenuInfo+=('+ M E N U ====================+===+') #00
 			lnMenuInfo+=('| > 調べる　　　　　　　　　　|iv |') #01
 			lnMenuInfo+=('|   開く　　　　　　　　　　　|op |') #02
-			lnMenuInfo+=('|   話す　　　　　　　　　　　|tk |') #03
-			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #04
-			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #05
+			lnMenuInfo+=('|   閉じる　　　　　　　　　　|cl |') #03
+			lnMenuInfo+=('|   話す　　　　　　　　　　　|tk |') #04
+			lnMenuInfo+=('|   拾う　　　　　　　　　　　|pk |') #05
 			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #06
 			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #07
 			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #08
@@ -1039,7 +1099,7 @@
 		##################################################
 		function clrCmdLog(){
 
-			declare local maptipFoot="${lnSeed[20]:48:1}"
+			declare local maptipFoot="${lnSeed[20]:47:1}"
 
 			lnSeed[20]='|COMMAND>                                    | '"$maptipFoot"' |                                                 |'
 
@@ -1214,6 +1274,7 @@
 			echo 'mv [n]      : [n]で指定した方向へ1歩移動する。'
 			echo 'da [n]      : [n]で指定した方向へ直進する。'
 			echo 'op [n]      : [n]で指定した方向にある扉を開ける(鍵が必要かも)。'
+			echo 'cl [n]      : [n]で指定した方向にある扉を閉じる(鍵はかからない)。'
 			echo 'ki [m][n]   : [n]で指定した方向に、強度[n]のリグルキックを放つ。'
 			echo 'wp [n]      : [n]で指定した方向へ武器を振るう。'
 			echo 'ct [m][n]   : [n]で指定した方向へ、[m]にセットした符術を使う。'
@@ -1252,6 +1313,7 @@
 				'mv'	)	man_mv ;;
 				'da'	)	man_da ;;
 				'op'	)	man_op ;;
+				'cl'	)	man_cl ;;
 				'pp'	)	man_pp ;;
 				'ki'	)	man_ki ;;
 				'wp'	)	man_wp ;;
@@ -1508,6 +1570,47 @@
 						echo ' [n]で指定した方向の扉を開ける。'
 						echo ' 施錠された扉の場合は適合する鍵を所持している場合のみ、開く。'
 						echo ' ――茨扉の向こう側が、いつも好意的であるとは限らない。'
+						echo ''
+						echo ' 扉の方向指示...  \  ^  /   \  ^  /   \  ^  /'
+						echo '                   7 8 9     q w e     Q W E '
+						echo '                  <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
+						echo '                   3 2 1     z x c     A X C '
+						echo '                  /  v  \   /  v  \   /  v  \  *5/S/s は無効'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'clコマンドマニュアル' && {
+					function man_cl(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** clコマンド ***'
+						echo '<文法>'
+						echo ' cl [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向の扉を閉じる。'
+						echo ' 開く前に施錠扉だったとしても、鍵をかけることはできない。'
+						echo ' 鍵なしの扉として閉じ直す。'
+						echo ' ――嫌な夢でも見たのかい？　その夢が漏れ出てこないようにね。'
 						echo ''
 						echo ' 扉の方向指示...  \  ^  /   \  ^  /   \  ^  /'
 						echo '                   7 8 9     q w e     Q W E '
@@ -2037,7 +2140,7 @@
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
 				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
-						dspCmdLog "$(sayRnd $CNST_RND_WALL)"
+					dspCmdLog "$(sayRnd $CNST_RND_WALL)"
 				else
 					case "$(getMapInfo $goX $goY 'DSP')" in
 						'#'	)	#マップ切り替え
@@ -2063,7 +2166,7 @@
 		###########################################
 		##op
 		## ドアを開く。但し、適合する鍵を持っている場合のみ。
-		##  $1 移動先座標(1〜9,zxcasdqwe)
+		##  $1 開け先座標(1〜9,zxcasdqwe)
 		##                        ※大文字でも良い
 		###########################################
 		function op(){
@@ -2104,9 +2207,67 @@
 
 				if	[ "$(getMapInfo $opX $opY 'CNM')" != 'DOR' ] ; then
 					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
+				elif
+					[ "$(getMapInfo $opX $opY 'STS')" = '1' ] ; then
+					dspCmdLog "もう開いてる。"
 				else
 					modMsg 1 1 'ひらけごま！'
 					openDoor $opX $opY 
+				fi
+				dispAll
+			fi
+			}
+		}
+	: 'clコマンド' && {
+		###########################################
+		##cl
+		## ドアを閉じる。施錠はできない。
+		##  $1 閉じ先座標(1〜9,zxcasdqwe)
+		##                        ※大文字でも良い
+		###########################################
+		function cl(){
+
+			local declare clX=''
+			local declare clY=''
+			local declare direction="$1"
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] || [ "$1" = '' ]; then
+				dspCmdLog '<cl> 引数はひとつだけ指定してください。'
+				dispAll
+				return
+			fi
+			##$1のバリエーション
+			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
+				dspCmdLog '<cl> 0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll
+				return
+			fi
+
+			#0Vvだったらキャンセル、5Ssだったら無視
+			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+				dspCmdLog '<cl> キャンセルしました'
+				return
+			fi
+			if  [ $(echo '5Ss' | grep "$1") ] ; then
+				:
+			else
+				#一時的に区切り文字を変更する
+				IFS=':'
+				set -- $(clcDirPos "$1")
+				clX=$1
+				clY=$2
+				#区切り文字を戻す
+				IFS=$CNST_IFS_DEFAULT
+
+				if	[ "$(getMapInfo $clX $clY 'CNM')" != 'DOR' ] ; then
+					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
+				elif
+					[ "$(getMapInfo $clX $clY 'STS')" = '0' ] ; then
+					dspCmdLog "閉まってるよ。"
+				else					modMsg 1 1 'ばたん。'
+					closeDoor $clX $clY 
 				fi
 				dispAll
 			fi
@@ -2120,6 +2281,9 @@
 		##                        ※大文字でも良い
 		###########################################
 		function iv(){
+
+			local declare posX=$((10#${lnSeed[1]:1:2}-1))
+			local declare posY=$((10#${lnSeed[2]:1:2}-1))
 
 			local declare ivX=''
 			local declare ivY=''
@@ -2160,18 +2324,33 @@
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
 				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))は$(getMapInfo $ivX $ivY $NME)だ。"
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				ivX=$1
-				ivY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
 
+				
 				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
 				modMsg 1 1 "リグル:ここには$(getMapInfo $ivX $ivY $NME)だよ。"
 			fi
+			dispAll
+			}
+		}
+	: 'pkコマンド' && {
+		###########################################
+		##pk
+		## 拾う
+		## 引数なし		
+		###########################################
+		function pk(){
+
+			local declare posX=$((10#${lnSeed[1]:1:2}))
+			local declare posY=$((10#${lnSeed[2]:1:2}))
+			local declare foot=${lnSeed[20]:40:10}
+
+			if	[ $foot = '' ] ; then
+				dipCmdLog 1 1 'なにもない。'
+			else 
+				modMsg 1 1 "リグル:$(($posX)):$(($posY))で$footを拾った。"
+			fi
+			
 			dispAll
 			}
 		}
@@ -2303,7 +2482,7 @@
 		###########################################
 		mainLoop(){
 			jmpPosWrgl 20 6
-			dspCmdLog 'リグルくん爆誕！！'
+			dspCmdLog 'リグルくん爆☆誕！！'
 			dispAll
 			while :
 			do
@@ -2381,12 +2560,14 @@
 					case "$inKey" in
 						'man can')	man can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
-						'ci'	)	ci ;;
+						'ci'	)	ci;;
 						'??'	)	viewHelp;; 
 						'man'*	)	man "${inKey:4}";;
 						'mv'*	)	mv "${inKey:3}";;
 						'op'*	)	op "${inKey:3}";;
+						'cl'*	)	cl "${inKey:3}";;
 						'da'*	)	da "${inKey:3}";;
+						'pk'*	)	pk;;
 						'qq'	)	da 7;;
 						'ww'	)	da 8;;
 						'ee'	)	da 9;;
@@ -2437,7 +2618,7 @@
 					case $selMenuId in
 						'1' )	iv $1;;
 						'2' )	op $1;;
-						'3' )	dspCmdLog "[$selMenuId]は未実装です。";;
+						'3' )	cl $1;;
 						'4' )	dspCmdLog "[$selMenuId]は未実装です。";;
 						'5' )	dspCmdLog "[$selMenuId]は未実装です。";;
 						'6' )	dspCmdLog "[$selMenuId]は未実装です。";;
