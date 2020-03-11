@@ -70,8 +70,9 @@
 				declare -r -g -a  CNST_MAP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
 				declare -r -g -a  CNST_MAP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
 				declare -r -g -a  CNST_MAP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
-				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '1' '1' '1' '1' '1' '1' 'StairsDOWN')
-				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '1' '1' '1' '1' '1' '1' 'StairsUP')
+				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' 'StairsDOWN')
+				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' 'StairsUP')
+				declare -r -g -a CNST_MAP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' 'Consumables')
 				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
 				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 			}
@@ -134,6 +135,12 @@
 				##IFS
 				##IFS=$' \t\n'
 				declare -r -g CNST_IFS_DEFAULT=$IFS
+
+				## アイテム格納配列
+				## アイテム名は全角であること
+				declare -A -g psnItemName
+
+
 			}
 		}
 		}
@@ -307,6 +314,30 @@
 				echo "$rslt"
 			fi
 
+			}
+		}
+	: '足元マップ分岐' && {
+		###########################################
+		##divActByFoot
+		## $1:
+		##
+		## 足元のマップチップを判定し、必要な分岐と処理を行う。
+		###########################################
+		function divActByFoot(){
+
+			local declare maptipFoot="${lnSeed[20]:47:1}"
+			
+			case "$maptipFoot" in
+				'o'	)	#アイテム
+						modMsg 1 1 '薬草が落ちている';;
+				'#'	)	#マップ切り替え
+						modMsg 1 1 'マップ切替は未実装です';;
+				'^'	)	#上り階段
+						modMsg 1 1 '上り階段は未実装です';;
+				'v'	)	#下り階段
+						modMsg 1 1 '下り階段は未実装です';;
+			esac
+			
 			}
 		}
 
@@ -753,7 +784,7 @@
 			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00+1
 			lnMapInfo+=('|                           D                       |XXXXXXX') #01+1
 			lnMapInfo+=('|                           +-+-------------+D+-----+XXXXXXX') #02+1
-			lnMapInfo+=('+                           |X|                     |XXXXXXX') #03+1
+			lnMapInfo+=('+       o                   |X|                     |XXXXXXX') #03+1
 			lnMapInfo+=('#                           |X|                     |XXXXXXX') #04+1
 			lnMapInfo+=('#                           |X+--+                  +----+XX') #05+1
 			lnMapInfo+=('#                           |XXXX|                       |XX') #06+1
@@ -767,7 +798,40 @@
 			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14+1
 			}
 		}						
+	: 'アイテム欄表示内' && {
+		##################################################
+		## defItemInfo
+		##  アイテム一覧表示。レイヤー2。
+		##   lnItemInfo[]にアイテム一覧表示内容を格納する
+		##################################################
+		function defItemInfo() {
 
+			declare -a -g lnItemInfo=()
+
+			#             00000000001111111111222222222233333
+			#             01234567890123456789012345678901234+66
+			lnItemInfo+=('+ I T E M ---------------------+--+') #00
+			lnItemInfo+=('| > 　　　　　　　　 　　　　　|  |') #01
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #02
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #03
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #04
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #05
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #06
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #07
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #08
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #09
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #10
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #11
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #12
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #13
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #14
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #15
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #16
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #17
+			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #18
+			lnItemInfo+=('+==============================+==+') #19
+			}
+		}						
 	: 'ステータス表示内容' && {
 		##################################################
 		## defStatusInfo
@@ -779,7 +843,7 @@
 			declare -a -g lnStatusInfo=()
 
 			#               00000000001111111111222222222233333
-			#               01234567890123456789012345678901233+66
+			#               01234567890123456789012345678901234+66
 			lnStatusInfo+=('+------------+----------+---------+') #00
 			lnStatusInfo+=('|Wriggle     |Bug       |Fighter  |') #01
 			lnStatusInfo+=('+--+---------+----------+---------+') #02
@@ -944,7 +1008,41 @@
 				}
 			}
 		}
+	: 'アイテムレイヤー結合' && {
+		##################################################
+		## joinFrameOnItem
+		##  画面フレームと、アイテム表示枠を結合する
+		##   lnSeedのマップ枠の中にlnItemInfoをはめ込む。
+		##   また、所持アイテムの情報をはめ込んでいく。		
+		##################################################
+		function joinFrameOnItem (){
 
+			#試験アイテム
+			#psnItemList[0]='薬草'
+			#psnItemList[1]='短剣'
+			#psnItemList[2]='エリクサー'
+			#psnItemList[3]='１２３４５６７８９０１２３'
+
+			declare local itmCnt=${#psnItemList[@]}
+			declare local spCnt=0
+				
+			for ((i = 0; i <= 19; i++)) {
+				lnSeed[i]="${lnSeed[i]:0:65}${lnItemInfo[i]}"
+				}
+
+			#アイテムのはめ込み
+			for ((i = 1; i <= $itmCnt; i++)) {
+
+				#アイテム名の長さを取得し、後をスペースパディングする
+				#現在アイテム名はウィンドウの長さに縛られて全角13.5(13切り捨て)
+				spCnt=$(((13 - ${#psnItemList[i-1]}) * 2))
+				lnSeed[i]="${lnSeed[i]:0:65}|   ${psnItemList[i-1]:0:13} `printf %${spCnt}s`|  |"
+			}
+			#カーソル設置
+			lnSeed[1]="${lnSeed[1]:0:67}>${lnSeed[1]:68}" #01
+
+			}
+		}
 	: 'メニューレイヤー結合' && {
 		##################################################
 		## joinFrameOnMenu
@@ -2139,21 +2237,12 @@
 
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
+				#移動後、足元マップチップごとの処理分岐を行う
 				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
 					dspCmdLog "$(sayRnd $CNST_RND_WALL)"
 				else
-					case "$(getMapInfo $goX $goY 'DSP')" in
-						'#'	)	#マップ切り替え
-								modMsg 1 1 'マップ切替は未実装です';;
-						'^'	)	#上り階段
-								jmpPosWrgl $goX $goY
-								modMsg 1 1 '上り階段は未実装です';;
-						'v'	)	#下り階段
-								jmpPosWrgl $goX $goY
-								modMsg 1 1 '下り階段は未実装です';;
-						*)		#他
-								jmpPosWrgl $goX $goY
-					esac
+					jmpPosWrgl $goX $goY
+					divActByFoot $goX $goY
 				fi
 			fi
 		
@@ -2266,7 +2355,7 @@
 				elif
 					[ "$(getMapInfo $clX $clY 'STS')" = '0' ] ; then
 					dspCmdLog "閉まってるよ。"
-				else					modMsg 1 1 'ばたん。'
+				else				modMsg 1 1 'ばたん。'
 					closeDoor $clX $clY 
 				fi
 				dispAll
@@ -2341,14 +2430,14 @@
 		###########################################
 		function pk(){
 
-			local declare posX=$((10#${lnSeed[1]:1:2}))
-			local declare posY=$((10#${lnSeed[2]:1:2}))
-			local declare foot=${lnSeed[20]:40:10}
+			local declare posX=${lnSeed[1]:1:2}
+			local declare posY=${lnSeed[2]:1:2}
+			local declare maptipFoot=${lnSeed[20]:47:1}
 
 			if	[ $foot = '' ] ; then
 				dipCmdLog 1 1 'なにもない。'
 			else 
-				modMsg 1 1 "リグル:$(($posX)):$(($posY))で$footを拾った。"
+				modMsg 1 1 "リグル:$posX:$posYで$maptipFootを拾った。"
 			fi
 			
 			dispAll
@@ -2428,10 +2517,9 @@
 			tput cvvis
 			}
 		}
-
 	: 'mnコマンド' && {
 		###########################################
-		##om
+		##mn
 		## メニューを開く
 		##  引数なし
 		###########################################
@@ -2452,10 +2540,31 @@
 			joinFrameOnStatus
 			}
 		}
-
+	: 'itコマンド' && {
+		###########################################
+		##it
+		## アイテムを開く
+		##  引数なし
+		###########################################
+		function it(){
+			cmdMode="$CNST_CMDMODE_NRML0"
+			joinFrameOnItem
+			}
+		}
+	: 'ciコマンド' && {
+		###########################################
+		##ci
+		## アイテムを閉じる（ステータス表示に戻る）
+		##  引数なし
+		###########################################
+		function ci(){
+			cmdMode="$CNST_CMDMODE_NRML0"
+			joinFrameOnStatus
+			}
+		}
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
-		function ci(){
+		function te(){
 			dspCmdLog 'チルノ？どうかした？'
 			modMsg 1 1 'チルノ[え？]'
 			dispAll
@@ -2482,7 +2591,7 @@
 		###########################################
 		mainLoop(){
 			jmpPosWrgl 20 6
-			dspCmdLog 'リグルくん爆☆誕！！'
+			dspCmdLog 'リグルくん爆誕！！'
 			dispAll
 			while :
 			do
@@ -2560,7 +2669,7 @@
 					case "$inKey" in
 						'man can')	man can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
-						'ci'	)	ci;;
+						'te'	)	te;;
 						'??'	)	viewHelp;; 
 						'man'*	)	man "${inKey:4}";;
 						'mv'*	)	mv "${inKey:3}";;
@@ -2577,6 +2686,8 @@
 						'xx'	)	da 2;;
 						'cc'	)	da 3;;
 						'mn'	)	mn;;
+						'it'*	)	it;;
+						'ci'*	)	ci;;
 						'sv'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						'sq'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						'ki'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
@@ -2654,6 +2765,7 @@
 
 	initDef
 	defMapInfo
+	defItemInfo
 	defStatusInfo
 	defMenuInfo
 	defMenuInfo2
