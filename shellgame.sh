@@ -73,9 +73,36 @@
 				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' 'StairsDOWN')
 				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' 'StairsUP')
 				declare -r -g -a CNST_MAP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' 'Consumables')
+				declare -r -g -a CNST_MAP_13=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' 'Arms')
 				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
 				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 			}
+			: 'アイテム種別' &&{
+				##アイテム種別_マップチップのCNM(ITM)×CIDに対応
+				declare -r -g  CNST_ITM_CSM='00' #薬系
+				declare -r -g  CNST_ITM_ARM='10' #腕
+				declare -r -g  CNST_ITM_SUT='20' #シャツ
+				declare -r -g  CNST_ITM_BTM='30' #ズボン
+				declare -r -g  CNST_ITM_MNT='40' #マント
+				declare -r -g  CNST_ITM_ANT='50' #触覚
+				declare -r -g  CNST_ITM_ACS='60' #アクセサリ
+				declare -r -g  CNST_ITM_MAG='70' #符
+				declare -r -g  CNST_ITM_OTH='80' #他
+			}
+			: '抽選テーブル_薬系' && {
+				##99_88の99部分はアイテム種別と対応。
+				##88部分は1桁目フロア。2桁目レアリティ区分か？
+				#薬系
+				declare -r -g -a TBL_LOTITM_00_10=('薬草' '薬草' '薬草' 'パン')
+				declare -r -g -a TBL_LOTITM_00_11=('薬草' 'パン' 'パン' 'パン')
+				declare -r -g -a TBL_LOTITM_00_12=('パン' 'パン' 'はちみつ' '薬草')
+				declare -r -g -a TBL_LOTITM_00_13=('はちみつ' 'はちみつ' '大きなパン' 'どくだみ')
+				#腕
+				declare -r -g -a TBL_LOTITM_10_10=('アリ' 'ががんぼ' 'ががんぼ' 'なめくじ')
+				declare -r -g -a TBL_LOTITM_10_11=('アリ' 'アリ' 'なめくじ' 'みつばち')
+				declare -r -g -a TBL_LOTITM_10_12=('アリ' 'アリ' 'みつばち' 'ナナフシ')
+				declare -r -g -a TBL_LOTITM_10_13=('蟷螂' '蟷螂' 'カブト' 'ハサミムシ')
+			}			
 			: '属性値設定' && {
 				declare -r -g DSP=0
 				declare -r -g CNM=1
@@ -112,7 +139,7 @@
 				declare -r -g  CNST_RND_WALL='1' #壁激突音
 				declare -r -g  CNST_RND_DOOR='2' #扉じゃないところを扉
 				declare -r -g CNST_RND_WEMEN='3' #女性接触声
-				declare -r -g  CNST_RND_DASH='4' #ダッシュ音
+				declare -r -g  CNST_RND_DASH='4' #ダッシュ音				
 			}
 			: 'GLOBAL変数定義' && {
 				##キー入力受付用
@@ -316,20 +343,48 @@
 
 			}
 		}
+	: 'アイテム抽選' && {
+		###########################################
+		##lotItem
+		## アイテム最初に拾ったとき抽選する
+		## $1:アイテム種別(CNST_ITM_xxx)
+		## $2:アイテム種別(CNST_ITM_xxx)
+		## $3:アイテムレベル(1桁目フロア数と2桁目レアリティ)
+		##  標準出力にてアイテム名を返却する。
+		##  また、該当アイテムの座標を保持する。
+		###########################################
+		function lotItem(){
+
+			local declare itemCategory=$1
+			local declare flrAndDev=$2
+
+			#受け取った引数でアイテム抽選テーブルを得る
+			#該当アイテム抽選枠から乱数を発生
+			eval 'rSeed=${#TBL_LOTITM_'$1'_'$2'[@]}'
+			getElm=$(($RANDOM % $rSeed))
+
+			#乱数を用いてアイテム抽選枠から一つを抽出して返却する
+			eval 'echo ${TBL_LOTITM_'$1'_'$2'['$getElm']}'
+
+		}
+		}
 	: '足元マップ分岐' && {
 		###########################################
 		##divActByFoot
-		## $1:
-		##
 		## 足元のマップチップを判定し、必要な分岐と処理を行う。
+		## アイテムの抽選はここからで呼び出すこと
 		###########################################
 		function divActByFoot(){
 
 			local declare maptipFoot="${lnSeed[20]:47:1}"
-			
+
 			case "$maptipFoot" in
-				'o'	)	#アイテム
-						modMsg 1 1 '薬草が落ちている';;
+				'o'	)	#アイテム_薬系
+						#抽選機能を呼び出す
+						modMsg 1 1 "$(lotItem $CNST_ITM_CSM 10)が落ちている";;
+				'a'	)	#アイテム_腕
+						#抽選機能を呼び出す
+						modMsg 1 1 "$(lotItem $CNST_ITM_ARM 10)が落ちている";;
 				'#'	)	#マップ切り替え
 						modMsg 1 1 'マップ切替は未実装です';;
 				'^'	)	#上り階段
@@ -340,7 +395,6 @@
 			
 			}
 		}
-
 	: '指示マス座標計算' && {
 		###########################################
 		##clcDirPos
@@ -784,11 +838,11 @@
 			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00+1
 			lnMapInfo+=('|                           D                       |XXXXXXX') #01+1
 			lnMapInfo+=('|                           +-+-------------+D+-----+XXXXXXX') #02+1
-			lnMapInfo+=('+       o                   |X|                     |XXXXXXX') #03+1
+			lnMapInfo+=('+                           |X|                     |XXXXXXX') #03+1
 			lnMapInfo+=('#                           |X|                     |XXXXXXX') #04+1
 			lnMapInfo+=('#                           |X+--+                  +----+XX') #05+1
-			lnMapInfo+=('#                           |XXXX|                       |XX') #06+1
-			lnMapInfo+=('+                           |XXXX|                  +--+ |XX') #07+1
+			lnMapInfo+=('#                    a      |XXXX|                       |XX') #06+1
+			lnMapInfo+=('+                   o       |XXXX|                  +--+ |XX') #07+1
 			lnMapInfo+=('|                           |XXXX+------------------+XX| |XX') #08+1
 			lnMapInfo+=('|v                          |XXXXXXXXXXXXXXXXXXXXXXXXXX| |XX') #09+1
 			lnMapInfo+=('+---------------------------+--------------------------+D+XX') #10+1
@@ -2473,7 +2527,8 @@
 			tput civis
 
 			#0Vvだったらキャンセル、5Ssだったら足踏み
-			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+			if  [ $(
+			 '0Vv' | grep "$direction") ] ; then
 				dspCmdLog '<da> キャンセルしました'
 				return
 			fi
