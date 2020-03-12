@@ -22,6 +22,15 @@
 				declare -r -g      CNST_CSR_DIR_9='81 5'  #メニュー2用方向指示カーソル位置_➚
 				declare -r -g      CNST_CSR_DIR_0='69 11' #メニュー2用方向指示カーソル位置_Cancel
 
+				declare -r -g      CNST_POS_STS_STR='11 2 3' #腕力ステータス表示位置
+				declare -r -g      CNST_POS_STS_INT='12 2 3' #知能ステータス表示位置
+				declare -r -g      CNST_POS_STS_VIT='13 2 3' #体力ステータス表示位置
+				declare -r -g      CNST_POS_STS_MID='14 2 3' #精神ステータス表示位置
+				declare -r -g      CNST_POS_STS_SNS='15 2 3' #知覚ステータス表示位置
+				declare -r -g      CNST_POS_STS_DEX='16 2 3' #器用ステータス表示位置
+				declare -r -g      CNST_POS_STS_AGI='17 2 3' #敏捷ステータス表示位置
+				declare -r -g      CNST_POS_STS_LUK='18 2 3' #幸運ステータス表示位置
+
 				##マップサイズ[MAP_SIZ]
 				declare -r -g CNST_MAP_SIZ_X=60 #横
 				declare -r -g CNST_MAP_SIZ_Y=15 #縦
@@ -60,21 +69,21 @@
 
 											#  0   1     2    3   4   5   6   7   8   9   
 											#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
-				declare -r -g -a  CNST_MAP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
-				declare -r -g -a  CNST_MAP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
-				declare -r -g -a  CNST_MAP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
-				declare -r -g -a  CNST_MAP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
-				declare -r -g -a  CNST_MAP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
-				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' 'StairsDOWN')
-				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' 'StairsUP')
-				declare -r -g -a CNST_MAP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' 'Consumables')
-				declare -r -g -a CNST_MAP_13=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' 'Arms')
-				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
+				declare -r -g -a  CNST_MAP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' '壁') #壁に囲まれた土の中
+				declare -r -g -a  CNST_MAP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'ただの床') #' 'は意図通りに動かないため’F’に読み替える
+				declare -r -g -a  CNST_MAP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'ただの床') #部屋同士の道に使う、かも
+				declare -r -g -a  CNST_MAP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'ただの床') #マップ接続用の表示
+				declare -r -g -a  CNST_MAP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' '扉')
+				declare -r -g -a  CNST_MAP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' '開いてる扉')
+				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' '下り階段')
+				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' '上り階段')
+				declare -r -g -a CNST_MAP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' '消耗品')
+				declare -r -g -a CNST_MAP_13=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' '腕装備')
+				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
 				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 			}
 			: 'アイテム種別' &&{
@@ -89,19 +98,16 @@
 				declare -r -g  CNST_ITM_MAG='70' #符
 				declare -r -g  CNST_ITM_OTH='80' #他
 			}
-			: '抽選テーブル_薬系' && {
-				##99_88の99部分はアイテム種別と対応。
-				##88部分は1桁目フロア。2桁目レアリティ区分か？
+			: '拾得物抽選テーブル_薬系' && {
+				##99_88_7の99部分はアイテム種別と対応。
+				##88部分はアイテムレベル、7部分はバリエーション。
+				##配列後ろほどレアリティが高い。
+				
+				##将来的にはアイテムIDを使用する
 				#薬系
-				declare -r -g -a TBL_LOTITM_00_10=('薬草' '薬草' '薬草' 'パン')
-				declare -r -g -a TBL_LOTITM_00_11=('薬草' 'パン' 'パン' 'パン')
-				declare -r -g -a TBL_LOTITM_00_12=('パン' 'パン' 'はちみつ' '薬草')
-				declare -r -g -a TBL_LOTITM_00_13=('はちみつ' 'はちみつ' '大きなパン' 'どくだみ')
+				declare -r -g -a TBL_LOTITM_00_00_0=('パン' '薬草' '薬草' 'パン' '薬草' 'パン' '弟切草')
 				#腕
-				declare -r -g -a TBL_LOTITM_10_10=('アリ' 'ががんぼ' 'ががんぼ' 'なめくじ')
-				declare -r -g -a TBL_LOTITM_10_11=('アリ' 'アリ' 'なめくじ' 'みつばち')
-				declare -r -g -a TBL_LOTITM_10_12=('アリ' 'アリ' 'みつばち' 'ナナフシ')
-				declare -r -g -a TBL_LOTITM_10_13=('蟷螂' '蟷螂' 'カブト' 'ハサミムシ')
+				declare -r -g -a TBL_LOTITM_10_00_0=('アリ' 'ががんぼ' 'ががんぼ' 'アリ' 'なめくじ' '蟷螂')
 			}			
 			: '属性値設定' && {
 				declare -r -g DSP=0
@@ -264,6 +270,19 @@
 			read -s -n 1 inKey
 		}
 		}
+	: 'ステータス値取得' && {
+		###########################################=
+		##getStsVal
+		## 引数で受け取ったステータス値をlnStsInfoから取得し、
+		## 標準出力で返却する。
+		##  $1:ステータス名(STR,VITなど)
+		###########################################
+		function getStsVal(){
+
+			eval 'args=($(echo $CNST_POS_STS_'$1'|xargs))'
+			eval 'echo ${lnStatusInfo['${args[0]}']:'${args[1]}':'${args[2]}'}'
+		}
+		}
 	: 'コマンド入力受付' && {
 		###########################################
 		##getCmd
@@ -348,23 +367,47 @@
 		##lotItem
 		## アイテム最初に拾ったとき抽選する
 		## $1:アイテム種別(CNST_ITM_xxx)
-		## $2:アイテム種別(CNST_ITM_xxx)
-		## $3:アイテムレベル(1桁目フロア数と2桁目レアリティ)
+		## $2:アイテムレベル
+		## $3:テーブルバリエーション
 		##  標準出力にてアイテム名を返却する。
 		##  また、該当アイテムの座標を保持する。
 		###########################################
 		function lotItem(){
 
-			local declare itemCategory=$1
-			local declare flrAndDev=$2
+			local declare itemCat=$1
+			local declare itemLev=$2
+			local declare lotSlot=$3
 
-			#受け取った引数でアイテム抽選テーブルを得る
-			#該当アイテム抽選枠から乱数を発生
-			eval 'rSeed=${#TBL_LOTITM_'$1'_'$2'[@]}'
-			getElm=$(($RANDOM % $rSeed))
+			local declare stsDex=1 #将来的にステータスから抽出
+			local declare stsSns=5 #将来的にステータスから抽出
 
-			#乱数を用いてアイテム抽選枠から一つを抽出して返却する
-			eval 'echo ${TBL_LOTITM_'$1'_'$2'['$getElm']}'
+			local declare loPrm=0
+			local declare liPrm=0
+			local declare dfPrm=0
+
+			local declare tgtElm=0
+			local declare lotArry=()
+			
+			#受け取った引数と
+			#現在のDexとLukの低い方と合計の間で
+			#抽選用集合と乱数を作成
+
+			##数値的準備
+			if [ $stsDex -ge $stsLuk ] ; then
+				loPrm=$stsLuk
+			else
+				loPrm=$stsDex
+			fi
+			hiPrm=$((stsLuk+stsDex))
+			dfPrm=$((hiPrm-loPrm))
+
+			##抽選用list作成
+			eval 'lotArry=($(echo ${TBL_LOTITM_'$itemCat'_'$itemLev'_'$lotSlot'[*]:'$loPrm':'$dfPrm'}|xargs))'
+
+			#抽選用listから等確率でひとつ抽出し、返却する
+			##抽出用listの長さで乱数を発生して、要素を指定・取得
+			tgtElm=$(( $RANDOM % ${#lotArry[@]} ))
+			eval 'echo ${lotArry['$tgtElm']}'
 
 		}
 		}
@@ -381,10 +424,10 @@
 			case "$maptipFoot" in
 				'o'	)	#アイテム_薬系
 						#抽選機能を呼び出す
-						modMsg 1 1 "$(lotItem $CNST_ITM_CSM 10)が落ちている";;
+						modMsg 1 1 "$(lotItem $CNST_ITM_CSM 00 0)が落ちている";;
 				'a'	)	#アイテム_腕
 						#抽選機能を呼び出す
-						modMsg 1 1 "$(lotItem $CNST_ITM_ARM 10)が落ちている";;
+						modMsg 1 1 "$(lotItem $CNST_ITM_ARM 00 0)が落ちている";;
 				'#'	)	#マップ切り替え
 						modMsg 1 1 'マップ切替は未実装です';;
 				'^'	)	#上り階段
@@ -898,9 +941,9 @@
 
 			#               00000000001111111111222222222233333
 			#               01234567890123456789012345678901234+66
-			lnStatusInfo+=('+------------+----------+---------+') #00
-			lnStatusInfo+=('|Wriggle     |Bug       |Fighter  |') #01
-			lnStatusInfo+=('+--+---------+----------+---------+') #02
+			lnStatusInfo+=('+------------+--------------------+') #00
+			lnStatusInfo+=('|リグル      |むしむしファイター  |') #01
+			lnStatusInfo+=('+--+---------+--------------------+') #02
 			lnStatusInfo+=('|HP| 100/ 100|BLv: 1=     0/    10|') #03
 			lnStatusInfo+=('|MP| 100/ 100|JLv: 1=     0/    10|') #04
 			lnStatusInfo+=('+--+--+--+--++-+--++--+--+--+--+--+') #05
@@ -910,13 +953,13 @@
 			lnStatusInfo+=('+--+--+--+--+--+--++--+--+--+--+--+') #09
 			lnStatusInfo+=('|  値 - ステ - パラ|物|地|水|火|風|') #10
 			lnStatusInfo+=('|  10 < 腕力 > 物攻|10|10|10|10|10|') #11
-			lnStatusInfo+=('|  10 < 知能 > 魔攻|10|10|10|10|10|') #12
-			lnStatusInfo+=('|  10 < 体力 > 物防|10|10|10|10|10|') #13
-			lnStatusInfo+=('|  10 < 精神 > 魔防|10|10|10|10|10|') #14
-			lnStatusInfo+=('|  10 < 知覚 > 抵抗| 1  %+==+=====+') #15
-			lnStatusInfo+=('|  10 < 器用 > 命中|10  %|金|    0|') #16
-			lnStatusInfo+=('|  10 < 敏捷 > 回避|10  %|銀|    0|') #17
-			lnStatusInfo+=('|  10 < 幸運 > クリ|10  %|銅|   50|') #18
+			lnStatusInfo+=('|  20 < 知能 > 魔攻|10|10|10|10|10|') #12
+			lnStatusInfo+=('|  30 < 体力 > 物防|10|10|10|10|10|') #13
+			lnStatusInfo+=('|  40 < 精神 > 魔防|10|10|10|10|10|') #14
+			lnStatusInfo+=('|  50 < 知覚 > 抵抗| 1  %+==+=====+') #15
+			lnStatusInfo+=('|  60 < 器用 > 命中|10  %|金|    0|') #16
+			lnStatusInfo+=('|  70 < 敏捷 > 回避|10  %|銀|    0|') #17
+			lnStatusInfo+=('|  80 < 幸運 > クリ|10  %|銅|   50|') #18
 			lnStatusInfo+=('+==================+=====+==+=====+') #19
 			}
 		}						
@@ -1093,7 +1136,7 @@
 				lnSeed[i]="${lnSeed[i]:0:65}|   ${psnItemList[i-1]:0:13} `printf %${spCnt}s`|  |"
 			}
 			#カーソル設置
-			lnSeed[1]="${lnSeed[1]:0:67}>${lnSeed[1]:68}" #01
+			lnSeed[1]="${lnSeed[1]:0:67}>${lnSeed[1]:68}"
 
 			}
 		}
@@ -2620,19 +2663,7 @@
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
 		function te(){
-			dspCmdLog 'チルノ？どうかした？'
-			modMsg 1 1 'チルノ[え？]'
-			dispAll
-			wk
-			modMsg 2 1 'チルノ[¥ど、どうもしねーよ……///]'
-			dispAll
-			wk
-			modMsg 3 1 '!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。'
-			dspCmdLog 'ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！'
-			dispAll
-			wk
-			clrMsgWin
-			dispAll
+				dspCmdLog $(getStsVal 'INT')
 			}
 		}
 
