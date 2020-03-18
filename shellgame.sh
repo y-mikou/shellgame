@@ -22,14 +22,14 @@
 				declare -r -g      CNST_CSR_DIR_9='81 5'  #メニュー2用方向指示カーソル位置_➚
 				declare -r -g      CNST_CSR_DIR_0='69 11' #メニュー2用方向指示カーソル位置_Cancel
 
-				declare -r -g      CNST_POS_STS_STR='11 2 3' #腕力ステータス表示位置
-				declare -r -g      CNST_POS_STS_INT='12 2 3' #知能ステータス表示位置
-				declare -r -g      CNST_POS_STS_VIT='13 2 3' #体力ステータス表示位置
-				declare -r -g      CNST_POS_STS_MID='14 2 3' #精神ステータス表示位置
-				declare -r -g      CNST_POS_STS_SNS='15 2 3' #知覚ステータス表示位置
-				declare -r -g      CNST_POS_STS_DEX='16 2 3' #器用ステータス表示位置
-				declare -r -g      CNST_POS_STS_AGI='17 2 3' #敏捷ステータス表示位置
-				declare -r -g      CNST_POS_STS_LUK='18 2 3' #幸運ステータス表示位置
+				declare -r -g    CNST_POS_STS_STR='11 2 3' #腕力ステータス表示位置
+				declare -r -g    CNST_POS_STS_INT='12 2 3' #知能ステータス表示位置
+				declare -r -g    CNST_POS_STS_VIT='13 2 3' #体力ステータス表示位置
+				declare -r -g    CNST_POS_STS_MID='14 2 3' #精神ステータス表示位置
+				declare -r -g    CNST_POS_STS_SNS='15 2 3' #知覚ステータス表示位置
+				declare -r -g    CNST_POS_STS_DEX='16 2 3' #器用ステータス表示位置
+				declare -r -g    CNST_POS_STS_AGI='17 2 3' #敏捷ステータス表示位置
+				declare -r -g    CNST_POS_STS_LUK='18 2 3' #幸運ステータス表示位置
 
 				##マップサイズ[MAP_SIZ]
 				declare -r -g CNST_MAP_SIZ_X=60 #横
@@ -86,29 +86,6 @@
 				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
 				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 			}
-			: 'アイテム種別' &&{
-				##アイテム種別_マップチップのCNM(ITM)×CIDに対応
-				declare -r -g  CNST_ITM_CSM='00' #薬系
-				declare -r -g  CNST_ITM_ARM='10' #腕
-				declare -r -g  CNST_ITM_SUT='20' #シャツ
-				declare -r -g  CNST_ITM_BTM='30' #ズボン
-				declare -r -g  CNST_ITM_MNT='40' #マント
-				declare -r -g  CNST_ITM_ANT='50' #触覚
-				declare -r -g  CNST_ITM_ACS='60' #アクセサリ
-				declare -r -g  CNST_ITM_MAG='70' #符
-				declare -r -g  CNST_ITM_OTH='80' #他
-			}
-			: '拾得物抽選テーブル_薬系' && {
-				##99_88_7の99部分はアイテム種別と対応。
-				##88部分はアイテムレベル、7部分はバリエーション。
-				##配列後ろほどレアリティが高い。
-				
-				##将来的にはアイテムIDを使用する
-				#薬系
-				declare -r -g -a TBL_LOTITM_00_00_0=('パン' '薬草' '薬草' 'パン' '薬草' 'パン' '弟切草')
-				#腕
-				declare -r -g -a TBL_LOTITM_10_00_0=('アリ' 'ががんぼ' 'ががんぼ' 'アリ' 'なめくじ' '蟷螂')
-			}			
 			: '属性値設定' && {
 				declare -r -g DSP=0
 				declare -r -g CNM=1
@@ -120,6 +97,64 @@
 				declare -r -g DST=7
 				declare -r -g EVE=8
 				declare -r -g NME=9
+			}
+			: 'アイテム種別' &&{
+				##アイテム種別_マップチップのCNM(ITM)×CIDに対応
+				declare -r -g  CNST_ITM_CSM='CSM' #薬系
+				declare -r -g  CNST_ITM_ARM='ARM' #腕
+				declare -r -g  CNST_ITM_SUT='SUT' #シャツ
+				declare -r -g  CNST_ITM_BTM='BTM' #ズボン
+				declare -r -g  CNST_ITM_MNT='MNT' #マント
+				declare -r -g  CNST_ITM_ANT='ANT' #触覚
+				declare -r -g  CNST_ITM_ACS='ACS' #アクセサリ
+				declare -r -g  CNST_ITM_MAG='MAG' #符
+				declare -r -g  CNST_ITM_OTH='OTH' #他
+			}
+			: '拾得物抽選テーブル_薬系' && {
+				#99_88_7の99部分はアイテム種別と対応。
+				#88部分はアイテムレベル、7部分はバリエーション。
+				#配列後ろほどレアリティが高い。
+				
+				#将来的にはアイテムIDを使用する
+				##薬系
+				declare -g -a TBL_LOTITM_CSM_00_0=()
+				#declare -g -a TBL_LOTITM_00_00_0=('アリ' 'ががんぼ' 'ががんぼ' 'アリ' 'なめくじ' '蟷螂')
+				#とりあえず格納
+				for (( i = 0; i < 100; i++ )){
+					TBL_LOTITM_CSM_00_0+=( $i )
+				}
+
+				##腕
+				declare -r -g -a TBL_LOTITM_ARM_00_0=('アリ' 'ががんぼ' 'ががんぼ' 'アリ' 'なめくじ' '蟷螂')
+			}
+			: 'アイテムテーブル' && {
+				#暫定
+				##アイテムテーブルはn個の半角スペースで区切られた要素で構成される。
+				##各要素に半角スペースを含めることはできない(区切れてしまうので)。
+				##あくまでも暫定なのでもうちょっとちゃんとした形に変わるかも。
+				###アイテムIDは0000～FFFFとする。
+				
+				#薬系
+				declare -g -a TBL_ITM_CSM=()
+							#  0   1   2                    3                    4
+							#  CAT ID   CRR 修飾_全角10文字      名称_全角10文字      説明_全角22文字
+			   #TBL_ITM_CSM+=('CSM FFFF +00 １２３４５６７８９０ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
+			    TBL_ITM_CSM+=('CSM 0000 000 nomod                １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
+				TBL_ITM_CSM+=('CSM 0001 +01 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
+				TBL_ITM_CSM+=('CSM 0002 +02 紅魔館メイド手製     毒弁当               瀟洒！'                                      )
+				TBL_ITM_CSM+=('CSM 0003 +01 魔法の森でとれた     キノコ               エッチな形をしている+1'                      )
+				TBL_ITM_CSM+=('CSM 0004 +02 魔法の森でとれた     キノコ               エッチな形をしている+2'                      )
+				TBL_ITM_CSM+=('CSM 0005 +03 魔法の森でとれた     キノコ               エッチな形をしている+3'                      )
+				TBL_ITM_CSM+=('CSM 0006 +04 魔法の森でとれた     キノコ               エッチな形をしている+4'                      )
+				TBL_ITM_CSM+=('CSM 0007 -10 アロマ臭のする       陰陽玉               いいにおいがする。霊夢愛用。'                )
+				TBL_ITM_CSM+=('CSM 0008 000 七色に光る           壊れた人形           血がついている'                              )
+				TBL_ITM_CSM+=('CSM 0009 000 nomod                宝塔                 おでん'                                      )
+
+
+				#エラーアイテム
+				TBL_ITM_ERR=('ZZZZ +99 該当アイテムなし 該当アイテムなし 該当ＩＤのアイテムは登録されていません')
+
+
 			}
 			: '汎用コード値' && {
 				#可否
@@ -169,9 +204,9 @@
 				##IFS=$' \t\n'
 				declare -r -g CNST_IFS_DEFAULT=$IFS
 
-				## アイテム格納配列
-				## アイテム名は全角であること
-				declare -A -g psnItemName
+				## 所持アイテム格納配列
+				### アイテムID で保持
+				declare -a -g psnItemList
 
 
 			}
@@ -378,8 +413,8 @@
 			local declare itemLev=$2
 			local declare lotSlot=$3
 
-			local declare stsDex=1 #将来的にステータスから抽出
-			local declare stsSns=5 #将来的にステータスから抽出
+			local declare stsLuk=$(getStsVal 'LUK')
+			local declare stsSns=$(getStsVal 'SNS')
 
 			local declare loPrm=0
 			local declare liPrm=0
@@ -387,18 +422,28 @@
 
 			local declare tgtElm=0
 			local declare lotArry=()
+			local declare itemName=''
 			
 			#受け取った引数と
-			#現在のDexとLukの低い方と合計の間で
+			#現在のDexとLukの低い方と-10と合計の間で
 			#抽選用集合と乱数を作成
-
 			##数値的準備
-			if [ $stsDex -ge $stsLuk ] ; then
-				loPrm=$stsLuk
+			if [ $stsSns -ge $stsLuk ] ; then
+				loPrm=$((stsLuk-10))
 			else
-				loPrm=$stsDex
+				loPrm=$((stsSns-10))
 			fi
-			hiPrm=$((stsLuk+stsDex))
+			
+			#loは1未満は1扱sい
+			#hiは99超えたら99扱い
+			if [ $loPrm -lt 1 ] ; then
+				loPrm=1
+			fi
+			hiPrm=$((stsLuk+stsSns))
+			if [ $hiPrm -gt 99 ] ; then
+				hiPrm=99
+			fi
+			
 			dfPrm=$((hiPrm-loPrm))
 
 			##抽選用list作成
@@ -407,8 +452,75 @@
 			#抽選用listから等確率でひとつ抽出し、返却する
 			##抽出用listの長さで乱数を発生して、要素を指定・取得
 			tgtElm=$(( $RANDOM % ${#lotArry[@]} ))
-			eval 'echo ${lotArry['$tgtElm']}'
 
+			#アイテム抽選結果をもとにアイテム情報取得。IDを返却。
+			args=($(echo "$(getItemInfo $itemCat $tgtElm)"|xargs))
+			#itemName="${args[0]}:${args[1]}${args[2]}${args[3]}"
+			echo "${args[1]}"
+
+
+		}
+		}
+	: 'アイテム表示名取得' && {
+		###########################################
+		##getItemDispname
+		## アイテムの表示名を編集して標準出力で返却する。
+		##  $1:アイテムID
+		###########################################
+		function getItemDispname(){
+
+			#補正値が000の時、名称に含めない
+			if [ ${args[1]} = '000' ] ; then
+				{args[1]}=''
+			fi
+			#補正値が000の時、名称に含めない
+			if [ ${args[2]} = 'nomod' ] ; then
+				{args[2]}=''
+			fi
+
+			echo
+		}		
+	}
+
+	: 'アイテム情報取得' && {
+		###########################################
+		##getItemInfo
+		## アイテムIDをもとにアイテムテーブルの行内容を取得し、
+		## 標準出力で返却する。受け取り側で、xargsなど使用してパースすること。
+		## 該当IDのアイテムが登録されていなければ、エラーアイテムが返却される。
+		##  $1:アイテム種別(CSMとかARMとか)
+		##  $2:アイテムID
+		###########################################
+		function getItemInfo(){
+			local declare itemCat="$1"
+			local declare itemID="$(printf "%04d" $2)"
+			local declare cntTblItem=0
+			local declare tmpArr
+			local declare retItemInfo
+			local declare args
+
+			#アイテムテーブルは全部で何件あるか確認
+			eval 'cntTblItem=${#TBL_ITM_'$itemCat'[@]}'
+
+			#アイテムIDとアイテムテーブルのインデクスが一致するとは限らないため
+			#アイテムテーブルをなめる(性能確認はしていない)。
+			for ((i=0; i<$cntTblItem; i++)) {
+				eval 'retItemInfo="${TBL_ITM_'$itemCat'[i]}"'
+
+				#アイテムテーブルの行を半角スペースでパースして1要素目(アイテムID)を取得する
+				args=($(echo "${retItemInfo}"|xargs))
+
+				#引数のアイテムIDとアイテムテーブル内のIDが一致したら
+				#必要な修正を施して返却
+				if [ "${args[1]}" = "$itemID" ] ; then
+					#標準出力で返却、関数を抜ける
+					echo "$retItemInfo"
+					break #要る？
+				fi
+			}
+			#渡されたアイテムIDがアイテムテーブルに存在しないとき、
+			#エラーアイテムを返却する(エラーアイテムIDを対象のアイテムIDに置換する)
+			echo "${TBL_ITM_ERR/ZZZZ/$itemID}"
 		}
 		}
 	: '足元マップ分岐' && {
@@ -420,22 +532,38 @@
 		function divActByFoot(){
 
 			local declare maptipFoot="${lnSeed[20]:47:1}"
+			local declare msg=''
+			local declare itemCat=''
+			local declare pickItemInfo=''
 
 			case "$maptipFoot" in
-				'o'	)	#アイテム_薬系
-						#抽選機能を呼び出す
-						modMsg 1 1 "$(lotItem $CNST_ITM_CSM 00 0)が落ちている";;
-				'a'	)	#アイテム_腕
-						#抽選機能を呼び出す
-						modMsg 1 1 "$(lotItem $CNST_ITM_ARM 00 0)が落ちている";;
-				'#'	)	#マップ切り替え
-						modMsg 1 1 'マップ切替は未実装です';;
-				'^'	)	#上り階段
-						modMsg 1 1 '上り階段は未実装です';;
-				'v'	)	#下り階段
-						modMsg 1 1 '下り階段は未実装です';;
+				[oa] )  ##アイテムは拾う。
+						case "$maptipFoot" in
+							'a'	)	#アイテム_武器系
+									itemCat=$CNST_ITM_ARM
+									;;									
+							'o'	)	#アイテム_薬系
+									itemCat=$CNST_ITM_CSM
+									;;
+						esac
+
+						#pickUp 
+
+						itemID=$(lotItem $itemCat 00 0)
+						eval 'args=($(echo "$(getItemInfo '$itemCat $itemID')"|xargs))'
+						modMsg 1 1 "【${args[0]}${args[1]}】${args[2]}${args[3]}${args[4]}を拾った"
+						;;
+				
+				[#^v] ) ##未実装マップチップ
+						case "$maptipFoot" in
+							'#'	)	msg='マップ切り替え';;
+							'^'	)	msg='上り階段';;
+							'v'	)	msg='下り階段';;
+						esac
+						modMsg 1 1 "$msg"
+						;;
 			esac
-			
+				
 			}
 		}
 	: '指示マス座標計算' && {
@@ -539,23 +667,7 @@
 		##  $2:Y座標
 		###########################################
 		function pickup(){
-
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
-
-			#表示情報の更新
-			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
-			#正解マップ情報への反映
-			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
-			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
-
-			#アイテムなど変化情報をセーブデータに残す必要のあるマップチップは、
-			#lnSeedとlnMapInfoの両方を更新する必要がある。
-			lnSeed[$((mapY+4))]="${lStrD} ${rStrD}"
-			lnMapInfo[$((mapY))]="${lStrM} ${rStrM}"
-			
-			dispAll
+			:
 
 			}
 		}
@@ -905,28 +1017,28 @@
 
 			declare -a -g lnItemInfo=()
 
-			#             00000000001111111111222222222233333
-			#             01234567890123456789012345678901234+66
-			lnItemInfo+=('+ I T E M ---------------------+--+') #00
-			lnItemInfo+=('| > 　　　　　　　　 　　　　　|  |') #01
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #02
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #03
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #04
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #05
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #06
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #07
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #08
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #09
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #10
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #11
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #12
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #13
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #14
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #15
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #16
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #17
-			lnItemInfo+=('|   　　　　　　　　 　　　　　|  |') #18
-			lnItemInfo+=('+==============================+==+') #19
+			#初期状態     0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+			#文字数       0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #00
+			lnItemInfo+=('|   所持品                                       | 説明                                         |直|') #01
+			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #02
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #03
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #04
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #05
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #06
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #07
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #08
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #09
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #10
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #11
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #12
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #13
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #14
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #15
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #16
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #17
+			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #18
+			lnItemInfo+=('+============================================+===+==============================================+==+') #19+1
 			}
 		}						
 	: 'ステータス表示内容' && {
@@ -952,14 +1064,14 @@
 			lnStatusInfo+=('| 0| 0| 0| 0| 0| 0|| 0| 0| 0| 0| 0|') #08
 			lnStatusInfo+=('+--+--+--+--+--+--++--+--+--+--+--+') #09
 			lnStatusInfo+=('|  値 - ステ - パラ|物|地|水|火|風|') #10
-			lnStatusInfo+=('|  10 < 腕力 > 物攻|10|10|10|10|10|') #11
-			lnStatusInfo+=('|  20 < 知能 > 魔攻|10|10|10|10|10|') #12
-			lnStatusInfo+=('|  30 < 体力 > 物防|10|10|10|10|10|') #13
-			lnStatusInfo+=('|  40 < 精神 > 魔防|10|10|10|10|10|') #14
-			lnStatusInfo+=('|  50 < 知覚 > 抵抗| 1  %+==+=====+') #15
-			lnStatusInfo+=('|  60 < 器用 > 命中|10  %|金|    0|') #16
-			lnStatusInfo+=('|  70 < 敏捷 > 回避|10  %|銀|    0|') #17
-			lnStatusInfo+=('|  80 < 幸運 > クリ|10  %|銅|   50|') #18
+			lnStatusInfo+=('|   2 < 腕力 > 物攻|10|10|10|10|10|') #11
+			lnStatusInfo+=('|   2 < 知能 > 魔攻|10|10|10|10|10|') #12
+			lnStatusInfo+=('|   3 < 体力 > 物防|10|10|10|10|10|') #13
+			lnStatusInfo+=('|   1 < 精神 > 魔防|10|10|10|10|10|') #14
+			lnStatusInfo+=('|   4 < 知覚 > 抵抗| 1  %+==+=====+') #15
+			lnStatusInfo+=('|   1 < 器用 > 命中|10  %|金|    0|') #16
+			lnStatusInfo+=('|   4 < 敏捷 > 回避|10  %|銀|    0|') #17
+			lnStatusInfo+=('|   1 < 幸運 > クリ|10  %|銅|   50|') #18
 			lnStatusInfo+=('+==================+=====+==+=====+') #19
 			}
 		}						
@@ -1068,7 +1180,7 @@
 			lnSeed+=('|15|                                                            ||                                 |') #18
 			lnSeed+=('+==+=========================================+===+==============++=================================+') #19
 			lnSeed+=('|COMMAND>                                    |   |                                                 |') #20
-			lnSeed+=('+==+======input [om] to Menu.================+===+========================== input [??] to help.===+') #21
+			lnSeed+=('+==+======input [mn] to Menu.================+===+========================== input [??] to help.===+') #21
 			lnSeed+=('|91|                                                                                               |') #22
 			lnSeed+=('|92|                                                                                               |') #23
 			lnSeed+=('|93|                                                                                               |') #24
@@ -1077,8 +1189,31 @@
 			lnSeed+=('+--+-----------------------------------------------------------------------------------------------+') #27
 
 			}
+		}	
+	: '全画面表示内容を退避' && {
+		##################################################
+		## escLnSeed
+		##  lnSeedの内容を一時的に退避する。
+		##################################################
+		function escLnSeed() {
+			declare -a -g escLnSeedInfo=()
+
+			for ((i = 0; i <= 26; i++)) {
+				escLnSeedInfo[i]="${lnSeed[i]}"
+			}
 		}
-	
+	}
+	: '全画面表示内容を退避領域から復帰' && {
+		##################################################
+		## retLnSeed
+		##  escLnSeedで退避した内容を復帰する
+		##################################################
+		function retLnSeed() {
+			for ((i = 0; i <= 26; i++)) {
+				lnSeed[i]="${escLnSeedInfo[i]}"
+			}
+		}
+	}	
 	: 'マップレイヤー結合' && {
 		##################################################
 		## joinFrameOnMap
@@ -1114,29 +1249,43 @@
 		##################################################
 		function joinFrameOnItem (){
 
-			#試験アイテム
-			#psnItemList[0]='薬草'
-			#psnItemList[1]='短剣'
-			#psnItemList[2]='エリクサー'
-			#psnItemList[3]='１２３４５６７８９０１２３'
+			local declare itmCnt=${#psnItemList[@]}
+			local declare psnItemCnt=0
+			local declare spCnt1=0 #アイテム名称の後の半角相当SP数
+			local declare spCnt2=0 #アイテム説明の後の半角相当SP数
+			local declare -a retArry=()
 
-			declare local itmCnt=${#psnItemList[@]}
-			declare local spCnt=0
-				
+			#現在の表示内容を退避し、アイテム枠を表示する。
+			escLnSeed
 			for ((i = 0; i <= 19; i++)) {
-				lnSeed[i]="${lnSeed[i]:0:65}${lnItemInfo[i]}"
-				}
-
-			#アイテムのはめ込み
-			for ((i = 1; i <= $itmCnt; i++)) {
-
-				#アイテム名の長さを取得し、後をスペースパディングする
-				#現在アイテム名はウィンドウの長さに縛られて全角13.5(13切り捨て)
-				spCnt=$(((13 - ${#psnItemList[i-1]}) * 2))
-				lnSeed[i]="${lnSeed[i]:0:65}|   ${psnItemList[i-1]:0:13} `printf %${spCnt}s`|  |"
+				lnSeed[i]="${lnItemInfo[i]}"
 			}
+
+			psnItemList=(1 2 3)
+			##所持アイテムリストの長さを取得
+			psnItemCnt=${#psnItemList[*]}
+			
+			for ((i=0; i<$psnItemCnt; i++)) {
+
+				#アイテム情報取得関数
+				retArry=$(getItemInfo 'CSM' ${psnItemList[i]})
+				#半角スペースによってパース
+				##arg0:アイテムカテゴリ
+				##arg1:アイテムID
+				##arg2:補正値
+				##arg3:修飾子
+				##arg4:名称
+				##arg5:説明
+				args=($(echo $retArry|xargs))
+
+				spCnt1=$(( (20-(${#args[2]}+${#args[3]}))*2+2 ))
+				spCnt2=$(( (23-${#args[4]})*2 ))
+
+				lnSeed[i+3]="${lnSeed[i+3]:0:4}${args[2]}${args[3]}${args[4]}`printf %${spCnt1}s`|${args[5]}`printf %${spCnt2}s`|`printf "%02d" i+3`|"
+			}
+
 			#カーソル設置
-			lnSeed[1]="${lnSeed[1]:0:67}>${lnSeed[1]:68}"
+			lnSeed[3]="${lnSeed[3]:0:2}>${lnSeed[3]:3}"
 
 			}
 		}
@@ -1161,7 +1310,7 @@
 		##################################################
 		function joinFrameOnMenu2 (){
 			
-			declare local cmd=''
+			local declare cmd=''
 
 			cmd="${lnSeed[$selMenuId]:69:13}"
 
@@ -2645,7 +2794,7 @@
 		##  引数なし
 		###########################################
 		function it(){
-			cmdMode="$CNST_CMDMODE_NRML0"
+			#cmdMode="$CNST_CMDMODE_NRML0"
 			joinFrameOnItem
 			}
 		}
@@ -2657,7 +2806,7 @@
 		###########################################
 		function ci(){
 			cmdMode="$CNST_CMDMODE_NRML0"
-			joinFrameOnStatus
+			retLnSeed
 			}
 		}
 	: 'テストコマンド' && {
