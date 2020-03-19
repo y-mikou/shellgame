@@ -69,22 +69,22 @@
 
 											#  0   1     2    3   4   5   6   7   8   9   
 											#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
-				declare -r -g -a  CNST_MAP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' '壁')
-				declare -r -g -a  CNST_MAP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' '壁')
-				declare -r -g -a  CNST_MAP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' '壁')
-				declare -r -g -a  CNST_MAP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' '壁')
-				declare -r -g -a  CNST_MAP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' '壁') #壁に囲まれた土の中
-				declare -r -g -a  CNST_MAP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'ただの床') #' 'は意図通りに動かないため’F’に読み替える
-				declare -r -g -a  CNST_MAP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'ただの床') #部屋同士の道に使う、かも
-				declare -r -g -a  CNST_MAP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'ただの床') #マップ接続用の表示
-				declare -r -g -a  CNST_MAP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' '扉')
-				declare -r -g -a  CNST_MAP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' '開いてる扉')
-				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' '下り階段')
-				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' '上り階段')
-				declare -r -g -a CNST_MAP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' '消耗品')
-				declare -r -g -a CNST_MAP_13=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' '腕装備')
-				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
-				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
+				declare -r -g -a  CNST_MAPTIP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' '壁') #壁に囲まれた土の中
+				declare -r -g -a  CNST_MAPTIP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'ただの床') #' 'は意図通りに動かないため’F’に読み替える
+				declare -r -g -a  CNST_MAPTIP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'ただの床') #部屋同士の道に使う、かも
+				declare -r -g -a  CNST_MAPTIP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'ただの床') #マップ接続用の表示
+				declare -r -g -a  CNST_MAPTIP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' '扉')
+				declare -r -g -a  CNST_MAPTIP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' '開いてる扉')
+				declare -r -g -a CNST_MAPTIP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' '下り階段')
+				declare -r -g -a CNST_MAPTIP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' '上り階段')
+				declare -r -g -a CNST_MAPTIP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' '消耗品')
+				declare -r -g -a CNST_MAPTIP_13=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' '腕装備')
+				declare -r -g -a CNST_MAPTIP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
+				#declare -r -g -a  CNST_MAPTP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 			}
 			: '属性値設定' && {
 				declare -r -g DSP=0
@@ -135,20 +135,20 @@
 				###アイテムIDは0000～FFFFとする。
 				
 				#薬系
-				declare -g -a TBL_ITM_CSM=()
-							#  0   1   2                    3                    4
-							#  CAT ID   CRR 修飾_全角10文字      名称_全角10文字      説明_全角22文字
-			   #TBL_ITM_CSM+=('CSM FFFF +00 １２３４５６７８９０ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
-			    TBL_ITM_CSM+=('CSM 0000 000 nomod                １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
-				TBL_ITM_CSM+=('CSM 0001 +01 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
-				TBL_ITM_CSM+=('CSM 0002 +02 紅魔館メイド手製     毒弁当               瀟洒！'                                      )
-				TBL_ITM_CSM+=('CSM 0003 +01 魔法の森でとれた     キノコ               エッチな形をしている+1'                      )
-				TBL_ITM_CSM+=('CSM 0004 +02 魔法の森でとれた     キノコ               エッチな形をしている+2'                      )
-				TBL_ITM_CSM+=('CSM 0005 +03 魔法の森でとれた     キノコ               エッチな形をしている+3'                      )
-				TBL_ITM_CSM+=('CSM 0006 +04 魔法の森でとれた     キノコ               エッチな形をしている+4'                      )
-				TBL_ITM_CSM+=('CSM 0007 -10 アロマ臭のする       陰陽玉               いいにおいがする。霊夢愛用。'                )
-				TBL_ITM_CSM+=('CSM 0008 000 七色に光る           壊れた人形           血がついている'                              )
-				TBL_ITM_CSM+=('CSM 0009 000 nomod                宝塔                 おでん'                                      )
+				declare -g -a TBL_ITM_INFO=()
+							#  0    1   2   3                    4                    5
+							#  ID   CAT CRR 修飾_全角10文字      名称_全角10文字      説明_全角22文字
+			   #TBL_ITM_INFO+=('FFFF CSM +00 １２３４５６７８９０ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
+			    TBL_ITM_INFO+=('0000 CSM 000 nomod                八卦炉               激しくマーライオンする'                      )
+				TBL_ITM_INFO+=('0001 CSM +01 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
+				TBL_ITM_INFO+=('0002 CSM +02 紅魔館メイド手製     毒弁当               瀟洒！'                                      )
+				TBL_ITM_INFO+=('0003 CSM +01 魔法の森でとれた     キノコ               エッチな形をしている＋１'                    )
+				TBL_ITM_INFO+=('0004 CSM +02 魔法の森でとれた     キノコ               エッチな形をしている＋２'                    )
+				TBL_ITM_INFO+=('0005 CSM +03 魔法の森でとれた     キノコ               エッチな形をしている＋３'                    )
+				TBL_ITM_INFO+=('0006 CSM +04 魔法の森でとれた     キノコ               エッチな形をしている＋４'                    )
+				TBL_ITM_INFO+=('0007 CSM -10 アロマ臭のする       陰陽玉               いいにおいがする。霊夢愛用。'                )
+				TBL_ITM_INFO+=('0008 CSM 000 七色に光る           壊れた人形           血がついている'                              )
+				TBL_ITM_INFO+=('0009 CSM 000 nomod                宝塔                 おでん'                                      )
 
 
 				#エラーアイテム
@@ -380,13 +380,13 @@
 			fi
 
 			for ((i = 0; i < 99; i++)) {
-				if [ "$(eval 'echo ${CNST_MAP_'$i'[0]}')" = "$objDrction" ] ; then
+				if [ "$(eval 'echo ${CNST_MAPTIP_'$i'[0]}')" = "$objDrction" ] ; then
 					idx=i
 					break
 				fi
 			}
 
-			rslt=$(eval 'echo ${CNST_MAP_'$((idx))'[$(($3))]}')
+			rslt=$(eval 'echo ${CNST_MAPTIP_'$((idx))'[$(($3))]}')
 
 			#表示内容を返すことはないと思うが、結果が’F’だった場合は、’ ’へ戻す。
 			if [ "$rslt" = 'F' ] ; then
@@ -454,31 +454,48 @@
 			tgtElm=$(( $RANDOM % ${#lotArry[@]} ))
 
 			#アイテム抽選結果をもとにアイテム情報取得。IDを返却。
-			args=($(echo "$(getItemInfo $itemCat $tgtElm)"|xargs))
+			args=($(echo "$(getItemInfo $tgtElm)"|xargs))
 			#itemName="${args[0]}:${args[1]}${args[2]}${args[3]}"
-			echo "${args[1]}"
+			echo "${args[0]}"
 
 
 		}
 		}
-	: 'アイテム表示名取得' && {
+	: 'アイテム表示取得' && {
 		###########################################
-		##getItemDispname
-		## アイテムの表示名を編集して標準出力で返却する。
-		##  $1:アイテムID
+		##getItemDis
+		## アイテムの表示を編集して標準出力で返却する。
+		##  $1:表示区分(0:名称/1:説明)
+		##  $2:アイテムID
 		###########################################
-		function getItemDispname(){
+		function getItemDisp(){
 
-			#補正値が000の時、名称に含めない
-			if [ ${args[1]} = '000' ] ; then
-				{args[1]}=''
-			fi
-			#補正値が000の時、名称に含めない
-			if [ ${args[2]} = 'nomod' ] ; then
-				{args[2]}=''
-			fi
+			local declare   mode=$1
+			local declare itemId=$2
+			local declare retStr=''
 
-			echo
+			local declare args=()
+
+			args=($(echo "$(getItemInfo $itemID)"|xargs))
+			
+			case $mode in
+				'0')
+					#補正値が000の時、名称に含めない
+					if [ ${args[2]} != '000' ] ; then
+						retStr="${args[2]}"
+					fi
+					#補正値が000の時、名称に含めない
+					if [ ${args[3]} != 'nomod' ] ; then
+						retStr="$retStr${args[3]}"
+					fi
+					retStr="$retStr${args[4]}"
+					;;
+				'1')
+					retStr="$retStr${args[5]}"
+					;;
+			esac
+
+			echo "$retStr"
 		}		
 	}
 
@@ -488,31 +505,29 @@
 		## アイテムIDをもとにアイテムテーブルの行内容を取得し、
 		## 標準出力で返却する。受け取り側で、xargsなど使用してパースすること。
 		## 該当IDのアイテムが登録されていなければ、エラーアイテムが返却される。
-		##  $1:アイテム種別(CSMとかARMとか)
-		##  $2:アイテムID
+		##  $1:アイテムID
 		###########################################
 		function getItemInfo(){
-			local declare itemCat="$1"
-			local declare itemID="$(printf "%04d" $2)"
+			local declare itemID="$(printf "%04d" $1)"
 			local declare cntTblItem=0
 			local declare tmpArr
 			local declare retItemInfo
 			local declare args
 
 			#アイテムテーブルは全部で何件あるか確認
-			eval 'cntTblItem=${#TBL_ITM_'$itemCat'[@]}'
+			cntTblItem=${#TBL_ITM_INFO[@]}
 
 			#アイテムIDとアイテムテーブルのインデクスが一致するとは限らないため
 			#アイテムテーブルをなめる(性能確認はしていない)。
 			for ((i=0; i<$cntTblItem; i++)) {
-				eval 'retItemInfo="${TBL_ITM_'$itemCat'[i]}"'
+				retItemInfo="${TBL_ITM_INFO[i]}"
 
 				#アイテムテーブルの行を半角スペースでパースして1要素目(アイテムID)を取得する
 				args=($(echo "${retItemInfo}"|xargs))
 
 				#引数のアイテムIDとアイテムテーブル内のIDが一致したら
 				#必要な修正を施して返却
-				if [ "${args[1]}" = "$itemID" ] ; then
+				if [ "${args[0]}" = "$itemID" ] ; then
 					#標準出力で返却、関数を抜ける
 					echo "$retItemInfo"
 					break #要る？
@@ -520,7 +535,7 @@
 			}
 			#渡されたアイテムIDがアイテムテーブルに存在しないとき、
 			#エラーアイテムを返却する(エラーアイテムIDを対象のアイテムIDに置換する)
-			echo "${TBL_ITM_ERR/ZZZZ/$itemID}"
+			echo "${TBL_ITM_INFO_ERR/ZZZZ/$itemID}"
 		}
 		}
 	: '足元マップ分岐' && {
@@ -535,6 +550,7 @@
 			local declare msg=''
 			local declare itemCat=''
 			local declare pickItemInfo=''
+			local declare itemName=''
 
 			case "$maptipFoot" in
 				[oa] )  ##アイテムは拾う。
@@ -548,10 +564,9 @@
 						esac
 
 						#pickUp 
-
 						itemID=$(lotItem $itemCat 00 0)
-						eval 'args=($(echo "$(getItemInfo '$itemCat $itemID')"|xargs))'
-						modMsg 1 1 "【${args[0]}${args[1]}】${args[2]}${args[3]}${args[4]}を拾った"
+						itemName=$(getItemDisp 0 $itemID)
+						modMsg 1 1 "【$itemID】$itemNameを拾った"
 						;;
 				
 				[#^v] ) ##未実装マップチップ
@@ -626,7 +641,7 @@
 			tgtX=$((10#$posX+dirX))
 			tgtY=$((10#$posY+dirY))
 
-			echo "$tgtX:$tgtY"
+			echo "$tgtX,$tgtY"
 
 			}
 		}
@@ -1253,7 +1268,8 @@
 			local declare psnItemCnt=0
 			local declare spCnt1=0 #アイテム名称の後の半角相当SP数
 			local declare spCnt2=0 #アイテム説明の後の半角相当SP数
-			local declare -a retArry=()
+			local declare itemName=''
+			local declare itemExp=''
 
 			#現在の表示内容を退避し、アイテム枠を表示する。
 			escLnSeed
@@ -1261,27 +1277,21 @@
 				lnSeed[i]="${lnItemInfo[i]}"
 			}
 
-			psnItemList=(1 2 3)
+			psnItemList=(0 1 2 3 4 5)
 			##所持アイテムリストの長さを取得
 			psnItemCnt=${#psnItemList[*]}
 			
 			for ((i=0; i<$psnItemCnt; i++)) {
 
 				#アイテム情報取得関数
-				retArry=$(getItemInfo 'CSM' ${psnItemList[i]})
-				#半角スペースによってパース
-				##arg0:アイテムカテゴリ
-				##arg1:アイテムID
-				##arg2:補正値
-				##arg3:修飾子
-				##arg4:名称
-				##arg5:説明
-				args=($(echo $retArry|xargs))
+				itemID=${psnItemList[i]}
+				itemName=$(getItemDisp 0 $itemID)
+				itemExp=$(getItemDisp 1 $itemID)
 
-				spCnt1=$(( (20-(${#args[2]}+${#args[3]}))*2+2 ))
-				spCnt2=$(( (23-${#args[4]})*2 ))
+				spCnt1=$(( (24-(${#itemName}))*2 ))
+				spCnt2=$(( (23-${#itemExp})*2 ))
 
-				lnSeed[i+3]="${lnSeed[i+3]:0:4}${args[2]}${args[3]}${args[4]}`printf %${spCnt1}s`|${args[5]}`printf %${spCnt2}s`|`printf "%02d" i+3`|"
+				lnSeed[i+3]="${lnSeed[i+3]:0:4}$itemName`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|  |"
 			}
 
 			#カーソル設置
@@ -2447,6 +2457,7 @@
 			local declare goX=''
 			local declare goY=''
 			local declare direction="$1"
+			local declare args=()
 
 			#バリデーション
 			##引数の個数
@@ -2473,13 +2484,12 @@
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
 				dspCmdLog 'Hoppn'"'"'nnnnn!'
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$direction")
-				goX=$1
-				goY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
+
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				goX=${args[0]}
+				goY=${args[1]}
+				
 
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
@@ -2509,6 +2519,7 @@
 			local declare opX=''
 			local declare opY=''
 			local declare direction="$1"
+			local declare args=()
 
 			#バリデーション
 			##引数の個数
@@ -2532,13 +2543,11 @@
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
 				:
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				opX=$1
-				opY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
+
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				opX=${args[0]}
+				opY=${args[1]}
 
 				if	[ "$(getMapInfo $opX $opY 'CNM')" != 'DOR' ] ; then
 					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
@@ -2565,6 +2574,7 @@
 			local declare clX=''
 			local declare clY=''
 			local declare direction="$1"
+			local declare args=()
 
 			#バリデーション
 			##引数の個数
@@ -2588,13 +2598,11 @@
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
 				:
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				clX=$1
-				clY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
+
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				clX=${args[0]}
+				clY=${args[1]}
 
 				if	[ "$(getMapInfo $clX $clY 'CNM')" != 'DOR' ] ; then
 					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
@@ -2623,6 +2631,7 @@
 			local declare ivX=''
 			local declare ivY=''
 			local declare direction="$1"
+			local declare args=()
 
 			#バリデーション
 			##引数の個数
@@ -2647,13 +2656,10 @@
 				##今は足元以外を調べる行動と足元を調べる行動は、マスが違うだけで処理内容は同じ。
 				##いずれ足元と足元以外で範囲を変更するなどあるかもしれないのでif分岐は残置する
 
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				ivX=$1
-				ivY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				ivX=${args[0]}
+				ivY=${args[1]}
 
 				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
@@ -2728,29 +2734,26 @@
 				dspCmdLog 'Hoppn'"'"'nnnnn!'
 			else
 
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$direction")
-				goX=$1
-				goY=$2
+				#移動先座標を,区切りで取得
+				##最低1回は実行する
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				goX=${args[0]}
+				goY=${args[1]}
 
 				#進行方向が通常床である限り直進する
 				while [ "$(getMapInfo $goX $goY 'DSP')" = ' ' ]
 				do
 					goAheadWrgl $goX $goY
-					#jmpPosWrgl $goX $goY
-					set -- $(clcDirPos "$direction")
-					goX=$1
-					goY=$2
+					#移動先座標を,区切りで取得
+					args=($(echo $(clcDirPos "$direction")|xargs -d,))
+					goX=${args[0]}
+					goY=${args[1]}
 				done
 
 				local declare posX=$((10#${lnSeed[1]:1:2}))
 				local declare posY=$((10#${lnSeed[2]:1:2}))
 
 				modDspWrglPos $posX $posY "$(getMapInfo $((posX-1)) $((posY-1)) 'DSP')"
-				
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
 				
 				#実行メッセージ
 				dspCmdLog $(sayRnd $CNST_RND_DASH)
