@@ -1,3 +1,4 @@
+#!/bin/bash
 : '■内部処理系' && {
 	: '初期処理' && {
 		###########################################
@@ -67,8 +68,8 @@
 				#08:イベント     0:進入 1:接触  8:条件 9:接触戦闘 /CNST_EVT
 				#09:和名         メッセージ表示が必要な場合の呼称
 
-											#  0   1     2    3   4   5   6   7   8   9   
-											#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
+												#0   1     2    3   4   5   6   7   8   9   
+												#DSP CNM   CID  STS ENT STY OPN DST EVE NME
 				declare -r -g -a  CNST_MAPTIP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' '壁')
 				declare -r -g -a  CNST_MAPTIP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' '壁')
 				declare -r -g -a  CNST_MAPTIP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' '壁')
@@ -81,8 +82,10 @@
 				declare -r -g -a  CNST_MAPTIP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' '開いてる扉')
 				declare -r -g -a CNST_MAPTIP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' '下り階段')
 				declare -r -g -a CNST_MAPTIP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' '上り階段')
-				declare -r -g -a CNST_MAPTIP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' '消耗品')
-				declare -r -g -a CNST_MAPTIP_13=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' '腕装備')
+				declare -r -g -a CNST_MAPTIP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' '未抽選消耗品')
+				declare -r -g -a CNST_MAPTIP_13=('O' 'ITM' '00' '1' '1' '1' '0' '1' '1' '抽選済消耗品')
+				declare -r -g -a CNST_MAPTIP_14=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' '未抽選腕装備')
+				declare -r -g -a CNST_MAPTIP_15=('A' 'ITM' '10' '1' '1' '1' '0' '1' '1' '抽選済腕装備')
 				declare -r -g -a CNST_MAPTIP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
 				#declare -r -g -a  CNST_MAPTP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
 			}
@@ -98,34 +101,36 @@
 				declare -r -g EVE=8
 				declare -r -g NME=9
 			}
-			: 'アイテム種別' &&{
-				##アイテム種別_マップチップのCNM(ITM)×CIDに対応
-				declare -r -g  CNST_ITM_CSM='CSM' #薬系
-				declare -r -g  CNST_ITM_ARM='ARM' #腕
-				declare -r -g  CNST_ITM_SUT='SUT' #シャツ
-				declare -r -g  CNST_ITM_BTM='BTM' #ズボン
-				declare -r -g  CNST_ITM_MNT='MNT' #マント
-				declare -r -g  CNST_ITM_ANT='ANT' #触覚
-				declare -r -g  CNST_ITM_ACS='ACS' #アクセサリ
-				declare -r -g  CNST_ITM_MAG='MAG' #符
-				declare -r -g  CNST_ITM_OTH='OTH' #他
-			}
-			: '拾得物抽選テーブル_薬系' && {
-				#99_88_7の99部分はアイテム種別と対応。
-				#88部分はアイテムレベル、7部分はバリエーション。
-				#配列後ろほどレアリティが高い。
+			: '拾得物抽選テーブル' && {
+				#形式 TBL_LOTITM_XXX_88[9]
+				#                種 _Lv[slot]
+				#XXX:種類
+				#CSM:薬系
+				#ARM:腕
+				#SUT:シャツ
+				#BTM:ズボン
+				#MNT:マント
+				#ANT:触覚
+				#ACS:アクセサリ
+				#MAG:符
+				#OTH:他
 				
-				#将来的にはアイテムIDを使用する
 				##薬系
-				declare -g -a TBL_LOTITM_CSM_00_0=()
-				#declare -g -a TBL_LOTITM_00_00_0=('アリ' 'ががんぼ' 'ががんぼ' 'アリ' 'なめくじ' '蟷螂')
-				#とりあえず格納
-				for (( i = 0; i < 100; i++ )){
-					TBL_LOTITM_CSM_00_0+=( $i )
-				}
+				#抽選テーブルは暫定。
+				##Lv00_0-2の3種類
+				declare -g -a TBL_LOTITM_CSM_00=(
+				  '  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100'
+				  '  3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100'
+				  '  5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100 100 100'
+				)
 
 				##腕
-				declare -r -g -a TBL_LOTITM_ARM_00_0=('アリ' 'ががんぼ' 'ががんぼ' 'アリ' 'なめくじ' '蟷螂')
+				##Lv00_0-2の3種類
+				declare -g -a TBL_LOTITM_ARM_00=(
+				  '  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100'
+				  '  3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100'
+				  '  5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100 100 100'
+				)
 			}
 			: 'アイテムテーブル' && {
 				#暫定
@@ -136,12 +141,12 @@
 				
 				#薬系
 				declare -g -a TBL_ITM_INFO=()
-							#  0    1   2   3                    4                    5
-							#  ID   CAT CRR 修飾_全角10文字      名称_全角10文字      説明_全角22文字
+							#  0    1   2    3                    4                    5
+							#  ID   CAT CRR  修飾_全角10文字      名称_全角10文字      説明_全角22文字
 			   #TBL_ITM_INFO+=('FFFF CSM +00 １２３４５６７８９０ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
 			    TBL_ITM_INFO+=('0000 CSM 000 nomod                八卦炉               激しくマーライオンする'                      )
-				TBL_ITM_INFO+=('0001 CSM +01 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
-				TBL_ITM_INFO+=('0002 CSM +02 紅魔館メイド手製     毒弁当               瀟洒！'                                      )
+				TBL_ITM_INFO+=('0001 CSM 000 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
+				TBL_ITM_INFO+=('0002 CSM +02 nomod                毒弁当               瀟洒！'                                      )
 				TBL_ITM_INFO+=('0003 CSM +01 魔法の森でとれた     キノコ               エッチな形をしている＋１'                    )
 				TBL_ITM_INFO+=('0004 CSM +02 魔法の森でとれた     キノコ               エッチな形をしている＋２'                    )
 				TBL_ITM_INFO+=('0005 CSM +03 魔法の森でとれた     キノコ               エッチな形をしている＋３'                    )
@@ -152,7 +157,7 @@
 
 
 				#エラーアイテム
-				TBL_ITM_ERR=('ZZZZ +99 該当アイテムなし 該当アイテムなし 該当ＩＤのアイテムは登録されていません')
+			 TBL_ITM_INFO_ERR=('ZZZZ ERR +99 該当アイテムなし     該当アイテムなし     該当ＩＤのアイテムは登録されていません')
 
 
 			}
@@ -201,8 +206,8 @@
 
 				#CONSTANT値
 				##IFS
-				##IFS=$' \t\n'
-				declare -r -g CNST_IFS_DEFAULT=$IFS
+				###IFS=$' \t\n'
+				declare -r -g CNST_IFS_DEFAULT="$IFS"
 
 				## 所持アイテム格納配列
 				### アイテムID で保持
@@ -258,11 +263,11 @@
 		function repMonoKana(){
 			local declare cnvstr=$1
 
-			local declare -r tgtDakuten=('ｶﾞ' 'ｷﾞ' 'ｸﾞ' 'ｹﾞ' 'ｺﾞ' 'ｻﾞ' 'ｼﾞ' 'ｽﾞ' 'ｾﾞ' 'ｿﾞ' 'ﾀﾞ' 'ﾁﾞ' 'ﾂﾞ' 'ﾃﾞ' 'ﾄﾞ' 'ﾊﾞ' 'ﾋﾞ' 'ﾌﾞ' 'ﾍﾞ' 'ﾎﾞ' 'ｳﾞ' 'ﾊﾟ' 'ﾋﾟ' 'ﾌﾟ' 'ﾍﾟ' 'ﾎﾟ')
-			local declare -r dstDakuten=('ガ' 'ギ' 'グ' 'ゲ' 'ゴ' 'ザ' 'ジ' 'ズ' 'ゼ' 'ゾ' 'ダ' 'ヂ' 'ヅ' 'デ' 'ド' 'バ' 'ビ' 'ブ' 'ベ' 'ボ' 'パ' 'ピ' 'プ' 'ペ' 'ポ')
+			local declare tgtDakuten=('ｶﾞ' 'ｷﾞ' 'ｸﾞ' 'ｹﾞ' 'ｺﾞ' 'ｻﾞ' 'ｼﾞ' 'ｽﾞ' 'ｾﾞ' 'ｿﾞ' 'ﾀﾞ' 'ﾁﾞ' 'ﾂﾞ' 'ﾃﾞ' 'ﾄﾞ' 'ﾊﾞ' 'ﾋﾞ' 'ﾌﾞ' 'ﾍﾞ' 'ﾎﾞ' 'ｳﾞ' 'ﾊﾟ' 'ﾋﾟ' 'ﾌﾟ' 'ﾍﾟ' 'ﾎﾟ')
+			local declare dstDakuten=('ガ' 'ギ' 'グ' 'ゲ' 'ゴ' 'ザ' 'ジ' 'ズ' 'ゼ' 'ゾ' 'ダ' 'ヂ' 'ヅ' 'デ' 'ド' 'バ' 'ビ' 'ブ' 'ベ' 'ボ' 'パ' 'ピ' 'プ' 'ペ' 'ポ')
 
-			local declare -r tgtAll=('ｱ' 'ｲ' 'ｳ' 'ｴ' 'ｵ' 'ｶ' 'ｷ' 'ｸ' 'ｹ' 'ｺ' 'ｻ' 'ｼ' 'ｽ' 'ｾ' 'ｿ' 'ﾀ' 'ﾁ' 'ﾂ' 'ﾃ' 'ﾄ' 'ﾅ' 'ﾆ' 'ﾇ' 'ﾈ' 'ﾉ' 'ﾊ' 'ﾋ' 'ﾌ' 'ﾍ' 'ﾎ' 'ﾏ' 'ﾐ' 'ﾑ' 'ﾒ' 'ﾓ' 'ﾔ' 'ﾕ' 'ﾖ' 'ﾗ' 'ﾘ' 'ﾙ' 'ﾚ' 'ﾛ' 'ﾜ' 'ｦ' 'ﾝ' 'ｧ' 'ｨ' 'ｩ' 'ｪ' 'ｫ' 'ｯ' 'ｬ' 'ｭ' 'ｮ')
-			local declare -r dstAll=('ア' 'イ' 'ウ' 'エ' 'オ' 'カ' 'キ' 'ク' 'ケ' 'コ' 'サ' 'シ' 'ス' 'セ' 'ソ' 'タ' 'チ' 'ツ' 'テ' 'ト' 'ナ' 'ニ' 'ヌ' 'ネ' 'ノ' 'ハ' 'ヒ' 'フ' 'ヘ' 'ホ' 'マ' 'ミ' 'ム' 'メ' 'モ' 'ヤ' 'ユ' 'ヨ' 'ラ' 'リ' 'ル' 'レ' 'ロ' 'ワ' 'ヲ' 'ン' 'ァ' 'ィ' 'ゥ' 'ェ' 'ォ' 'ッ' 'ャ' 'ュ' 'ョ')
+			local declare tgtAll=('ｱ' 'ｲ' 'ｳ' 'ｴ' 'ｵ' 'ｶ' 'ｷ' 'ｸ' 'ｹ' 'ｺ' 'ｻ' 'ｼ' 'ｽ' 'ｾ' 'ｿ' 'ﾀ' 'ﾁ' 'ﾂ' 'ﾃ' 'ﾄ' 'ﾅ' 'ﾆ' 'ﾇ' 'ﾈ' 'ﾉ' 'ﾊ' 'ﾋ' 'ﾌ' 'ﾍ' 'ﾎ' 'ﾏ' 'ﾐ' 'ﾑ' 'ﾒ' 'ﾓ' 'ﾔ' 'ﾕ' 'ﾖ' 'ﾗ' 'ﾘ' 'ﾙ' 'ﾚ' 'ﾛ' 'ﾜ' 'ｦ' 'ﾝ' 'ｧ' 'ｨ' 'ｩ' 'ｪ' 'ｫ' 'ｯ' 'ｬ' 'ｭ' 'ｮ')
+			local declare dstAll=('ア' 'イ' 'ウ' 'エ' 'オ' 'カ' 'キ' 'ク' 'ケ' 'コ' 'サ' 'シ' 'ス' 'セ' 'ソ' 'タ' 'チ' 'ツ' 'テ' 'ト' 'ナ' 'ニ' 'ヌ' 'ネ' 'ノ' 'ハ' 'ヒ' 'フ' 'ヘ' 'ホ' 'マ' 'ミ' 'ム' 'メ' 'モ' 'ヤ' 'ユ' 'ヨ' 'ラ' 'リ' 'ル' 'レ' 'ロ' 'ワ' 'ヲ' 'ン' 'ァ' 'ィ' 'ゥ' 'ェ' 'ォ' 'ッ' 'ャ' 'ュ' 'ョ')
 
 			#2文字結合の必要があるので、先に濁点半濁点を殺す
 			for i in ${!tgtDakuten[@]}
@@ -274,7 +279,7 @@
 			do
 				cnvstr=${cnvstr//"${tgtAll[i]}"/"${dstAll[i]}"}
 			done
-			echo $cnvstr        
+			echo "$cnvstr"
 		}
 	}
 	: '不正文字個別置換' && {
@@ -299,7 +304,7 @@
 			cnvstr=$(repMonoKana $cnvstr)   #半角カナ
 			cnvstr=${cnvstr//'['/'［'}		#[
 			cnvstr=${cnvstr//']'/'］'}		#]
-			cnvstr=${cnvstr//'…'/'...'}	   #三点リーダ
+			cnvstr=${cnvstr//'…'/'...'}		#三点リーダ
 			cnvstr=${cnvstr//'　'/'  '}		#全角sp
 			cnvstr=${cnvstr//'	'/'  '}		#タブ文字
 			cnvstr=${cnvstr//'-'/'-'}		#ハイフンに似た文字
@@ -396,11 +401,11 @@
 		##   ※詳細はマップチップ系コンスタント値の設定箇所を参照
 		###########################################
 		function getMapInfo(){
-			local declare local tgtchip=''
-			local declare local rslt=''
+			local declare tgtchip=''
+			local declare rslt=''
 
 			local declare objDrction="${lnMapInfo[$((10#$2))]:$((10#$1)):1}"
-			local declare local idx=99
+			local declare idx=99
 
 			#対象マップチップとして’ ’が渡された場合、想定通りの動きをしないため
 			#' 'の代わりに’F’とみなす。
@@ -421,6 +426,7 @@
 			if [ "$rslt" = 'F' ] ; then
 				echo ' '
 			else
+			
 				echo "$rslt"
 			fi
 
@@ -430,27 +436,29 @@
 		###########################################
 		##lotItem
 		## アイテム最初に拾ったとき抽選する
-		## $1:アイテム種別(CNST_ITM_xxx)
-		## $2:アイテムレベル
-		## $3:テーブルバリエーション
+		## $1:アイテム種別(CSM,ARM,...)
+		## $2:アイテムレベル(キャラレベルで上下する？)
+		## $3:テーブルバリエーション(信仰心的なもので上下する？)
 		##  標準出力にてアイテム名を返却する。
 		##  また、該当アイテムの座標を保持する。
 		###########################################
 		function lotItem(){
 
-			local declare itemCat=$1
-			local declare itemLev=$2
-			local declare lotSlot=$3
+			local declare itemCat="$1"
+			local declare itemLev="$2"
+			local declare lotSlot="$3"
 
 			local declare stsLuk=$(getStsVal 'LUK')
 			local declare stsSns=$(getStsVal 'SNS')
 
 			local declare loPrm=0
-			local declare liPrm=0
+			local declare hiPrm=0
 			local declare dfPrm=0
 
 			local declare tgtElm=0
+			local declare tgtSlot=''
 			local declare lotArry=()
+			local declare lotArry2=()
 			local declare itemName=''
 			
 			#受け取った引数と
@@ -459,40 +467,47 @@
 			##数値的準備
 			if [ $stsSns -ge $stsLuk ] ; then
 				loPrm=$((stsLuk-10))
+				hiPrm=$stsSns-1
 			else
 				loPrm=$((stsSns-10))
+				hiPrm=$stsLuk-1
 			fi
 			
-			#loは1未満は1扱sい
+			#loは最低0且つhiPrm-20未満はhiPrm-20扱い
 			#hiは99超えたら99扱い
-			if [ $loPrm -lt 1 ] ; then
-				loPrm=1
+			if [ $((loPrm)) -le 0 ] ; then
+				loPrm=0
 			fi
 			hiPrm=$((stsLuk+stsSns))
-			if [ $hiPrm -gt 99 ] ; then
+			if [ $((hiPrm)) -gt 99 ] ; then
 				hiPrm=99
 			fi
-			
-			dfPrm=$((hiPrm-loPrm))
+			if [ $(($loPrm)) -lt $((hiPrm-20)) ] ; then
+				loPrm=$((hiPrm-20))
+			fi
 
 			##抽選用list作成
-			eval 'lotArry=($(echo ${TBL_LOTITM_'$itemCat'_'$itemLev'_'$lotSlot'[*]:'$loPrm':'$dfPrm'}|xargs))'
-
+			##対象抽選スロットのloPrmからhiPrmの範囲を抜き出して、抽選用Listとする
+			eval 'tgtSlot=${TBL_LOTITM_'$itemCat'_'$itemLev'['$lotSlot']}'
+			lotArry=( $(echo $tgtSlot | xargs) )
+			for i in $( seq $loPrm $hiPrm ) ;
+			do 
+				lotArry2+=(${lotArry[i]})
+			done
+			
 			#抽選用listから等確率でひとつ抽出し、返却する
 			##抽出用listの長さで乱数を発生して、要素を指定・取得
-			tgtElm=$(( $RANDOM % ${#lotArry[@]} ))
-
-			#アイテム抽選結果をもとにアイテム情報取得。IDを返却。
-			args=($(echo "$(getItemInfo $tgtElm)"|xargs))
-			#itemName="${args[0]}:${args[1]}${args[2]}${args[3]}"
-			echo "${args[0]}"
+			tgtElm=$(($RANDOM % $(($hiPrm-$loPrm))))
+			##アイテム抽選結果をもとにアイテム情報取得。IDを返却。
+			itemID=${lotArry2[$tgtElm]}
+			echo "$itemID"
 
 
 		}
 		}
 	: 'アイテム表示取得' && {
 		###########################################
-		##getItemDis
+		##getItemDisp
 		## アイテムの表示を編集して標準出力で返却する。
 		##  $1:表示区分(0:名称/1:説明)
 		##  $2:アイテムID
@@ -506,18 +521,24 @@
 			local declare args=()
 
 			args=($(echo "$(getItemInfo $itemID)"|xargs))
-			
+
 			case $mode in
 				'0')
-					#補正値が000の時、名称に含めない
-					if [ ${args[2]} != '000' ] ; then
-						retStr="${args[2]}"
+					if [ "${args[1]}" = 'ERR' ] ; then
+						retStr="エラーアイテム:ID:${args[0]}"
+					else
+						#補正値が000の時、名称に含めない
+						if [ "${args[2]}" = '000' ] ; then
+							retStr='   '
+						else
+							retStr="${args[2]}"
+						fi
+						#補正値が000の時、名称に含めない
+						if [ "${args[3]}" != 'nomod' ] ; then
+							retStr="$retStr${args[3]}"
+						fi
+						retStr="$retStr${args[4]}"
 					fi
-					#補正値が000の時、名称に含めない
-					if [ ${args[3]} != 'nomod' ] ; then
-						retStr="$retStr${args[3]}"
-					fi
-					retStr="$retStr${args[4]}"
 					;;
 				'1')
 					retStr="$retStr${args[5]}"
@@ -579,24 +600,21 @@
 			local declare msg=''
 			local declare itemCat=''
 			local declare pickItemInfo=''
-			local declare itemName=''
 
 			case "$maptipFoot" in
 				[oa] )  ##アイテムは拾う。
 						case "$maptipFoot" in
 							'a'	)	#アイテム_武器系
-									itemCat=$CNST_ITM_ARM
+									itemCat='ARM'
 									;;									
 							'o'	)	#アイテム_薬系
-									itemCat=$CNST_ITM_CSM
+									itemCat='CSM'
 									;;
 						esac
 
-						#pickUp 
-						itemID=$(lotItem $itemCat 00 0)
-						itemName=$(getItemDisp 0 $itemID)
-						modMsg 1 1 "【$itemID】$itemNameを拾った"
-						psnItemList+=($itemID)
+						#暫定Lv00s0アイテム
+						itemID=$(lotItem "$itemCat" 00 0)
+						pickItem "itemID"
 						;;
 				
 				[#^v] ) ##未実装マップチップ
@@ -605,6 +623,7 @@
 							'^'	)	msg='上り階段';;
 							'v'	)	msg='下り階段';;
 						esac
+
 						modMsg 1 1 "$msg"
 						;;
 			esac
@@ -706,15 +725,21 @@
 		}
 	: '足元のものを拾う' && {
 		###########################################
-		##pickUp
+		##pickItem
 		## 拾う
-		##  $1:X座標
-		##  $2:Y座標
+		##  $1:アイテムID
 		###########################################
-		function pickup(){
-			:
+		function pickItem(){
 
-			}
+			itemName="$(getItemDisp 0 $1)"
+
+			if [ ${#psnItemList[*]} -lt 5 ] ; then
+				modMsg 1 1 "$itemNameを拾った"
+				psnItemList+=($itemID)
+			else
+				modMsg 1 1 "$itemNameが落ちている...が持ち物がいっぱいで持てない。"
+			fi
+		}
 		}
 	: 'ドア閉じる' && {
 		###########################################
@@ -1113,7 +1138,7 @@
 			lnStatusInfo+=('|   2 < 知能 > 魔攻|10|10|10|10|10|') #12
 			lnStatusInfo+=('|   3 < 体力 > 物防|10|10|10|10|10|') #13
 			lnStatusInfo+=('|   1 < 精神 > 魔防|10|10|10|10|10|') #14
-			lnStatusInfo+=('|   4 < 知覚 > 抵抗| 1  %+==+=====+') #15
+			lnStatusInfo+=('|   5 < 知覚 > 抵抗| 1  %+==+=====+') #15
 			lnStatusInfo+=('|   1 < 器用 > 命中|10  %|金|    0|') #16
 			lnStatusInfo+=('|   4 < 敏捷 > 回避|10  %|銀|    0|') #17
 			lnStatusInfo+=('|   1 < 幸運 > クリ|10  %|銅|   50|') #18
@@ -1306,8 +1331,6 @@
 			for ((i = 0; i <= 19; i++)) {
 				lnSeed[i]="${lnItemInfo[i]}"
 			}
-
-			#psnItemList=(0 1 2 3 4 5)
 			
 			##所持アイテムリストの長さを取得
 			psnItemCnt=${#psnItemList[*]}
@@ -1316,13 +1339,13 @@
 
 				#アイテム情報取得関数
 				itemID=${psnItemList[i]}
-				itemName=$(getItemDisp 0 $itemID)
-				itemExp=$(getItemDisp 1 $itemID)
+				itemName="$(getItemDisp 0 $itemID)"
+				itemExp="$(getItemDisp 1 $itemID)"
 
 				spCnt1=$(( (24-(${#itemName}))*2 ))
 				spCnt2=$(( (23-${#itemExp})*2 ))
-
-				lnSeed[i+3]="${lnSeed[i+3]:0:4}$itemName`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|  |"
+				
+				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}'"$itemName"'`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|  |"'
 			}
 
 			#カーソル設置
@@ -1550,7 +1573,7 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 3 ] ; then
-				sysOut 'e' $LINENO '引数は4つ設定してください。'
+				sysOut 'e' $LINENO '引数は3つ設定してください。'
 				return
 			fi
 			##$1の範囲
@@ -1566,7 +1589,7 @@
 
 			local declare tgtRow=$1
 			local declare tgtClmn=$(($2+3))
-			local declare tgtStr=$(crrctStr "$3")
+		eval local declare tgtStr=$(crrctStr "$3")
 			
 			local declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
 
@@ -1591,7 +1614,6 @@
 			#100文字-|1文字=99、-文字数でSPACEの反復数
 
 			lnSeed[$((21+$tgtRow))]="$leftStr$tgtStr`printf %${spCnt}s`|"
-
 			}
 		}
 	: 'コマンドログウィンドウの内容変更' && {
@@ -2667,40 +2689,37 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<iv> 引数はひとつだけ指定してください。'
+				dspCmdLog '<iv>引数はひとつだけ指定してください。'
 				dispAll
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
-				dspCmdLog '<iv> 0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dspCmdLog '<iv>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
 				dispAll
 				return
 			fi
 
 			#0Vvだったらキャンセル、5Ssだったら足踏み
 			if  [ $(echo '0Vv' | grep "$1") ] ; then
-				dspCmdLog '<iv> キャンセルしました'
+				dspCmdLog '<iv>キャンセルしました'
 				return
 			fi
+
+			#移動先座標を,区切りで取得
+			args=($(echo $(clcDirPos "$direction")|xargs -d,))
+			ivX=${args[0]}
+			ivY=${args[1]}
+
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
 				##今は足元以外を調べる行動と足元を調べる行動は、マスが違うだけで処理内容は同じ。
 				##いずれ足元と足元以外で範囲を変更するなどあるかもしれないのでif分岐は残置する
-
-				#移動先座標を,区切りで取得
-				args=($(echo $(clcDirPos "$direction")|xargs -d,))
-				ivX=${args[0]}
-				ivY=${args[1]}
-
-				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
 				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))は$(getMapInfo $ivX $ivY $NME)だ。"
 			else
-
 				
-				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
-				modMsg 1 1 "リグル:ここには$(getMapInfo $ivX $ivY $NME)だよ。"
+				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))には$(getMapInfo $ivX $ivY $NME)があるよ。"
 			fi
 			dispAll
 			}
