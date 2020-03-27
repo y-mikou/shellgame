@@ -77,7 +77,7 @@
 				declare -r -g -a  CNST_MAPTIP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' '壁') #壁に囲まれた土の中
 				declare -r -g -a  CNST_MAPTIP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'ただの床') #' 'は意図通りに動かないため’F’に読み替える
 				declare -r -g -a  CNST_MAPTIP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'ただの床') #部屋同士の道に使う、かも
-				declare -r -g -a  CNST_MAPTIP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'ただの床') #マップ接続用の表示
+				declare -r -g -a  CNST_MAPTIP_7=('#' 'JNT' '02' '0' '1' '1' '1' '0' '0' '隣の部屋への道') #マップ接続用の表示
 				declare -r -g -a  CNST_MAPTIP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' '扉')
 				declare -r -g -a  CNST_MAPTIP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' '開いてる扉')
 				declare -r -g -a CNST_MAPTIP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' '下り階段')
@@ -241,13 +241,20 @@
 		##################################################
 		function getCntSingleWidth(){
 
-			local declare cntStr="$1"
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ設定してください。'
+				return
+			fi
+
+			declare cntStr="$1"
 
 			#半角英数記号以外の文字以外を消す=半角文字数
-			local declare cntS=$(echo -n "$cntStr" | sed -e 's@[^A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
+			declare cntS=$(echo -n "$cntStr" | sed -e 's@[^A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
 
 			#半角英数記号の文字を消す=全角文字数
-			local declare cntW=$(echo -n "$cntStr" | sed -e 's@[A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
+			declare cntW=$(echo -n "$cntStr" | sed -e 's@[A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
 
 			#全角文字数を示すcntWは二倍して、2つを足す
 			echo -n "$(((cntW * 2)+cntS))"
@@ -261,13 +268,21 @@
 		##   $1:入力文字
 		##################################################
 		function repMonoKana(){
-			local declare cnvstr=$1
 
-			local declare tgtDakuten=('ｶﾞ' 'ｷﾞ' 'ｸﾞ' 'ｹﾞ' 'ｺﾞ' 'ｻﾞ' 'ｼﾞ' 'ｽﾞ' 'ｾﾞ' 'ｿﾞ' 'ﾀﾞ' 'ﾁﾞ' 'ﾂﾞ' 'ﾃﾞ' 'ﾄﾞ' 'ﾊﾞ' 'ﾋﾞ' 'ﾌﾞ' 'ﾍﾞ' 'ﾎﾞ' 'ｳﾞ' 'ﾊﾟ' 'ﾋﾟ' 'ﾌﾟ' 'ﾍﾟ' 'ﾎﾟ')
-			local declare dstDakuten=('ガ' 'ギ' 'グ' 'ゲ' 'ゴ' 'ザ' 'ジ' 'ズ' 'ゼ' 'ゾ' 'ダ' 'ヂ' 'ヅ' 'デ' 'ド' 'バ' 'ビ' 'ブ' 'ベ' 'ボ' 'パ' 'ピ' 'プ' 'ペ' 'ポ')
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1設定してください。'
+				return
+			fi
 
-			local declare tgtAll=('ｱ' 'ｲ' 'ｳ' 'ｴ' 'ｵ' 'ｶ' 'ｷ' 'ｸ' 'ｹ' 'ｺ' 'ｻ' 'ｼ' 'ｽ' 'ｾ' 'ｿ' 'ﾀ' 'ﾁ' 'ﾂ' 'ﾃ' 'ﾄ' 'ﾅ' 'ﾆ' 'ﾇ' 'ﾈ' 'ﾉ' 'ﾊ' 'ﾋ' 'ﾌ' 'ﾍ' 'ﾎ' 'ﾏ' 'ﾐ' 'ﾑ' 'ﾒ' 'ﾓ' 'ﾔ' 'ﾕ' 'ﾖ' 'ﾗ' 'ﾘ' 'ﾙ' 'ﾚ' 'ﾛ' 'ﾜ' 'ｦ' 'ﾝ' 'ｧ' 'ｨ' 'ｩ' 'ｪ' 'ｫ' 'ｯ' 'ｬ' 'ｭ' 'ｮ')
-			local declare dstAll=('ア' 'イ' 'ウ' 'エ' 'オ' 'カ' 'キ' 'ク' 'ケ' 'コ' 'サ' 'シ' 'ス' 'セ' 'ソ' 'タ' 'チ' 'ツ' 'テ' 'ト' 'ナ' 'ニ' 'ヌ' 'ネ' 'ノ' 'ハ' 'ヒ' 'フ' 'ヘ' 'ホ' 'マ' 'ミ' 'ム' 'メ' 'モ' 'ヤ' 'ユ' 'ヨ' 'ラ' 'リ' 'ル' 'レ' 'ロ' 'ワ' 'ヲ' 'ン' 'ァ' 'ィ' 'ゥ' 'ェ' 'ォ' 'ッ' 'ャ' 'ュ' 'ョ')
+			declare cnvstr=$1
+
+			declare tgtDakuten=('ｶﾞ' 'ｷﾞ' 'ｸﾞ' 'ｹﾞ' 'ｺﾞ' 'ｻﾞ' 'ｼﾞ' 'ｽﾞ' 'ｾﾞ' 'ｿﾞ' 'ﾀﾞ' 'ﾁﾞ' 'ﾂﾞ' 'ﾃﾞ' 'ﾄﾞ' 'ﾊﾞ' 'ﾋﾞ' 'ﾌﾞ' 'ﾍﾞ' 'ﾎﾞ' 'ｳﾞ' 'ﾊﾟ' 'ﾋﾟ' 'ﾌﾟ' 'ﾍﾟ' 'ﾎﾟ')
+			declare dstDakuten=('ガ' 'ギ' 'グ' 'ゲ' 'ゴ' 'ザ' 'ジ' 'ズ' 'ゼ' 'ゾ' 'ダ' 'ヂ' 'ヅ' 'デ' 'ド' 'バ' 'ビ' 'ブ' 'ベ' 'ボ' 'パ' 'ピ' 'プ' 'ペ' 'ポ')
+
+			declare tgtAll=('ｱ' 'ｲ' 'ｳ' 'ｴ' 'ｵ' 'ｶ' 'ｷ' 'ｸ' 'ｹ' 'ｺ' 'ｻ' 'ｼ' 'ｽ' 'ｾ' 'ｿ' 'ﾀ' 'ﾁ' 'ﾂ' 'ﾃ' 'ﾄ' 'ﾅ' 'ﾆ' 'ﾇ' 'ﾈ' 'ﾉ' 'ﾊ' 'ﾋ' 'ﾌ' 'ﾍ' 'ﾎ' 'ﾏ' 'ﾐ' 'ﾑ' 'ﾒ' 'ﾓ' 'ﾔ' 'ﾕ' 'ﾖ' 'ﾗ' 'ﾘ' 'ﾙ' 'ﾚ' 'ﾛ' 'ﾜ' 'ｦ' 'ﾝ' 'ｧ' 'ｨ' 'ｩ' 'ｪ' 'ｫ' 'ｯ' 'ｬ' 'ｭ' 'ｮ')
+			declare dstAll=('ア' 'イ' 'ウ' 'エ' 'オ' 'カ' 'キ' 'ク' 'ケ' 'コ' 'サ' 'シ' 'ス' 'セ' 'ソ' 'タ' 'チ' 'ツ' 'テ' 'ト' 'ナ' 'ニ' 'ヌ' 'ネ' 'ノ' 'ハ' 'ヒ' 'フ' 'ヘ' 'ホ' 'マ' 'ミ' 'ム' 'メ' 'モ' 'ヤ' 'ユ' 'ヨ' 'ラ' 'リ' 'ル' 'レ' 'ロ' 'ワ' 'ヲ' 'ン' 'ァ' 'ィ' 'ゥ' 'ェ' 'ォ' 'ッ' 'ャ' 'ュ' 'ョ')
 
 			#2文字結合の必要があるので、先に濁点半濁点を殺す
 			for i in ${!tgtDakuten[@]}
@@ -298,7 +313,15 @@
 		##   $1:入力文字
 		##################################################
 		function crrctStr(){
-			local declare cnvstr="$1"
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ設定してください。'
+				return
+			fi
+		
+			declare cnvstr="$1"
 
 			cnvstr=${cnvstr//'¥'/'￥'}      #¥
 			cnvstr=$(repMonoKana $cnvstr)   #半角カナ
@@ -347,6 +370,13 @@
 		##  $1:ステータス名(STR,VITなど)
 		###########################################
 		function getStsVal(){
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ設定してください。'
+				return
+			fi
 
 			eval 'args=($(echo $CNST_POS_STS_'$1'|xargs))'
 			eval 'echo ${lnStatusInfo['${args[0]}']:'${args[1]}':'${args[2]}'}'
@@ -401,11 +431,19 @@
 		##   ※詳細はマップチップ系コンスタント値の設定箇所を参照
 		###########################################
 		function getMapInfo(){
-			local declare tgtchip=''
-			local declare rslt=''
 
-			local declare objDrction="${lnMapInfo[$((10#$2))]:$((10#$1)):1}"
-			local declare idx=99
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 3 ] ; then
+				sysOut 'e' $LINENO '引数は3つ設定してください。'
+				return
+			fi
+
+			declare tgtchip=''
+			declare rslt=''
+
+			declare objDrction="${lnMapInfo[$((10#$2))]:$((10#$1)):1}"
+			declare idx=99
 
 			#対象マップチップとして’ ’が渡された場合、想定通りの動きをしないため
 			#' 'の代わりに’F’とみなす。
@@ -444,22 +482,40 @@
 		###########################################
 		function lotItem(){
 
-			local declare itemCat="$1"
-			local declare itemLev="$2"
-			local declare lotSlot="$3"
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 3 ] ; then
+				sysOut 'e' $LINENO '引数は3つ設定してください。'
+				return
+			fi
+			##引数の種類
+			if [[ ! $1 =~ (CSM|ARM|SUT|BTM|MNT|ANT|ACS|MAG|OTH) ]] ; then
+				sysOut 'e' $LINENO 'アイテム種別が不正です'
+				return
+			fi
+			##引数の範囲
+			if [ $2 -lt 0 ] || [ $2 -gt 99 ] ; then
+				sysOut 'e' $LINENO '第2引数の範囲が誤っています。$2'
+				return
+			fi
 
-			local declare stsLuk=$(getStsVal 'LUK')
-			local declare stsSns=$(getStsVal 'SNS')
 
-			local declare loPrm=0
-			local declare hiPrm=0
-			local declare dfPrm=0
+			declare itemCat="$1"
+			declare itemLev="$2"
+			declare lotSlot="$3"
 
-			local declare tgtElm=0
-			local declare tgtSlot=''
-			local declare lotArry=()
-			local declare lotArry2=()
-			local declare itemName=''
+			declare stsLuk=$(getStsVal 'LUK')
+			declare stsSns=$(getStsVal 'SNS')
+
+			declare loPrm=0
+			declare hiPrm=0
+			declare dfPrm=0
+
+			declare tgtElm=0
+			declare tgtSlot=''
+			declare lotArry=()
+			declare lotArry2=()
+			declare itemName=''
 			
 			#受け取った引数と
 			#現在のDexとLukの低い方と-10と合計の間で
@@ -514,11 +570,17 @@
 		###########################################
 		function getItemDisp(){
 
-			local declare   mode=$1
-			local declare itemId=$2
-			local declare retStr=''
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
 
-			local declare args=()
+			declare   mode=$1
+			declare itemId=$2
+			declare retStr=''
+
+			declare args=()
 
 			args=($(echo "$(getItemInfo $itemID)"|xargs))
 
@@ -558,11 +620,17 @@
 		##  $1:アイテムID
 		###########################################
 		function getItemInfo(){
-			local declare itemID="$(printf "%04d" $1)"
-			local declare cntTblItem=0
-			local declare tmpArr
-			local declare retItemInfo
-			local declare args
+			declare itemID="$(printf "%04d" $1)"
+			declare cntTblItem=0
+			declare tmpArr
+			declare retItemInfo
+			declare args
+
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
 
 			#アイテムテーブルは全部で何件あるか確認
 			cntTblItem=${#TBL_ITM_INFO[@]}
@@ -596,10 +664,10 @@
 		###########################################
 		function divActByFoot(){
 
-			local declare maptipFoot="${lnSeed[20]:47:1}"
-			local declare msg=''
-			local declare itemCat=''
-			local declare pickItemInfo=''
+			declare maptipFoot="${lnSeed[20]:47:1}"
+			declare msg=''
+			declare itemCat=''
+			declare pickItemInfo=''
 
 			case "$maptipFoot" in
 				[oa] )  ##アイテムは拾う。
@@ -616,7 +684,7 @@
 						itemID=$(lotItem "$itemCat" 00 0)
 						pickItem "itemID"
 						;;
-				
+			
 				[#^v] ) ##未実装マップチップ
 						case "$maptipFoot" in
 							'#'	)	msg='マップ切り替え';;
@@ -637,13 +705,13 @@
 		##  $1:方向指示(1-9,zxcasdqwe)
 		###########################################
 		function clcDirPos(){
-			local declare posX=$((10#${lnSeed[1]:1:2}-1))
-			local declare posY=$((10#${lnSeed[2]:1:2}-1))
-			local declare dirct=$1
-			local declare dirX=0
-			local declare dirY=0
-			local declare tgtX=0
-			local declare tgtY=0
+			declare posX=$((10#${lnSeed[1]:1:2}-1))
+			declare posY=$((10#${lnSeed[2]:1:2}-1))
+			declare dirct=$1
+			declare dirX=0
+			declare dirY=0
+			declare tgtX=0
+			declare tgtY=0
 
 			case "$dirct" in
 				[1Zz]	)	#↙
@@ -681,7 +749,7 @@
 						;;
 				"0"		)	#キャンセル
 						dspCmdLog 'キャンセルしました。'
-						dispAll
+						dispAll $CNST_YN_Y 
 						return
 						;;
 				*		)	sysOut 'e' $LINENO '方向指示エラーです。'
@@ -704,22 +772,28 @@
 		###########################################
 		function openDoor(){
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
+
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
 
 			#表示情報の更新
-			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 			#正解マップ情報への反映
-			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
-			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+			declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
 
 			#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
 			#lnSeedとlnMapInfoの両方を更新する必要がある。
 			lnSeed[$((mapY+4))]="${lStrD}[${rStrD}"
 			lnMapInfo[$((mapY))]="${lStrM}[${rStrM}"
 			
-			dispAll
+			dispAll $CNST_YN_Y 
 
 			}
 		}
@@ -731,9 +805,15 @@
 		###########################################
 		function pickItem(){
 
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
+
 			itemName="$(getItemDisp 0 $1)"
 
-			if [ ${#psnItemList[*]} -lt 5 ] ; then
+			if [ ${#psnItemList[*]} -le 15 ] ; then
 				modMsg 1 1 "$itemNameを拾った"
 				psnItemList+=($itemID)
 			else
@@ -751,22 +831,28 @@
 		###########################################
 		function closeDoor(){
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
+
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
 
 			#表示情報の更新
-			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 			#正解マップ情報への反映
-			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
-			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+			declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
 
 			#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
 			#lnSeedとlnMapInfoの両方を更新する必要がある。
 			lnSeed[$((mapY+4))]="${lStrD}D${rStrD}"
 			lnMapInfo[$((mapY))]="${lStrM}D${rStrM}"
 			
-			dispAll
+			dispAll $CNST_YN_Y 
 
 			}
 		}
@@ -797,8 +883,8 @@
 				return
 			fi
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
 
 			maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
 
@@ -818,17 +904,23 @@
 		###########################################
 		function goAheadWrgl(){
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
 
-			local declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
 
-			local declare X=$(printf "%02d" $(($1+1)))
-			local declare Y=$(printf "%02d" $(($2+1)))
+			declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 
-			local declare row1Right="${lnSeed[1]:3}"
-			local declare row2Right="${lnSeed[2]:3}"
+			declare X=$(printf "%02d" $(($1+1)))
+			declare Y=$(printf "%02d" $(($2+1)))
+
+			declare row1Right="${lnSeed[1]:3}"
+			declare row2Right="${lnSeed[2]:3}"
 
 			lnSeed[1]="|$X$row1Right"
 			lnSeed[2]="|$Y$row2Right"
@@ -848,7 +940,13 @@
 		##################################################
 		function sayRnd(){
 
-			local declare rslt=$(($RANDOM % 10))
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
+
+			declare rslt=$(($RANDOM % 10))
 			
 			case "$1" in
 				$CNST_RND_WALL	)	#ぶつかる音
@@ -922,7 +1020,7 @@
 		##   $1:方向指示。8=上、2=下
 		##################################################
 		function movMenuCsr(){
-			declare local dir="$1"
+			declare dir="$1"
 
 			case $dir in
 
@@ -970,13 +1068,13 @@
 		function movDirCsr(){
 
 			#初期は左上にセット
-			declare local chcDir='7'
-			declare local posLX="${CNST_CSR_DIR_7:0:2}"
-			declare local posRX="$((posLX+4))"
-			declare local posY="${CNST_CSR_DIR_7:3}"
+			declare chcDir='7'
+			declare posLX="${CNST_CSR_DIR_7:0:2}"
+			declare posRX="$((posLX+4))"
+			declare posY="${CNST_CSR_DIR_7:3}"
 
 			lnSeed[$posY]="${lnSeed[$posY]:0:$posLX}[${lnSeed[$posY]:$((posLX+1)):3}]${lnSeed[$posY]:$((posLX+5))}"
-			dispAll
+			dispAll $CNST_YN_Y 
 			
 			while :
 			do
@@ -987,7 +1085,7 @@
 												getCmdInMain $chcDir
 												joinFrameOnStatus
 												cmdMode=$CNST_CMDMODE_NRML0
-												dispAll
+												dispAll $CNST_YN_Y 
 												break
 												;;
 					[0-9vzxcasdqweVZXCASDQWE])	case $inKey in
@@ -1010,9 +1108,9 @@
 												eval 'posY="${CNST_CSR_DIR_'$chcDir':3}"'
 												lnSeed[$posY]="${lnSeed[$posY]:0:$posLX}[${lnSeed[$posY]:$((posLX+1)):3}]${lnSeed[$posY]:$((posLX+5))}"
 												;;
-					*						)	dspCmdLog "[$inKey]is invalid.";;
+					*						)	dspCmdLog "[$inKey]is_invalid.";;
 				esac
-				dispAll
+				dispAll $CNST_YN_Y 
 			done
 			}
 		}
@@ -1090,7 +1188,7 @@
 			#初期状態     0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
 			#文字数       0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #00
-			lnItemInfo+=('|   所持品                                       | 説明                                         |直|') #01
+			lnItemInfo+=('|   所持品  ページ目                             | 説明                                         |直|') #01
 			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #02
 			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #03
 			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #04
@@ -1319,12 +1417,11 @@
 		##################################################
 		function joinFrameOnItem (){
 
-			local declare itmCnt=${#psnItemList[@]}
-			local declare psnItemCnt=0
-			local declare spCnt1=0 #アイテム名称の後の半角相当SP数
-			local declare spCnt2=0 #アイテム説明の後の半角相当SP数
-			local declare itemName=''
-			local declare itemExp=''
+			declare psnItemCnt=0
+			declare spCnt1=0 #アイテム名称の後の半角相当SP数
+			declare spCnt2=0 #アイテム説明の後の半角相当SP数
+			declare itemName=''
+			declare itemExp=''
 
 			#現在の表示内容を退避し、アイテム枠を表示する。
 			escLnSeed
@@ -1345,10 +1442,10 @@
 				spCnt1=$(( (24-(${#itemName}))*2 ))
 				spCnt2=$(( (23-${#itemExp})*2 ))
 				
-				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}'"$itemName"'`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|  |"'
+				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}'"$itemName"'`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|`printf "%2s" $i`|"'
 			}
 
-			#カーソル設置
+			#カーソル設置と、リグル表示のごみ消去
 			lnSeed[3]="${lnSeed[3]:0:2}>${lnSeed[3]:3}"
 
 			}
@@ -1374,7 +1471,7 @@
 		##################################################
 		function joinFrameOnMenu2 (){
 			
-			local declare cmd=''
+			declare cmd=''
 
 			cmd="${lnSeed[$selMenuId]:69:13}"
 
@@ -1385,36 +1482,40 @@
 				lnSeed[i]="${lnSeed[i]:0:65}${lnMenuInfo2[i]}"
 				}
 			
-			dispAll
+			dispAll $CNST_YN_Y 
 			movDirCsr
 			}
 		}
 
 	: '全画面更新' && {
 		##################################################
+		##dispAll $CNST_YN_Y
 		## 画面の全情報を更新表示
 		##  lnSeed[]で画面を更新する
-		##   自キャラ位置に「¥」を強調表示で上書きする。
+		##  自キャラ位置に「¥」を強調表示で上書きする。
+		##   $1:自キャラカーソルを再描画するかどうか
 		##################################################
-		function dispAll(){
+		function dispAll (){
 			clear
 
 			for ((i = 0; i < ${#lnSeed[*]}; i++)) {
 				echo "${lnSeed[i]}"
 				}
 
-			local declare posX=$((10#${lnSeed[1]:1:2}+3))
-			local declare posY=$((10#${lnSeed[2]:1:2}+3))
+			declare posX=$((10#${lnSeed[1]:1:2}+3))
+			declare posY=$((10#${lnSeed[2]:1:2}+3))
 
-			tput sc
-			tput cup $posY $posX
-			tput setab 2
-			tput setaf 0
-			tput blink
-			echo '¥'
-			tput sgr0
-			tput rc
-			}
+			if [ $1 = $CNST_YN_Y ] ; then
+				tput sc
+				tput cup $posY $posX
+				tput setab 2
+				tput setaf 0
+				tput blink
+				echo '¥'
+				tput sgr0
+				tput rc
+			fi
+		}
 		}
 	: 'システムエラー画面' && {
 		##################################################
@@ -1429,12 +1530,12 @@
 		##################################################
 		function sysOut(){
 
-			local declare   errDiv=''
-			local declare   bColor=0
-			local declare   fColor=0
-			local declare wdthSize=0
-			local declare   MAPdth=0
-			local declare   lrWdth=0
+			declare   errDiv=''
+			declare   bColor=0
+			declare   fColor=0
+			declare wdthSize=0
+			declare   MAPdth=0
+			declare   lrWdth=0
 
 			inKey=''
 
@@ -1477,7 +1578,7 @@
 				getChrH
 				if [ "$inKey" = 'q' ]; then
 					tput rmcup
-					dispAll
+					dispAll $CNST_YN_Y
 					break
 				else
 					echo '適合しない入力値. [q] キーで抜けます。'
@@ -1507,7 +1608,7 @@
 		##################################################
 		function clrCmdLog(){
 
-			declare local maptipFoot="${lnSeed[20]:47:1}"
+			declare maptipFoot="${lnSeed[20]:47:1}"
 
 			lnSeed[20]='|COMMAND>                                    | '"$maptipFoot"' |                                                 |'
 
@@ -1526,14 +1627,14 @@
 		##  $3 足元マップチップ表示
 		###########################################
 		function modDspWrglPos(){
-			local declare X=$(printf "%02d" "$1")
-			local declare Y=$(printf "%02d" "$2")
+			declare X=$(printf "%02d" "$1")
+			declare Y=$(printf "%02d" "$2")
 
-			local declare row1Right="${lnSeed[1]:3}"
-			local declare row2Right="${lnSeed[2]:3}"
+			declare row1Right="${lnSeed[1]:3}"
+			declare row2Right="${lnSeed[2]:3}"
 
-			local declare  row20Left="${lnSeed[20]:0:47}"
-			local declare row20Right="${lnSeed[20]:48}"
+			declare  row20Left="${lnSeed[20]:0:47}"
+			declare row20Right="${lnSeed[20]:48}"
 
 			lnSeed[1]="|$X$row1Right"
 			lnSeed[2]="|$Y$row2Right"
@@ -1548,8 +1649,8 @@
 		##  引数なし(左上の座標表示を使用)
 		###########################################
 		function opnArndMaptip(){
-			local declare posX=$((10#${lnSeed[1]:1:2}-1))
-			local declare posY=$((10#${lnSeed[2]:1:2}-1))
+			declare posX=$((10#${lnSeed[1]:1:2}-1))
+			declare posY=$((10#${lnSeed[2]:1:2}-1))
 
 			#上の行、同じ行、下の行
 			lnSeed[$((posY+3))]="${lnSeed[$((posY+3))]:0:$((posX+3))}${lnMapInfo[$((posY-1))]:$((posX-1)):3}${lnSeed[$((posY+3))]:$((posX+6))}"
@@ -1587,17 +1688,17 @@
 				return
 			fi
 
-			local declare tgtRow=$1
-			local declare tgtClmn=$(($2+3))
-		eval local declare tgtStr=$(crrctStr "$3")
+			declare tgtRow=$1
+			declare tgtClmn=$(($2+3))
+		eval declare tgtStr=$(crrctStr "$3")
 			
-			local declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
+			declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
 
 			#文字長が右端を出ないように切り捨てる。
 			#半角相当の文字数が95以下になるまで、末尾から1文字ずつ切り捨て続ける
 			#半角全角が混じる場合に正確に切り捨てる長さを指定できないため
-			local declare tmpStr="$tgtStr"
-			local declare tmpCntSingleWidth=0
+			declare tmpStr="$tgtStr"
+			declare tmpCntSingleWidth=0
 			while :
 			do
 				tmpCntSingleWidth=$(getCntSingleWidth "$tmpStr")
@@ -1609,7 +1710,7 @@
 				fi
 			done
 
-			local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+			declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 			#getCntSingleWidth()で半角相当の文字数をカウント
 			#100文字-|1文字=99、-文字数でSPACEの反復数
 
@@ -1631,14 +1732,14 @@
 				return
 			fi
 
-			local declare tgtStr="$(crrctStr "$1")"
-			local declare leftStr="${lnSeed[20]:0:$CNST_CMDLGW_IDX}"
+			declare tgtStr="$(crrctStr "$1")"
+			declare leftStr="${lnSeed[20]:0:$CNST_CMDLGW_IDX}"
 
 			#文字長が右端を出ないように切り捨てる。
 			#半角相当の文字数が50以下になるまで、末尾から1文字ずつ切り捨て続ける
 			#半角全角が混じる場合に正確に切り捨てる長さを指定できないため
-			local declare tmpStr="$tgtStr"
-			local declare tmpCntSingleWidth=0
+			declare tmpStr="$tgtStr"
+			declare tmpCntSingleWidth=0
 			while :
 			do
 				tmpCntSingleWidth=$(getCntSingleWidth "$tmpStr")
@@ -1650,7 +1751,7 @@
 				fi
 			done
 
-			local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+			declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 			#getCntSingleWidth()で半角相当の文字数をカウント
 			#100文字-|1文字=99、-文字数でSPACEの反復数
 
@@ -1698,7 +1799,7 @@
 				getChrH
 				if [ "$inKey" = 'q' ]; then
 					tput rmcup
-					dispAll
+					dispAll $CNST_YN_Y
 					break
 				else
 					echo "$inKey は無効な入力です。 [q]キーで戻る。"
@@ -1734,7 +1835,7 @@
 				'mn'	)	man_mn ;;
 				'man'	)	man_man ;;
 				*		)	dspCmdLog "[$1] :存在しないコマンド"
-							dispAll;;
+							dispAll $CNST_YN_Y;;
 			esac
 			}
 		: '■マニュアル詳細' && {
@@ -1764,7 +1865,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -1797,7 +1898,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -1830,7 +1931,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -1863,7 +1964,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -1908,7 +2009,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -1952,7 +2053,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -1992,7 +2093,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2033,7 +2134,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2087,7 +2188,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2132,7 +2233,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2189,7 +2290,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2230,7 +2331,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2271,7 +2372,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2321,7 +2422,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2360,7 +2461,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2398,7 +2499,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2431,7 +2532,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2465,7 +2566,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2489,7 +2590,7 @@
 							getChrH
 							if [ "$inKey" = 'q' ]; then
 								tput rmcup
-								dispAll
+								dispAll $CNST_YN_Y
 								break
 							else
 								echo '[q]キーで終了します'
@@ -2504,26 +2605,26 @@
 		##mv
 		## キャラ('¥'で示す)が動く           7 8 9  q w e
 		##  $1 移動先座標(1〜9,zxcasdqwe)    4 ¥ 6  a ¥ d
-		##        ※大文字でも良い           3 2 1  z x c
+		##        ※大文字でも良い            3 2 1  z x c
 		###########################################
 		function mv(){
-			local declare goX=''
-			local declare goY=''
-			local declare direction="$1"
-			local declare args=()
+			declare goX=''
+			declare goY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<mv> 引数は1つだけ指定してください。'
-				dispAll
+				dspCmdLog '<mv>引数は1つだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			##$1のバリエーション
 			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$direction") ] ; then
-				dspCmdLog '<mv> 0〜9とvzxcasdqwe(と大文字)から1つ指定。'
-				dispAll
+				dspCmdLog '<mv>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
@@ -2531,7 +2632,7 @@
 
 			#0Vvだったらキャンセル、5Ssだったら足踏み
 			if  [ $(echo '0Vv' | grep "$direction") ] ; then
-				dspCmdLog '<mv> キャンセルしました'
+				dspCmdLog '<mv>キャンセルしました'
 				return
 			fi
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
@@ -2547,15 +2648,17 @@
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
 				#移動後、足元マップチップごとの処理分岐を行う
-				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
+				if	 [ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
 					dspCmdLog "$(sayRnd $CNST_RND_WALL)"
+				elif [ "$(getMapInfo $goX $goY 'CNM')" = 'JNT' ] ; then
+					dspCmdLog "隣の部屋は未実装だってさ"
 				else
 					jmpPosWrgl $goX $goY
-					divActByFoot $goX $goY
+					divActByFoot $goX $goY					
 				fi
 			fi
 		
-			dispAll
+			dispAll $CNST_YN_Y
 			tput cvvis
 
 		}
@@ -2569,28 +2672,28 @@
 		###########################################
 		function op(){
 
-			local declare opX=''
-			local declare opY=''
-			local declare direction="$1"
-			local declare args=()
+			declare opX=''
+			declare opY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$1" = '' ]; then
-				dspCmdLog '<op> 引数はひとつだけ指定してください。'
-				dispAll
+				dspCmdLog '<op>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
-				dspCmdLog '<op> 0〜9とvzxcasdqwe(と大文字)から1つ指定。'
-				dispAll
+				dspCmdLog '<op>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			#0Vvだったらキャンセル、5Ssだったら無視
 			if  [ $(echo '0Vv' | grep "$direction") ] ; then
-				dspCmdLog '<op> キャンセルしました'
+				dspCmdLog '<op>キャンセルしました'
 				return
 			fi
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
@@ -2611,7 +2714,7 @@
 					modMsg 1 1 'ひらけごま！'
 					openDoor $opX $opY 
 				fi
-				dispAll
+				dispAll $CNST_YN_Y
 			fi
 			}
 		}
@@ -2624,28 +2727,28 @@
 		###########################################
 		function cl(){
 
-			local declare clX=''
-			local declare clY=''
-			local declare direction="$1"
-			local declare args=()
+			declare clX=''
+			declare clY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$1" = '' ]; then
-				dspCmdLog '<cl> 引数はひとつだけ指定してください。'
-				dispAll
+				dspCmdLog '<cl>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
-				dspCmdLog '<cl> 0〜9とvzxcasdqwe(と大文字)から1つ指定。'
-				dispAll
+				dspCmdLog '<cl>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			#0Vvだったらキャンセル、5Ssだったら無視
 			if  [ $(echo '0Vv' | grep "$direction") ] ; then
-				dspCmdLog '<cl> キャンセルしました'
+				dspCmdLog '<cl>キャンセルしました'
 				return
 			fi
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
@@ -2665,7 +2768,7 @@
 				else				modMsg 1 1 'ばたん。'
 					closeDoor $clX $clY 
 				fi
-				dispAll
+				dispAll $CNST_YN_Y
 			fi
 			}
 		}
@@ -2678,25 +2781,25 @@
 		###########################################
 		function iv(){
 
-			local declare posX=$((10#${lnSeed[1]:1:2}-1))
-			local declare posY=$((10#${lnSeed[2]:1:2}-1))
+			declare posX=$((10#${lnSeed[1]:1:2}-1))
+			declare posY=$((10#${lnSeed[2]:1:2}-1))
 
-			local declare ivX=''
-			local declare ivY=''
-			local declare direction="$1"
-			local declare args=()
+			declare ivX=''
+			declare ivY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
 				dspCmdLog '<iv>引数はひとつだけ指定してください。'
-				dispAll
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
 				dspCmdLog '<iv>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
-				dispAll
+				dispAll $CNST_YN_Y
 				return
 			fi
 
@@ -2721,7 +2824,7 @@
 				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
 				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))には$(getMapInfo $ivX $ivY $NME)があるよ。"
 			fi
-			dispAll
+			dispAll $CNST_YN_Y
 			}
 		}
 	: 'pkコマンド' && {
@@ -2732,9 +2835,9 @@
 		###########################################
 		function pk(){
 
-			local declare posX=${lnSeed[1]:1:2}
-			local declare posY=${lnSeed[2]:1:2}
-			local declare maptipFoot=${lnSeed[20]:47:1}
+			declare posX=${lnSeed[1]:1:2}
+			declare posY=${lnSeed[2]:1:2}
+			declare maptipFoot=${lnSeed[20]:47:1}
 
 			if	[ $foot = '' ] ; then
 				dipCmdLog 1 1 'なにもない。'
@@ -2742,7 +2845,7 @@
 				modMsg 1 1 "リグル:$posX:$posYで$maptipFootを拾った。"
 			fi
 			
-			dispAll
+			dispAll $CNST_YN_Y
 			}
 		}
 	: 'daコマンド' && {
@@ -2754,30 +2857,29 @@
 		##        ※大文字でも良い
 		###########################################
 		function da(){
-			local declare goX=''
-			local declare goY=''
-			local declare direction=$1
+			declare goX=''
+			declare goY=''
+			declare direction=$1
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<da> 引数はひとつだけ指定してください。'
-				dispAll
+				dspCmdLog '<da>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
 			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
-				dspCmdLog '<da> 0〜9とvzxcasdqwe(と大文字)から1つ指定。'
-				dispAll
+				dspCmdLog '<da>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			tput civis
 
 			#0Vvだったらキャンセル、5Ssだったら足踏み
-			if  [ $(
-			 '0Vv' | grep "$direction") ] ; then
-				dspCmdLog '<da> キャンセルしました'
+			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+				dspCmdLog '<da>キャンセルしました'
 				return
 			fi
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
@@ -2800,8 +2902,8 @@
 					goY=${args[1]}
 				done
 
-				local declare posX=$((10#${lnSeed[1]:1:2}))
-				local declare posY=$((10#${lnSeed[2]:1:2}))
+				declare posX=$((10#${lnSeed[1]:1:2}))
+				declare posY=$((10#${lnSeed[2]:1:2}))
 
 				modDspWrglPos $posX $posY "$(getMapInfo $((posX-1)) $((posY-1)) 'DSP')"
 				
@@ -2810,10 +2912,7 @@
 
 			fi
 
-			#終着マスのみ周囲開示
-			#opnArndMaptip
-
-			dispAll
+			dispAll $CNST_YN_Y
 			tput cvvis
 			}
 		}
@@ -2827,6 +2926,7 @@
 			cmdMode="$CNST_CMDMODE_MENU1"
 			joinFrameOnMenu
 			selMenuId=1
+			dispAll $CNST_YN_Y
 			}
 		}
 	: 'cmコマンド' && {
@@ -2838,6 +2938,7 @@
 		function cm(){
 			cmdMode="$CNST_CMDMODE_NRML0"
 			joinFrameOnStatus
+			dispAll $CNST_YN_Y
 			}
 		}
 	: 'itコマンド' && {
@@ -2849,6 +2950,7 @@
 		function it(){
 			#cmdMode="$CNST_CMDMODE_NRML0"
 			joinFrameOnItem
+			dispAll $CNST_YN_N
 			}
 		}
 	: 'ciコマンド' && {
@@ -2860,12 +2962,14 @@
 		function ci(){
 			cmdMode="$CNST_CMDMODE_NRML0"
 			retLnSeed
+			dispAll $CNST_YN_Y
 			}
 		}
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
 		function te(){
-				dspCmdLog 'aaaaaaaああああｱｱｱｱ'
+			dspCmdLog 'aaaaaaaああああｱｱｱｱ'
+			dispAll $CNST_YN_Y
 			}
 		}
 
@@ -2880,7 +2984,7 @@
 		mainLoop(){
 			jmpPosWrgl 20 6
 			dspCmdLog 'リグルくん爆誕！！'
-			dispAll
+			dispAll $CNST_YN_Y
 			while :
 			do
 				tput cup $CNST_POS_CMDWIN
@@ -2930,7 +3034,7 @@
 						esac
 
 						#いずれにしても全画面の更新再表示は行う
-						dispAll
+						dispAll $CNST_YN_Y
 						;;
 				esac
 				clrCmdLog
@@ -2956,7 +3060,8 @@
 	
 					case "$inKey" in
 						'man can')	man can;;
-						*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
+									dispAll $CNST_YN_Y;;
 						'te'	)	te;;
 						'??'	)	viewHelp;; 
 						'man'*	)	man "${inKey:4}";;
@@ -3003,7 +3108,8 @@
 
 					case "$inKey" in
 						'man can')	man can;;
-						*'can'	)	dspCmdLog 'OK、キャンセルしたよ :)' dispAll;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
+									dispAll $CNST_YN_Y;;
 						'man'*	)	man "${inKey:4}";;
 						'??'	)	viewHelp;; 
 						'mv'*	)	mv "${inKey:3}";;
@@ -3011,8 +3117,9 @@
 						'qqq'	)	quitGame;;
 						''		)	dspCmdLog '入力してください。';;
 						*		)	dspCmdLog "[$inKey]は無効です。";;
-					esac;;
-
+					esac
+					dispAll $CNST_YN_Y
+					;;
 				"$CNST_CMDMODE_MENU2"	)
 					case $selMenuId in
 						'1' )	iv $1;;
@@ -3035,10 +3142,10 @@
 						'18')	quitGame ;;
 						*		)	dspCmdLog "[$selMenuId]は無効です。";;
 					esac
-				;;
+					dispAll $CNST_YN_Y
+					;;
 				*	) dspCmdLog "[$inKey]は無効です。";;
 			esac
-			dispAll
 		}
 		}
 	}
@@ -3062,7 +3169,7 @@
 	joinFrameOnMap
 	joinFrameOnStatus
 
-	dispAll
+	dispAll $CNST_YN_Y
 
 	mainLoop
 	#主処理
