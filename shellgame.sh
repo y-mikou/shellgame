@@ -297,7 +297,7 @@
 			done
 			echo "$cnvstr"
 		}
-	}
+		}
 	: '不正文字個別置換' && {
 		##################################################
 		##crrctStr
@@ -610,7 +610,7 @@
 
 			echo "$retStr"
 		}		
-	}
+		}
 
 	: 'アイテム情報取得' && {
 		###########################################
@@ -657,6 +657,31 @@
 			echo "${TBL_ITM_INFO_ERR/ZZZZ/$itemID}"
 		}
 		}
+	: '足元のものを拾う' && {
+		###########################################
+		##pickItem
+		## 拾う
+		##  $1:アイテムID
+		###########################################
+		function pickItem(){
+
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
+
+			itemName="$(getItemDisp 0 $1)"
+
+			if [ ${#psnItemList[*]} -le 15 ] ; then
+				modMsg 1 1 "$itemNameを拾った"
+				psnItemList+=($itemID)
+			else
+				modMsg 1 1 "$itemNameが落ちている...が持ち物がいっぱいで持てない。"
+			fi
+		}
+		}
+
 	: '足元マップ分岐' && {
 		###########################################
 		##divActByFoot
@@ -797,30 +822,6 @@
 			dispAll $CNST_YN_Y 
 
 			}
-		}
-	: '足元のものを拾う' && {
-		###########################################
-		##pickItem
-		## 拾う
-		##  $1:アイテムID
-		###########################################
-		function pickItem(){
-
-			##引数の個数
-			if [ $# -ne 1 ] ; then
-				sysOut 'e' $LINENO '引数は1つ指定してください。'
-				return
-			fi
-
-			itemName="$(getItemDisp 0 $1)"
-
-			if [ ${#psnItemList[*]} -le 15 ] ; then
-				modMsg 1 1 "$itemNameを拾った"
-				psnItemList+=($itemID)
-			else
-				modMsg 1 1 "$itemNameが落ちている...が持ち物がいっぱいで持てない。"
-			fi
-		}
 		}
 	: 'ドア閉じる' && {
 		###########################################
@@ -1158,7 +1159,7 @@
 			done
 			}
 		}
-	}
+		}
 : '■画面表示系' && {
 	: 'マップ表示内容' && {
 		##################################################
@@ -1368,6 +1369,7 @@
 		function initDispInfo() {
 
 			declare -a -g lnSeed=() ##0から25までの26要素用意するつもり。
+			declare -a -g escLnSeedInfo=() ##lnSeedと対になる退避領域を定義する。このタイミングでは空。
 
 			#初期状態 0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
 			#文字数   0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -1408,13 +1410,11 @@
 		##  lnSeedの内容を一時的に退避する。
 		##################################################
 		function escLnSeed() {
-			declare -a -g escLnSeedInfo=()
-
 			for ((i = 0; i <= 26; i++)) {
 				escLnSeedInfo[i]="${lnSeed[i]}"
 			}
 		}
-	}
+		}
 	: '全画面表示内容を退避領域から復帰' && {
 		##################################################
 		## retLnSeed
@@ -1425,7 +1425,7 @@
 				lnSeed[i]="${escLnSeedInfo[i]}"
 			}
 		}
-	}	
+		}	
 	: 'マップレイヤー結合' && {
 		##################################################
 		## joinFrameOnMap
@@ -1469,8 +1469,6 @@
 			declare itemExp=''
 
 			#現在の表示内容を退避し、アイテム枠を表示する。
-			##退避処理
-			escLnSeed
 			##アイテム枠で上書き
 			for ((i = 0; i <= 19; i++)) {
 				lnSeed[i]="${lnItemInfo[i]}"
@@ -1537,7 +1535,7 @@
 
 	: '全画面更新' && {
 		##################################################
-		##dispAll $CNST_YN_Y
+		##dispAll
 		## 画面の全情報を更新表示
 		##  lnSeed[]で画面を更新する
 		##  自キャラ位置に「¥」を強調表示で上書きする。
@@ -1545,7 +1543,7 @@
 		##################################################
 		function dispAll (){
 
-			declare mode="$1"
+			declare mode=$1
 			declare posX=''
 			declare posY=''
 		
@@ -1555,18 +1553,18 @@
 				echo "${lnSeed[i]}"
 				}
 
+
 			if [ $mode = $CNST_YN_Y ] ; then
+
 				posX=$((10#${lnSeed[1]:1:2}+3))
 				posY=$((10#${lnSeed[2]:1:2}+3))
-
-				tput sc
 				tput cup $posY $posX
+				
 				tput setab 2
 				tput setaf 0
 				tput blink
 				echo '¥'
 				tput sgr0
-				tput rc
 			fi
 		}
 		}
@@ -1812,9 +1810,9 @@
 
 			}
 		}
-	}
+		}
 : '■ゲーム中ユーザが使用するコマンド' && {
-	: 'コマンドヘルプ' && {
+	: '??コマンド' && {
 		##################################################
 		##viewHelp
 		## コマンドヘルプ
@@ -1861,39 +1859,39 @@
 
 			}
 		}
-	: 'マニュアル参照' && {
+	: 'maコマンド' && {
 		##################################################
-		##man
+		##ma
 		## マニュアル参照
 		##  引数で渡されたコマンドのマニュアルを表示する。
 		##   $1 参照先コマンド
 		##################################################
-		function man(){		
+		function ma(){
 			case "$1" in
-				'can'	)	man_can ;;
-				'mv'	)	man_mv ;;
-				'da'	)	man_da ;;
-				'op'	)	man_op ;;
-				'cl'	)	man_cl ;;
-				'pp'	)	man_pp ;;
-				'ki'	)	man_ki ;;
-				'wp'	)	man_wp ;;
-				'ct'	)	man_ct ;;
-				'in'	)	man_in ;;
-				'gt'	)	man_gt ;;
-				'tr'	)	man_tr ;;
-				'tk'	)	man_tk ;;
-				'pr'	)	man_pr ;;
-				'ss'	)	man_ss ;;
-				'mn'	)	man_mn ;;
-				'man'	)	man_man ;;
-				*		)	dspCmdLog "[$1] :存在しないコマンド"
+				'can'	)	ma_can ;;
+				'mv'	)	ma_mv ;;
+				'da'	)	ma_da ;;
+				'op'	)	ma_op ;;
+				'cl'	)	ma_cl ;;
+				'pp'	)	ma_pp ;;
+				'ki'	)	ma_ki ;;
+				'wp'	)	ma_wp ;;
+				'ct'	)	ma_ct ;;
+				'in'	)	ma_in ;;
+				'gt'	)	ma_gt ;;
+				'tr'	)	ma_tr ;;
+				'tk'	)	ma_tk ;;
+				'pr'	)	ma_pr ;;
+				'ss'	)	ma_ss ;;
+				'mn'	)	ma_mn ;;
+				'ma'	)	ma_ma ;;
+				*		)	dspCmdLog "[$1]:存在しないコマンド"
 							dispAll $CNST_YN_Y;;
 			esac
 			}
 		: '■マニュアル詳細' && {
 				: 'canコマンドマニュアル' && {
-					function man_can(){
+					function ma_can(){
 
 						inKey=''
 						tput smcup
@@ -1927,7 +1925,7 @@
 						}
 					}
 				: 'svqコマンドマニュアル' && {
-					function man_sq(){
+					function ma_sq(){
 
 						inKey=''
 						tput smcup
@@ -1960,7 +1958,7 @@
 						}
 					}
 				: 'svコマンドマニュアル' && {
-					function man_svq(){
+					function ma_svq(){
 
 						inKey=''
 						tput smcup
@@ -1993,7 +1991,7 @@
 						}
 					}
 				: 'qqqコマンドマニュアル' && {
-					function man_qqq(){
+					function ma_qqq(){
 
 						inKey=''
 						tput smcup
@@ -2026,7 +2024,7 @@
 						}
 					}
 				: 'mvコマンドマニュアル' && {
-					function man_mv(){
+					function ma_mv(){
 
 						inKey=''
 						tput smcup
@@ -2071,7 +2069,7 @@
 						}
 					}
 				: 'daコマンドマニュアル' && {
-					function man_da(){
+					function ma_da(){
 
 						inKey=''
 						tput smcup
@@ -2115,7 +2113,7 @@
 						}
 					}
 				: 'opコマンドマニュアル' && {
-					function man_op(){
+					function ma_op(){
 
 						inKey=''
 						tput smcup
@@ -2155,7 +2153,7 @@
 						}
 					}
 				: 'clコマンドマニュアル' && {
-					function man_cl(){
+					function ma_cl(){
 
 						inKey=''
 						tput smcup
@@ -2196,7 +2194,7 @@
 						}
 					}
 				: 'kiコマンドマニュアル' && {
-					function man_ki(){
+					function ma_ki(){
 
 						inKey=''
 						tput smcup
@@ -2250,7 +2248,7 @@
 						}
 					}
 				: 'wpコマンドマニュアル' && {
-					function man_wp(){
+					function ma_wp(){
 
 						inKey=''
 
@@ -2295,7 +2293,7 @@
 						}
 					}
 				: 'ctコマンドマニュアル' && {
-					function man_ct(){
+					function ma_ct(){
 
 						inKey=''
 
@@ -2352,7 +2350,7 @@
 						}
 					}
 				: 'ivコマンドマニュアル' && {
-					function man_iv(){
+					function ma_iv(){
 
 						inKey=''
 
@@ -2393,7 +2391,7 @@
 						}
 					}
 				: 'gtコマンドマニュアル' && {
-					function man_gt(){
+					function ma_gt(){
 
 						inKey=''
 
@@ -2434,7 +2432,7 @@
 						}
 					}
 				: 'trコマンドマニュアル' && {
-					function man_tr(){
+					function ma_tr(){
 
 						inKey=''
 						tput smcup
@@ -2484,7 +2482,7 @@
 						}
 					}
 				: 'tkコマンドマニュアル' && {
-					function man_tk(){
+					function ma_tk(){
 
 						inKey=''
 						tput smcup
@@ -2523,7 +2521,7 @@
 						}
 					}
 				: 'prコマンドマニュアル' && {
-					function man_pr(){
+					function ma_pr(){
 
 						inKey=''
 						tput smcup
@@ -2561,7 +2559,7 @@
 						}
 					}
 				: 'ssコマンドマニュアル' && {
-					function man_ss(){
+					function ma_ss(){
 
 						inKey=''
 
@@ -2594,7 +2592,7 @@
 						}
 					}
 				: 'mnコマンドマニュアル' && {
-					function man_mn(){
+					function ma_mn(){
 
 						inKey=''
 
@@ -2628,7 +2626,7 @@
 						}
 					}
 				: 'manコマンドマニュアル' && {
-					function man_man(){
+					function ma_ma(){
 
 						inKey=''
 
@@ -2701,6 +2699,7 @@
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
 				#移動後、足元マップチップごとの処理分岐を行う
+				##部屋移動が未実装なのでスペシャルロジックが残っている
 				if	 [ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
 					dspCmdLog "$(sayRnd $CNST_RND_WALL)"
 				elif [ "$(getMapInfo $goX $goY 'CNM')" = 'JNT' ] ; then
@@ -2976,7 +2975,7 @@
 		##  引数なし
 		###########################################
 		function mn(){
-			cmdMode="$CNST_CMDMODE_MENU1"
+			cmdMode=$CNST_CMDMODE_MENU1
 			joinFrameOnMenu
 			selCrsrID=1
 			dispAll $CNST_YN_Y
@@ -2989,7 +2988,7 @@
 		##  引数なし
 		###########################################
 		function cm(){
-			cmdMode="$CNST_CMDMODE_NRML0"
+			cmdMode=$CNST_CMDMODE_NRML0
 			joinFrameOnStatus
 			dispAll $CNST_YN_Y
 			}
@@ -3001,9 +3000,16 @@
 		##  引数なし
 		###########################################
 		function it(){
-			cmdMode="$CNST_CMDMODE_ITEM1"
+
+			#コマンド体系をアイテム表示時に変更
+			cmdMode=$CNST_CMDMODE_ITEM1
+			#退避
+			escLnSeed
+			#lnseed上書き
 			joinFrameOnItem
+			#更新_自キャラカーソルは描写しない
 			dispAll $CNST_YN_N
+					break
 			}
 		}
 	: 'ciコマンド' && {
@@ -3013,9 +3019,14 @@
 		##  引数なし
 		###########################################
 		function ci(){
-			cmdMode="$CNST_CMDMODE_NRML0"
+
+			#コマンド体系を通常へ
+			cmdMode=$CNST_CMDMODE_NRML0
+			#退避領域から復帰
 			retLnSeed
+			#更新_自キャラカーソルも描画
 			dispAll $CNST_YN_Y
+
 		}
 		}
 
@@ -3047,7 +3058,7 @@
 				#任意長のコマンド受付にリダイレクトされる。
 				case "$cmdMode" in
 					#通常時はmvコマンドのショートカットが有効
-					"$CNST_CMDMODE_NRML0"	)
+					$CNST_CMDMODE_NRML0	)
 						case "$inKey" in
 							[1Z]	)	mv 1;;
 							[2X]	)	mv 2;;
@@ -3062,7 +3073,7 @@
 						esac
 						;;
 
-					"$CNST_CMDMODE_MENU1"	)
+					$CNST_CMDMODE_MENU1	)
 						#メニュー表示時はmvコマンドのショートカットが無効化され
 						#メニューないカーソルの移動といくつかのコマンドが生存する
 						case "$inKey" in
@@ -3091,7 +3102,7 @@
 						dispAll $CNST_YN_Y
 						;;
 
-					"$CNST_CMDMODE_ITEM1"	)
+					$CNST_CMDMODE_ITEM1	)
 						#アイテム表示時はショートカットが無効化され
 						#アイテム表示時特有の操作系になる
 						case "$inKey" in
@@ -3120,25 +3131,28 @@
 		function getCmdInMain(){
 
 			case "$cmdMode" in
+
 				#通常時は続けてコマンドを取得し、各種コマンドを起動する
-				"$CNST_CMDMODE_NRML0"	)
+				##通常時はコマンド数が多いためdispallコマンドは各ケースごとに記述する。
+				##コマンドによって引数を変えるため。
+				$CNST_CMDMODE_NRML0	)
 					inKey2="$inKey"
 					printf "$inKey2"
 					getChrV
+
 					inKey="${inKey2}${inKey}"
-	
 					case "$inKey" in
-						'man can')	man can;;
+						'ma can')	ma can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
 									dispAll $CNST_YN_Y;;
 						'te'	)	te;;
 						'??'	)	viewHelp;; 
-						'man'*	)	man "${inKey:4}";;
-						'mv'*	)	mv "${inKey:3}";;
-						'op'*	)	op "${inKey:3}";;
-						'cl'*	)	cl "${inKey:3}";;
-						'da'*	)	da "${inKey:3}";;
-						'pk'*	)	pk;;
+						'ma '*	)	ma "${inKey:3}";;
+						'mv '*	)	mv "${inKey:3}";;
+						'op '*	)	op "${inKey:3}";;
+						'cl '*	)	cl "${inKey:3}";;
+						'da '*	)	da "${inKey:3}";;
+						'pk '*	)	pk;;
 						'qq'	)	da 7;;
 						'ww'	)	da 8;;
 						'ee'	)	da 9;;
@@ -3148,42 +3162,44 @@
 						'xx'	)	da 2;;
 						'cc'	)	da 3;;
 						'mn'	)	mn;;
-						'it'*	)	it;;
-						'sv'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'sq'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'ki'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'wp'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'ct'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'iv'*	)	iv "${inKey:3}";;
-						'gt'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'tr'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'tk'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						'pr'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'it'	)	it;;
+						'sv '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'sq '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ki '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'wp '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ct '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'iv '*	)	iv "${inKey:3}";;
+						'gt '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'tr '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'tk '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'pr '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						'ss'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						'qqq'	)	quitGame;;
 						#'sv'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						#'sq'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
-						''		)	dspCmdLog '入力してください。';;
-						*		)	dspCmdLog "[$inKey]は無効です。";;
+						''		)	dspCmdLog '入力してください。'
+									dispAll $CNST_YN_Y;;
+						*		)	dspCmdLog "[${inKey// /}...]は無効です"
+									dispAll $CNST_YN_Y;;
 					esac
 					;;
 				#メニュー表示時
-				"$CNST_CMDMODE_MENU1"	)
+				$CNST_CMDMODE_MENU1	)
 					inKey2="$inKey"
 					printf "$inKey2"
 					getChrV
 					inKey="${inKey2}${inKey}"
 
 					case "$inKey" in
-						'man can')	man can;;
+						'ma can')	ma can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
-						'man'*	)	man "${inKey:4}";;
+						'ma '*	)	ma "${inKey:3}";;
 						'??'	)	viewHelp;; 
-						'mv'*	)	mv "${inKey:3}";;
+						'mv '*	)	mv "${inKey:3}";;
 						'cm'	)	cm;;
 						'qqq'	)	quitGame;;
 						''		)	dspCmdLog '入力してください。';;
-						*		)	dspCmdLog "[$inKey]は無効です。";;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。";;
 					esac
 					dispAll $CNST_YN_Y
 					;;
@@ -3212,23 +3228,22 @@
 					dispAll $CNST_YN_Y
 					;;
 				#アイテム表示時
-				"$CNST_CMDMODE_ITEM1"	)
+				$CNST_CMDMODE_ITEM1	)
 					inKey2="$inKey"
 					printf "$inKey2"
 					getChrV
 					inKey="${inKey2}${inKey}"
 
 					case "$inKey" in
-						'man can')	man can;;
+						'ma can')	ma can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
-						'man'*	)	man "${inKey:4}";;
-						'??'	)	viewHelp;; 
-						'ci'	)	ci;;
+						'ma '*	)	ma "${inKey:3}";;
+						'??'	)	viewHelp;;
+						'ci'	)	ci
+									dispAll $CNST_YN_Y;;
 						'qqq'	)	quitGame;;
-						''		)	dspCmdLog '入力してください。';;
-						*		)	dspCmdLog "[$inKey]は無効です。";;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。";;
 					esac
-					dispAll $CNST_YN_Y
 					;;
 				*	) dspCmdLog "[$inKey]は無効です。";;
 			esac
