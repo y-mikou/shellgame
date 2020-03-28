@@ -51,6 +51,7 @@
 				declare -r -g CNST_CMDMODE_NRML0='0' #通常
 				declare -r -g CNST_CMDMODE_MENU1='1' #メニュー内の選択
 				#declare -r -g CNST_CMDMODE_MENU2='2' #メニュー内の方向選択など
+				declare -r -g CNST_CMDMODE_ITEM1='5' #アイテム表示時
 
 				##メニュー内カーソル移動方向
 				declare -r -g CNST_CSR_MVTO_UP='8'
@@ -198,8 +199,8 @@
 				##メニュー表示時の現在座標退避
 				declare -g posEsc=''
 
-				##メニューID
-				declare -g selMenuId=''
+				##カーソルID
+				declare -g selCrsrID=''
 
 				##足元マップチップ
 				#declare -g maptipFoot=''
@@ -1013,6 +1014,49 @@
 			esac
 			}
 		}
+	: 'アイテムカーソル移動' && {
+		##################################################
+		##movItemCsr
+		## アイテム画面のカーソルを移動する
+		##   $1:方向指示。8=上、2=下
+		##################################################
+		function movItemCsr(){
+			declare dir="$1"
+
+			#現在のカーソル位置から>マークを消去
+			lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}' '${lnSeed[$((selCrsrID+2))]:3}
+
+			case $dir in
+				#上移動
+				$CNST_CSR_MVTO_UP)
+					#現在のメニューID(カーソル位置)が1の場合は、一番下の行(メニューID18)に>マークを表示する
+					if [ $selCrsrID -eq 1 ] ; then
+						lnSeed[18]=${lnSeed[18]:0:2}'>'${lnSeed[18]:3}
+						selCrsrID=16
+
+					else
+					#1じゃなければ、普通通りにメニューIDを1つデクリメントして>を表示する
+						selCrsrID=$((selCrsrID-1))
+						lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}'>'${lnSeed[$((selCrsrID+2))]:3}
+					fi;;
+				#下移動
+				$CNST_CSR_MVTO_DN)
+					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に>マークを表示する
+					if [ $selCrsrID -eq 16 ] ; then
+						lnSeed[3]=${lnSeed[3]:0:2}'>'${lnSeed[3]:3}
+						selCrsrID=1
+
+					else
+					#18じゃなければ、普通通りにメニューIDを1つインクリメントして>を表示する
+						selCrsrID=$((selCrsrID+1))
+						lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}'>'${lnSeed[$((selCrsrID+2))]:3}
+					fi;;
+
+				#エラー
+				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selCrsrID";;
+			esac
+			}
+		}
 	: 'メニューカーソル移動' && {
 		##################################################
 		##movMenuCsr
@@ -1027,35 +1071,35 @@
 				#上移動
 				$CNST_CSR_MVTO_UP)
 					#現在のカーソル位置から*マークを消去
-					lnSeed[$selMenuId]=${lnSeed[$selMenuId]:0:67}' '${lnSeed[$selMenuId]:68}
+					lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}' '${lnSeed[$selCrsrID]:68}
 
-					#現在のメニューID(カーソル位置)が1の場合は、一番下の行(メニューID18)に*マークを表示する
-					if [ $selMenuId -eq 1 ] ; then
+					#現在のメニューID(カーソル位置)が1の場合は、一番下の行(メニューID18)に>マークを表示する
+					if [ $selCrsrID -eq 1 ] ; then
 						lnSeed[18]=${lnSeed[18]:0:67}'>'${lnSeed[18]:68}
-						selMenuId=18
+						selCrsrID=18
 
 					else
-					#1じゃなければ、普通通りにメニューIDを1つデクリメントして*を表示する
-						lnSeed[$((selMenuId-1))]=${lnSeed[$((selMenuId-1))]:0:67}'>'${lnSeed[$((selMenuId-1))]:68}
-						selMenuId=$((selMenuId-1))
+					#1じゃなければ、普通通りにメニューIDを1つデクリメントして>を表示する
+						selCrsrID=$((selCrsrID-1))
+						lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}'>'${lnSeed[$selCrsrID]:68}
 					fi;;
 
 				$CNST_CSR_MVTO_DN)
-					lnSeed[$selMenuId]=${lnSeed[$selMenuId]:0:67}' '${lnSeed[$selMenuId]:68}
+					lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}' '${lnSeed[$selCrsrID]:68}
 
-					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に*マークを表示する
-					if [ $selMenuId -eq 18 ] ; then
+					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に>マークを表示する
+					if [ $selCrsrID -eq 18 ] ; then
 						lnSeed[1]=${lnSeed[1]:0:67}'>'${lnSeed[1]:68}
-						selMenuId=1
+						selCrsrID=1
 
 					else
-					#18じゃなければ、普通通りにメニューIDを1つインクリメントして*を表示する
-						lnSeed[$((selMenuId+1))]=${lnSeed[$((selMenuId+1))]:0:67}'>'${lnSeed[$((selMenuId+1))]:68}
-						selMenuId=$((selMenuId+1))
+					#18じゃなければ、普通通りにメニューIDを1つインクリメントして>を表示する
+						selCrsrID=$((selCrsrID+1))
+						lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}'>'${lnSeed[$selCrsrID]:68}
 					fi;;
 
 				#エラー
-				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selMenuId";;
+				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selCrsrID";;
 			esac
 			}
 		}
@@ -1416,7 +1460,8 @@
 		##   また、所持アイテムの情報をはめ込んでいく。		
 		##################################################
 		function joinFrameOnItem (){
-
+			
+			selCrsrID=1
 			declare psnItemCnt=0
 			declare spCnt1=0 #アイテム名称の後の半角相当SP数
 			declare spCnt2=0 #アイテム説明の後の半角相当SP数
@@ -1424,11 +1469,14 @@
 			declare itemExp=''
 
 			#現在の表示内容を退避し、アイテム枠を表示する。
+			##退避処理
 			escLnSeed
+			##アイテム枠で上書き
 			for ((i = 0; i <= 19; i++)) {
 				lnSeed[i]="${lnItemInfo[i]}"
 			}
-			
+
+			#アイテム内容を詰め込む
 			##所持アイテムリストの長さを取得
 			psnItemCnt=${#psnItemList[*]}
 			
@@ -1473,7 +1521,7 @@
 			
 			declare cmd=''
 
-			cmd="${lnSeed[$selMenuId]:69:13}"
+			cmd="${lnSeed[$selCrsrID]:69:13}"
 
 			lnSeed[0]="${lnSeed[0]:0:65}+ M E N U ========================+"
 			lnSeed[1]="${lnSeed[1]:0:66}$cmd       |"
@@ -1496,16 +1544,21 @@
 		##   $1:自キャラカーソルを再描画するかどうか
 		##################################################
 		function dispAll (){
+
+			declare mode="$1"
+			declare posX=''
+			declare posY=''
+		
 			clear
 
 			for ((i = 0; i < ${#lnSeed[*]}; i++)) {
 				echo "${lnSeed[i]}"
 				}
 
-			declare posX=$((10#${lnSeed[1]:1:2}+3))
-			declare posY=$((10#${lnSeed[2]:1:2}+3))
+			if [ $mode = $CNST_YN_Y ] ; then
+				posX=$((10#${lnSeed[1]:1:2}+3))
+				posY=$((10#${lnSeed[2]:1:2}+3))
 
-			if [ $1 = $CNST_YN_Y ] ; then
 				tput sc
 				tput cup $posY $posX
 				tput setab 2
@@ -2925,7 +2978,7 @@
 		function mn(){
 			cmdMode="$CNST_CMDMODE_MENU1"
 			joinFrameOnMenu
-			selMenuId=1
+			selCrsrID=1
 			dispAll $CNST_YN_Y
 			}
 		}
@@ -2948,7 +3001,7 @@
 		##  引数なし
 		###########################################
 		function it(){
-			#cmdMode="$CNST_CMDMODE_NRML0"
+			cmdMode="$CNST_CMDMODE_ITEM1"
 			joinFrameOnItem
 			dispAll $CNST_YN_N
 			}
@@ -2963,8 +3016,9 @@
 			cmdMode="$CNST_CMDMODE_NRML0"
 			retLnSeed
 			dispAll $CNST_YN_Y
-			}
 		}
+		}
+
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
 		function te(){
@@ -3013,10 +3067,10 @@
 						#メニューないカーソルの移動といくつかのコマンドが生存する
 						case "$inKey" in
 							''		)	
-										case "$selMenuId" in
+										case "$selCrsrID" in
 										16	)
 											cmdMode=$CNST_CMDMODE_MENU2
-											getCmdInMain $selMenuId
+											getCmdInMain $selCrsrID
 											cmdMode=$CNST_CMDMODE_NRML0
 											joinFrameOnStatus
 											;;
@@ -3030,11 +3084,26 @@
 										;;
 							[2X]	)	movMenuCsr $CNST_CSR_MVTO_DN;;
 							[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP;;
-							*		)	;;
+							*		)	getCmdInMain;;
 						esac
 
 						#いずれにしても全画面の更新再表示は行う
 						dispAll $CNST_YN_Y
+						;;
+
+					"$CNST_CMDMODE_ITEM1"	)
+						#アイテム表示時はショートカットが無効化され
+						#アイテム表示時特有の操作系になる
+						case "$inKey" in
+							''		)	dspCmdLog "アイテムを使用する？"
+										;;
+							[2X]	)	movItemCsr $CNST_CSR_MVTO_DN;;
+							[8W]	)	movItemCsr $CNST_CSR_MVTO_UP;;
+							*		)	getCmdInMain;;
+						esac
+
+						#いずれにしても全画面の更新再表示は行う
+						dispAll $CNST_YN_N
 						;;
 				esac
 				clrCmdLog
@@ -3080,7 +3149,6 @@
 						'cc'	)	da 3;;
 						'mn'	)	mn;;
 						'it'*	)	it;;
-						'ci'*	)	ci;;
 						'sv'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						'sq'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						'ki'*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
@@ -3097,9 +3165,9 @@
 						#'sq'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						''		)	dspCmdLog '入力してください。';;
 						*		)	dspCmdLog "[$inKey]は無効です。";;
-					esac;;
-
-				#メニュー表示時は
+					esac
+					;;
+				#メニュー表示時
 				"$CNST_CMDMODE_MENU1"	)
 					inKey2="$inKey"
 					printf "$inKey2"
@@ -3108,8 +3176,7 @@
 
 					case "$inKey" in
 						'man can')	man can;;
-						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
-									dispAll $CNST_YN_Y;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
 						'man'*	)	man "${inKey:4}";;
 						'??'	)	viewHelp;; 
 						'mv'*	)	mv "${inKey:3}";;
@@ -3121,26 +3188,45 @@
 					dispAll $CNST_YN_Y
 					;;
 				"$CNST_CMDMODE_MENU2"	)
-					case $selMenuId in
+					case $selCrsrID in
 						'1' )	iv $1;;
 						'2' )	op $1;;
 						'3' )	cl $1;;
-						'4' )	dspCmdLog "[$selMenuId]は未実装です。";;
-						'5' )	dspCmdLog "[$selMenuId]は未実装です。";;
-						'6' )	dspCmdLog "[$selMenuId]は未実装です。";;
-						'7' )	dspCmdLog "[$selMenuId]は未実装です。";;
-						'8' )	dspCmdLog "[$selMenuId]は未実装です。";;
-						'9' )	dspCmdLog "[$selMenuId]は未実装です。";;
-						'10')	dspCmdLog "[$selMenuId]は未実装です。";;
-						'11')	dspCmdLog "[$selMenuId]は未実装です。";;
-						'12')	dspCmdLog "[$selMenuId]は未実装です。";;
-						'13')	dspCmdLog "[$selMenuId]は未実装です。";;
-						'14')	dspCmdLog "[$selMenuId]は未実装です。";;
+						'4' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'5' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'6' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'7' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'8' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'9' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'10')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'11')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'12')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'13')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'14')	dspCmdLog "[$selCrsrID]は未実装です。";;
 						'15')	man ;;
 						'16')	viewHelp ;;
 						'17')	cm ;;
 						'18')	quitGame ;;
-						*		)	dspCmdLog "[$selMenuId]は無効です。";;
+						*		)	dspCmdLog "[$selCrsrID]は無効です。";;
+					esac
+					dispAll $CNST_YN_Y
+					;;
+				#アイテム表示時
+				"$CNST_CMDMODE_ITEM1"	)
+					inKey2="$inKey"
+					printf "$inKey2"
+					getChrV
+					inKey="${inKey2}${inKey}"
+
+					case "$inKey" in
+						'man can')	man can;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
+						'man'*	)	man "${inKey:4}";;
+						'??'	)	viewHelp;; 
+						'ci'	)	ci;;
+						'qqq'	)	quitGame;;
+						''		)	dspCmdLog '入力してください。';;
+						*		)	dspCmdLog "[$inKey]は無効です。";;
 					esac
 					dispAll $CNST_YN_Y
 					;;
