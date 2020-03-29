@@ -140,17 +140,16 @@
 				##あくまでも暫定なのでもうちょっとちゃんとした形に変わるかも。
 				###アイテムIDは0000～FFFFとする。
 				
-				#薬系
 				declare -g -a TBL_ITM_INFO=()
-							#  0    1   2    3                    4                    5
-							#  ID   CAT CRR  修飾_全角10文字      名称_全角10文字      説明_全角22文字
+							#  0     1   2   3                    4                    5
+							#  ID    CAT CRR 修飾_全角10文字      名称_全角10文字      説明_全角22文字
 			   #TBL_ITM_INFO+=('FFFF CSM +00 １２３４５６７８９０ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
 			    TBL_ITM_INFO+=('0000 CSM 000 nomod                八卦炉               激しくマーライオンする'                      )
 				TBL_ITM_INFO+=('0001 CSM 000 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
-				TBL_ITM_INFO+=('0002 CSM +02 nomod                毒弁当               瀟洒！'                                      )
+				TBL_ITM_INFO+=('0002 CSM +02 紅魔館メイド手製の   毒弁当               瀟洒！'                                      )
 				TBL_ITM_INFO+=('0003 CSM +01 魔法の森でとれた     キノコ               エッチな形をしている＋１'                    )
 				TBL_ITM_INFO+=('0004 CSM +02 魔法の森でとれた     キノコ               エッチな形をしている＋２'                    )
-				TBL_ITM_INFO+=('0005 CSM +03 魔法の森でとれた     キノコ               エッチな形をしている＋３'                    )
+				TBL_ITM_INFO+=('0005 CSM +03 nomod                キノコ               エッチな形をしている＋３'                    )
 				TBL_ITM_INFO+=('0006 CSM +04 魔法の森でとれた     キノコ               エッチな形をしている＋４'                    )
 				TBL_ITM_INFO+=('0007 CSM -10 アロマ臭のする       陰陽玉               いいにおいがする。霊夢愛用。'                )
 				TBL_ITM_INFO+=('0008 CSM 000 七色に光る           壊れた人形           血がついている'                              )
@@ -1104,7 +1103,7 @@
 			esac
 			}
 		}
-	: 'メニュー2方向指示カーソル移動' && {
+	: 'メニュー2画面方向指示カーソル移動' && {
 		##################################################
 		##movDirCsr
 		## メニュー2画面の方向指示用カーソルを移動する
@@ -1859,39 +1858,39 @@
 
 			}
 		}
-	: 'maコマンド' && {
+	: 'manコマンド' && {
 		##################################################
-		##ma
+		##man
 		## マニュアル参照
 		##  引数で渡されたコマンドのマニュアルを表示する。
 		##   $1 参照先コマンド
 		##################################################
 		function ma(){
 			case "$1" in
-				'can'	)	ma_can ;;
-				'mv'	)	ma_mv ;;
-				'da'	)	ma_da ;;
-				'op'	)	ma_op ;;
-				'cl'	)	ma_cl ;;
-				'pp'	)	ma_pp ;;
-				'ki'	)	ma_ki ;;
-				'wp'	)	ma_wp ;;
-				'ct'	)	ma_ct ;;
-				'in'	)	ma_in ;;
-				'gt'	)	ma_gt ;;
-				'tr'	)	ma_tr ;;
-				'tk'	)	ma_tk ;;
-				'pr'	)	ma_pr ;;
-				'ss'	)	ma_ss ;;
-				'mn'	)	ma_mn ;;
-				'ma'	)	ma_ma ;;
+				'can'	)	man_can ;;
+				'mv'	)	man_mv ;;
+				'da'	)	man_da ;;
+				'op'	)	man_op ;;
+				'cl'	)	man_cl ;;
+				'pp'	)	man_pp ;;
+				'ki'	)	man_ki ;;
+				'wp'	)	man_wp ;;
+				'ct'	)	man_ct ;;
+				'in'	)	man_in ;;
+				'gt'	)	man_gt ;;
+				'tr'	)	man_tr ;;
+				'tk'	)	man_tk ;;
+				'pr'	)	man_pr ;;
+				'ss'	)	man_ss ;;
+				'mn'	)	man_mn ;;
+				'man'	)	man_man ;;
 				*		)	dspCmdLog "[$1]:存在しないコマンド"
 							dispAll $CNST_YN_Y;;
 			esac
 			}
 		: '■マニュアル詳細' && {
 				: 'canコマンドマニュアル' && {
-					function ma_can(){
+					function man_can(){
 
 						inKey=''
 						tput smcup
@@ -1925,7 +1924,7 @@
 						}
 					}
 				: 'svqコマンドマニュアル' && {
-					function ma_sq(){
+					function man_sq(){
 
 						inKey=''
 						tput smcup
@@ -1958,7 +1957,7 @@
 						}
 					}
 				: 'svコマンドマニュアル' && {
-					function ma_svq(){
+					function man_svq(){
 
 						inKey=''
 						tput smcup
@@ -1991,7 +1990,7 @@
 						}
 					}
 				: 'qqqコマンドマニュアル' && {
-					function ma_qqq(){
+					function man_qqq(){
 
 						inKey=''
 						tput smcup
@@ -2024,7 +2023,7 @@
 						}
 					}
 				: 'mvコマンドマニュアル' && {
-					function ma_mv(){
+					function man_mv(){
 
 						inKey=''
 						tput smcup
@@ -2069,7 +2068,7 @@
 						}
 					}
 				: 'daコマンドマニュアル' && {
-					function ma_da(){
+					function man_da(){
 
 						inKey=''
 						tput smcup
@@ -2113,7 +2112,7 @@
 						}
 					}
 				: 'opコマンドマニュアル' && {
-					function ma_op(){
+					function man_op(){
 
 						inKey=''
 						tput smcup
@@ -2153,7 +2152,7 @@
 						}
 					}
 				: 'clコマンドマニュアル' && {
-					function ma_cl(){
+					function man_cl(){
 
 						inKey=''
 						tput smcup
@@ -2194,7 +2193,7 @@
 						}
 					}
 				: 'kiコマンドマニュアル' && {
-					function ma_ki(){
+					function man_ki(){
 
 						inKey=''
 						tput smcup
@@ -2248,7 +2247,7 @@
 						}
 					}
 				: 'wpコマンドマニュアル' && {
-					function ma_wp(){
+					function man_wp(){
 
 						inKey=''
 
@@ -2293,7 +2292,7 @@
 						}
 					}
 				: 'ctコマンドマニュアル' && {
-					function ma_ct(){
+					function man_ct(){
 
 						inKey=''
 
@@ -2350,7 +2349,7 @@
 						}
 					}
 				: 'ivコマンドマニュアル' && {
-					function ma_iv(){
+					function man_iv(){
 
 						inKey=''
 
@@ -2391,7 +2390,7 @@
 						}
 					}
 				: 'gtコマンドマニュアル' && {
-					function ma_gt(){
+					function man_gt(){
 
 						inKey=''
 
@@ -2432,7 +2431,7 @@
 						}
 					}
 				: 'trコマンドマニュアル' && {
-					function ma_tr(){
+					function man_tr(){
 
 						inKey=''
 						tput smcup
@@ -2482,7 +2481,7 @@
 						}
 					}
 				: 'tkコマンドマニュアル' && {
-					function ma_tk(){
+					function man_tk(){
 
 						inKey=''
 						tput smcup
@@ -2521,7 +2520,7 @@
 						}
 					}
 				: 'prコマンドマニュアル' && {
-					function ma_pr(){
+					function man_pr(){
 
 						inKey=''
 						tput smcup
@@ -2559,7 +2558,7 @@
 						}
 					}
 				: 'ssコマンドマニュアル' && {
-					function ma_ss(){
+					function man_ss(){
 
 						inKey=''
 
@@ -2592,7 +2591,7 @@
 						}
 					}
 				: 'mnコマンドマニュアル' && {
-					function ma_mn(){
+					function man_mn(){
 
 						inKey=''
 
@@ -2626,14 +2625,14 @@
 						}
 					}
 				: 'manコマンドマニュアル' && {
-					function ma_ma(){
+					function man_man(){
 
 						inKey=''
 
 						tput smcup
 						clear
 
-						echo '…今使ってるだろ。'
+						echo '...今使ってるだろ。'
 						echo '[q]キーで終了します'
 						
 						while :
@@ -3149,7 +3148,7 @@
 									dispAll $CNST_YN_Y;;
 						'te'	)	te;;
 						'??'	)	viewHelp;; 
-						'ma '*	)	ma "${inKey:3}";;
+						'man '*	)	ma "${inKey:4}";;
 						'mv '*	)	mv "${inKey:3}";;
 						'op '*	)	op "${inKey:3}";;
 						'cl '*	)	cl "${inKey:3}";;
@@ -3181,7 +3180,7 @@
 						#'sq'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
 						''		)	dspCmdLog '入力してください。'
 									dispAll $CNST_YN_Y;;
-						*		)	dspCmdLog "[${inKey// /}...]は無効です"
+						*		)	dspCmdLog "[${inKey// /}...]は無効、または引数が必要です"
 									dispAll $CNST_YN_Y;;
 					esac
 					;;
@@ -3196,13 +3195,13 @@
 						'ma can')	ma can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
 									dispAll $CNST_YN_Y;;
-						'ma '*	)	ma "${inKey:3}";;
+						'man '*	)	ma "${inKey:4}";;
 						'??'	)	viewHelp;; 
 						'mv '*	)	mv "${inKey:3}";;
 						'cm'	)	cm
 									dispAll $CNST_YN_Y;;
 						'qqq'	)	quitGame;;
-						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。"
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。"
 									dispAll $CNST_YN_Y;;
 					esac
 					;;
@@ -3226,7 +3225,7 @@
 						'16')	viewHelp ;;
 						'17')	cm ;;
 						'18')	quitGame ;;
-						*		)	dspCmdLog "[$selCrsrID]は無効です。";;
+						*		)	dspCmdLog "[$selCrsrID]は無効または引数が必要です。";;
 					esac
 					;;
 				#アイテム表示時
@@ -3239,11 +3238,11 @@
 					case "$inKey" in
 						'ma can')	ma can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
-						'ma '*	)	ma "${inKey:3}";;
+						'man '*	)	ma "${inKey:4}";;
 						'??'	)	viewHelp;;
 						'ci'	)	ci;;
 						'qqq'	)	quitGame;;
-						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。";;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。";;
 					esac
 					;;
 			esac
