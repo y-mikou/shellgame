@@ -1234,25 +1234,25 @@
 			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #00
 			lnItemInfo+=('|   所持品  ページ目                             | 説明                                         |直|') #01
 			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #02
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #03
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #04
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #05
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #06
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #07
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #08
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #09
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #10
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #11
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #12
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #13
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #14
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #15
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #16
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #17
-			lnItemInfo+=('|       　　　　　　　　　　 　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #18
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #03
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #04
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #05
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #06
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #07
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #08
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #09
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #10
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #11
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #12
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #13
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #14
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #15
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #16
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #17
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #18
 			lnItemInfo+=('+============================================+===+==============================================+==+') #19+1
 			}
-		}						
+		}
 	: 'ステータス表示内容' && {
 		##################################################
 		## defStatusInfo
@@ -1490,7 +1490,7 @@
 				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}'"$itemName"'`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|`printf "%2s" $i`|"'
 			}
 
-			#カーソル設置と、リグル表示のごみ消去
+			#カーソル設置
 			lnSeed[3]="${lnSeed[3]:0:2}>${lnSeed[3]:3}"
 
 			}
