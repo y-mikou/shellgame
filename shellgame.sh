@@ -349,7 +349,7 @@
 		###########################################
 		function getChrV(){
 			inKey=''
-			read inKey
+			IFS= read inKey
 		}
 		}
 	: '1文字入力受付' && {
@@ -360,7 +360,7 @@
 		###########################################
 		function getChrH(){
 			inKey=''
-			read -s -n 1 inKey
+			IFS= read -s -n 1 inKey
 		}
 		}
 	: 'ステータス値取得' && {
@@ -3009,8 +3009,7 @@
 			joinFrameOnItem
 			#更新_自キャラカーソルは描写しない
 			dispAll $CNST_YN_N
-					break
-			}
+		}
 		}
 	: 'ciコマンド' && {
 		###########################################
@@ -3069,6 +3068,7 @@
 							[7Q]	)	mv 7;;
 							[8W]	)	mv 8;;
 							[9E]	)	mv 9;;
+							' '		)	dspCmdLog '入力してください。';;
 							*	)	getCmdInMain;;
 						esac
 						;;
@@ -3140,7 +3140,7 @@
 					printf "$inKey2"
 					getChrV
 
-					inKey="${inKey2}${inKey}"
+					inKey="$inKey2$inKey"
 					case "$inKey" in
 						'ma can')	ma can;;
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
