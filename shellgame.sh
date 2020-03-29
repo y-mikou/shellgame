@@ -2804,7 +2804,7 @@
 				return
 			fi
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
-				:
+				dspCmdLog "足元に扉はないかな・・・。"
 			else
 
 				#移動先座標を,区切りで取得
@@ -2817,7 +2817,8 @@
 				elif
 					[ "$(getMapInfo $clX $clY 'STS')" = '0' ] ; then
 					dspCmdLog "閉まってるよ。"
-				else				modMsg 1 1 'ばたん。'
+				else				
+					modMsg 1 1 'ばたん。'
 					closeDoor $clX $clY 
 				fi
 				dispAll $CNST_YN_Y
@@ -3037,7 +3038,7 @@
 			}
 		}
 
-	}
+		}
 : '■主幹処理系' && {
 	: 'メインループ' && {
 		###########################################
@@ -3057,6 +3058,7 @@
 				#任意長のコマンド受付にリダイレクトされる。
 				case "$cmdMode" in
 					#通常時はmvコマンドのショートカットが有効
+					#画面更新はmvコマンド内で行われている。
 					$CNST_CMDMODE_NRML0	)
 						case "$inKey" in
 							[1Z]	)	mv 1;;
@@ -3068,8 +3070,9 @@
 							[7Q]	)	mv 7;;
 							[8W]	)	mv 8;;
 							[9E]	)	mv 9;;
-							' '		)	dspCmdLog '入力してください。';;
-							*	)	getCmdInMain;;
+							''		)	dspCmdLog '入力してください。'
+										dispAll $CNST_YN_Y;;
+							*		)	getCmdInMain;;
 						esac
 						;;
 
@@ -3097,7 +3100,6 @@
 							[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP;;
 							*		)	getCmdInMain;;
 						esac
-
 						#いずれにしても全画面の更新再表示は行う
 						dispAll $CNST_YN_Y
 						;;
@@ -3105,16 +3107,16 @@
 					$CNST_CMDMODE_ITEM1	)
 						#アイテム表示時はショートカットが無効化され
 						#アイテム表示時特有の操作系になる
+						##画面更新は自キャラカーソルを更新しない。
 						case "$inKey" in
 							''		)	dspCmdLog "アイテムを使用する？"
 										;;
-							[2X]	)	movItemCsr $CNST_CSR_MVTO_DN;;
-							[8W]	)	movItemCsr $CNST_CSR_MVTO_UP;;
+							[2X]	)	movItemCsr $CNST_CSR_MVTO_DN
+										dispAll $CNST_YN_N;;
+							[8W]	)	movItemCsr $CNST_CSR_MVTO_UP
+										dispAll $CNST_YN_N;;
 							*		)	getCmdInMain;;
 						esac
-
-						#いずれにしても全画面の更新再表示は行う
-						dispAll $CNST_YN_N
 						;;
 				esac
 				clrCmdLog
@@ -3192,18 +3194,19 @@
 
 					case "$inKey" in
 						'ma can')	ma can;;
-						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
+									dispAll $CNST_YN_Y;;
 						'ma '*	)	ma "${inKey:3}";;
 						'??'	)	viewHelp;; 
 						'mv '*	)	mv "${inKey:3}";;
-						'cm'	)	cm;;
+						'cm'	)	cm
+									dispAll $CNST_YN_Y;;
 						'qqq'	)	quitGame;;
-						''		)	dspCmdLog '入力してください。';;
-						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。";;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。"
+									dispAll $CNST_YN_Y;;
 					esac
-					dispAll $CNST_YN_Y
 					;;
-				"$CNST_CMDMODE_MENU2"	)
+				$CNST_CMDMODE_MENU2	)
 					case $selCrsrID in
 						'1' )	iv $1;;
 						'2' )	op $1;;
@@ -3225,7 +3228,6 @@
 						'18')	quitGame ;;
 						*		)	dspCmdLog "[$selCrsrID]は無効です。";;
 					esac
-					dispAll $CNST_YN_Y
 					;;
 				#アイテム表示時
 				$CNST_CMDMODE_ITEM1	)
@@ -3239,17 +3241,15 @@
 						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
 						'ma '*	)	ma "${inKey:3}";;
 						'??'	)	viewHelp;;
-						'ci'	)	ci
-									dispAll $CNST_YN_Y;;
+						'ci'	)	ci;;
 						'qqq'	)	quitGame;;
 						*		)	dspCmdLog "[${inKey:0:2}...]は無効です。";;
 					esac
 					;;
-				*	) dspCmdLog "[$inKey]は無効です。";;
 			esac
 		}
 		}
-	}
+		}
 : '■メイン' && {
 	###########################################
 	##main
