@@ -675,6 +675,25 @@
 			if [ ${#psnItemList[*]} -le 15 ] ; then
 				modMsg 1 1 "$itemNameを拾った"
 				psnItemList+=($itemID)
+
+				#現在座標取得
+				declare mapX=$((10#${lnSeed[1]:1:2}-1))
+				declare mapY=$((10#${lnSeed[2]:1:2}-1))
+
+				#表示情報の更新用
+				declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+				declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+				#正解マップ情報への反映用
+				declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+				declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+
+				#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
+				#lnSeedとlnMapInfoの両方を更新する必要がある。
+				lnSeed[$((mapY+4))]="${lStrD} ${rStrD}"
+				lnMapInfo[$((mapY))]="${lStrM} ${rStrM}"
+
+				dispAll $CNST_YN_Y
+
 			else
 				modMsg 1 1 "$itemNameが落ちている...が持ち物がいっぱいで持てない。"
 			fi
@@ -806,10 +825,10 @@
 			declare mapX=$((10#$1))
 			declare mapY=$((10#$2))
 
-			#表示情報の更新
+			#表示情報の更新用
 			declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
 			declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
-			#正解マップ情報への反映
+			#正解マップ情報への反映用
 			declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
 			declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
 
@@ -841,10 +860,10 @@
 			declare mapX=$((10#$1))
 			declare mapY=$((10#$2))
 
-			#表示情報の更新
+			#表示情報の更新用
 			declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
 			declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
-			#正解マップ情報への反映
+			#正解マップ情報への反映用
 			declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
 			declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
 
@@ -1203,19 +1222,19 @@
 			#初期状態    000000000011111111112222222222333333333344444444445555555555
 			#文字数      012345678901234567890123456789012345678901234567890123456789+1
 			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00+1
-			lnMapInfo+=('|                           D                       |XXXXXXX') #01+1
+			lnMapInfo+=('|                           D                      o|XXXXXXX') #01+1
 			lnMapInfo+=('|                           +-+-------------+D+-----+XXXXXXX') #02+1
 			lnMapInfo+=('+                           |X|                     |XXXXXXX') #03+1
-			lnMapInfo+=('#                           |X|                     |XXXXXXX') #04+1
+			lnMapInfo+=('#                           |X|o                    |XXXXXXX') #04+1
 			lnMapInfo+=('#                           |X+--+                  +----+XX') #05+1
 			lnMapInfo+=('#                    a      |XXXX|                       |XX') #06+1
-			lnMapInfo+=('+                   o       |XXXX|                  +--+ |XX') #07+1
+			lnMapInfo+=('+                   o       |XXXX|o                 +--+ |XX') #07+1
 			lnMapInfo+=('|                           |XXXX+------------------+XX| |XX') #08+1
 			lnMapInfo+=('|v                          |XXXXXXXXXXXXXXXXXXXXXXXXXX| |XX') #09+1
 			lnMapInfo+=('+---------------------------+--------------------------+D+XX') #10+1
 			lnMapInfo+=('|                                                        |XX') #11+1
-			lnMapInfo+=('+-+D+-+-------------------+D+---------------+            |XX') #12+1
-			lnMapInfo+=('|     |XXXXXXXXXXXXXXXXXXX| |XXXXXXXXXXXXXXX+------------+XX') #13+1
+			lnMapInfo+=('+-+D+-+-------------------+D+---------------+  o         |XX') #12+1
+			lnMapInfo+=('|ooooo|XXXXXXXXXXXXXXXXXXX| |XXXXXXXXXXXXXXX+------------+XX') #13+1
 			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14+1
 			}
 		}						
