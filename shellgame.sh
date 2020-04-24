@@ -32,6 +32,8 @@
 				declare -r -g    CNST_POS_STS_AGI='17 2 3' #敏捷ステータス表示位置
 				declare -r -g    CNST_POS_STS_LUK='18 2 3' #幸運ステータス表示位置
 
+				declare -r -g    CNST_POS_ITM_PAG='2 12' #アイテム画面のページ数表示位置表示位置
+
 				##マップサイズ[MAP_SIZ]
 				declare -r -g CNST_MAP_SIZ_X=60 #横
 				declare -r -g CNST_MAP_SIZ_Y=15 #縦
@@ -56,7 +58,7 @@
 				##メニュー内カーソル移動方向
 				declare -r -g CNST_CSR_MVTO_UP='8'
 				declare -r -g CNST_CSR_MVTO_DN='2'
-			}
+				}
 			: 'マップチップ系コンスタント値' && {
 				#00:表示         英記号1桁(マップ上表記)
 				#01:大分類       英字3桁(意味を持った略称)
@@ -89,7 +91,7 @@
 				declare -r -g -a CNST_MAPTIP_15=('A' 'ITM' '10' '1' '1' '1' '0' '1' '1' '抽選済腕装備')
 				declare -r -g -a CNST_MAPTIP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
 				#declare -r -g -a  CNST_MAPTP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
-			}
+				}
 			: '属性値設定' && {
 				declare -r -g DSP=0
 				declare -r -g CNM=1
@@ -101,7 +103,7 @@
 				declare -r -g DST=7
 				declare -r -g EVE=8
 				declare -r -g NME=9
-			}
+				}
 			: '拾得物抽選テーブル' && {
 				#形式 TBL_LOTITM_XXX_88[9]
 				#                種 _Lv[slot]
@@ -132,7 +134,7 @@
 				  '  3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100'
 				  '  5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100 100 100'
 				)
-			}
+				}
 			: 'アイテムテーブル' && {
 				#暫定
 				##アイテムテーブルはn個の半角スペースで区切られた要素で構成される。
@@ -141,26 +143,47 @@
 				###アイテムIDは0000～FFFFとする。
 				
 				declare -g -a TBL_ITM_INFO=()
-							#  0     1   2   3                    4                    5
-							#  ID    CAT CRR 修飾_全角10文字      名称_全角10文字      説明_全角22文字
-			   #TBL_ITM_INFO+=('FFFF CSM +00 １２３４５６７８９０ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２')
-			    TBL_ITM_INFO+=('0000 CSM 000 nomod                八卦炉               激しくマーライオンする'                      )
-				TBL_ITM_INFO+=('0001 CSM 000 永遠亭謹製の         おくすり             あなたはもう死ねなくなる'                    )
-				TBL_ITM_INFO+=('0002 CSM +02 紅魔館メイド手製の   毒弁当               瀟洒！'                                      )
-				TBL_ITM_INFO+=('0003 CSM +01 魔法の森でとれた     キノコ               エッチな形をしている＋１'                    )
-				TBL_ITM_INFO+=('0004 CSM +02 魔法の森でとれた     キノコ               エッチな形をしている＋２'                    )
-				TBL_ITM_INFO+=('0005 CSM +03 nomod                キノコ               エッチな形をしている＋３'                    )
-				TBL_ITM_INFO+=('0006 CSM +04 魔法の森でとれた     キノコ               エッチな形をしている＋４'                    )
-				TBL_ITM_INFO+=('0007 CSM -10 アロマ臭のする       陰陽玉               いいにおいがする。霊夢愛用。'                )
-				TBL_ITM_INFO+=('0008 CSM 000 七色に光る           壊れた人形           血がついている'                              )
-				TBL_ITM_INFO+=('0009 CSM 000 nomod                宝塔                 おでん'                                      )
+										#   0    1   2   3                      4                    5
+										#   ID   CAT CRR 修飾_全角11文字        名称_全角10文字      説明_全角23文字
+			 #TBL_ITM_INFO+=('FFFF CSM +00 １２３４５６７８９０１ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２３')
+			  TBL_ITM_INFO+=('0000 CSM 000 nomod                  八卦炉               激しくマーライオンする'                      )
+				TBL_ITM_INFO+=('0001 CSM 000 永遠亭謹製の           おくすり             あなたはもう死ねなくなる'                    )
+				TBL_ITM_INFO+=('0002 CSM +02 紅魔館メイド手製の     毒弁当               瀟洒！'                                      )
+				TBL_ITM_INFO+=('0003 CSM +01 魔法の森でとれた       キノコ               エッチな形をしている＋１'                    )
+				TBL_ITM_INFO+=('0004 CSM +02 魔法の森でとれた       キノコ               エッチな形をしている＋２'                    )
+				TBL_ITM_INFO+=('0005 CSM +03 nomod                  キノコ               エッチな形をしている＋３'                    )
+				TBL_ITM_INFO+=('0006 CSM +04 魔法の森でとれた       キノコ               エッチな形をしている＋４'                    )
+				TBL_ITM_INFO+=('0007 CSM -10 アロマ臭のする         陰陽玉               いいにおいがする。霊夢愛用。'                )
+				TBL_ITM_INFO+=('0008 CSM 000 七色に光る             壊れた人形           血がついている'                              )
+				TBL_ITM_INFO+=('0009 CSM 000 nomod                  宝塔                 おでん'                                      )
 
+				TBL_ITM_INFO+=('9001 CSM +01 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9002 CSM +02 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9003 CSM +03 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9004 CSM +04 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9005 CSM +05 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9006 CSM +06 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9007 CSM +07 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9008 CSM +08 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9009 CSM +09 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9010 CSM +10 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9011 CSM +11 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9012 CSM +12 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9013 CSM +13 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9014 CSM +14 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9015 CSM +15 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9016 CSM +16 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9017 CSM +17 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9018 CSM +18 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9019 CSM +19 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9020 CSM +20 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9021 CSM +21 nomod                  宝塔                 おでん'                                      )
 
 				#エラーアイテム
-			 TBL_ITM_INFO_ERR=('ZZZZ ERR +99 該当アイテムなし     該当アイテムなし     該当ＩＤのアイテムは登録されていません')
+			 TBL_ITM_INFO_ERR=('ZZZZ ERR ERR エラーアイテム       ＩＤ：ZZZZ     ＩＤ：ZZZZのアイテムは存在しません')
 
 
-			}
+				}
 			: '汎用コード値' && {
 				#可否
 				declare -r -g CNST_YN_Y='1' #肯定/可能
@@ -179,14 +202,14 @@
 				declare -r -g CNST_EVT_TUCH='1' #隣接したとき
 				declare -r -g CNST_EVT_COND='8' #他の条件
 				declare -r -g CNST_EVT_BTTL='9' #隣接時戦闘
-			}
+				}
 			: 'その他コンスタント値定義' && { 
 				##sayRnd関数の種別
 				declare -r -g  CNST_RND_WALL='1' #壁激突音
 				declare -r -g  CNST_RND_DOOR='2' #扉じゃないところを扉
 				declare -r -g CNST_RND_WEMEN='3' #女性接触声
 				declare -r -g  CNST_RND_DASH='4' #ダッシュ音				
-			}
+				}
 			: 'GLOBAL変数定義' && {
 				##キー入力受付用
 				declare -g  inKey=''
@@ -197,6 +220,9 @@
 
 				##メニュー表示時の現在座標退避
 				declare -g posEsc=''
+
+				##ページID
+				declare -g selPageID=''
 
 				##カーソルID
 				declare -g selCrsrID=''
@@ -214,7 +240,7 @@
 				declare -a -g psnItemList
 
 
-			}
+				}
 		}
 		}
 	: '終了処理' && { 
@@ -293,6 +319,35 @@
 			for i in ${!tgtAll[@]}
 			do
 				cnvstr=${cnvstr//"${tgtAll[i]}"/"${dstAll[i]}"}
+			done
+			echo "$cnvstr"
+		}
+		}
+	: '数字置換' && {
+		##################################################
+		##repMonoKana
+		## 半角数字を全角にする
+		##  返却は標準出力
+		##   $1:入力文字
+		##################################################
+		function repMonoSuzi(){
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1設定してください。'
+				return
+			fi
+
+			declare cnvstr=$1
+
+			declare tgtSuzi=('0' '1' '2' '3' '4' '5' '6' '7' '8' '9')
+			declare dstSuzi=('０' '１' '２' '３' '４' '５' '６' '７' '８' '９')
+
+			#半角数字を殺す
+			for i in ${!tgtSuzi[@]}
+			do
+				cnvstr=${cnvstr//"${tgtSuzi[i]}"/"${dstSuzi[i]}"}
 			done
 			echo "$cnvstr"
 		}
@@ -583,24 +638,21 @@
 			declare args=()
 
 			args=($(echo "$(getItemInfo $itemID)"|xargs))
+			#args=($(echo '0000 CSM 000 nomod 八卦炉 激しくマーライオンする'|xargs))
 
 			case $mode in
 				'0')
-					if [ "${args[1]}" = 'ERR' ] ; then
-						retStr="エラーアイテム:ID:${args[0]}"
+					#補正値が000の時、名称に含めない
+					if [ "${args[2]}" = '000' ] ; then
+						retStr='   '
 					else
-						#補正値が000の時、名称に含めない
-						if [ "${args[2]}" = '000' ] ; then
-							retStr='   '
-						else
-							retStr="${args[2]}"
-						fi
-						#補正値が000の時、名称に含めない
-						if [ "${args[3]}" != 'nomod' ] ; then
-							retStr="$retStr${args[3]}"
-						fi
-						retStr="$retStr${args[4]}"
+						retStr="${args[2]}"
 					fi
+					#補正値が000の時、名称に含めない
+					if [ "${args[3]}" != 'nomod' ] ; then
+						retStr="$retStr${args[3]}"
+					fi
+					retStr="$retStr${args[4]}"
 					;;
 				'1')
 					retStr="$retStr${args[5]}"
@@ -621,7 +673,6 @@
 		###########################################
 		function getItemInfo(){
 			declare itemID="$(printf "%04d" $1)"
-			declare cntTblItem=0
 			declare tmpArr
 			declare retItemInfo
 			declare args
@@ -632,12 +683,9 @@
 				return
 			fi
 
-			#アイテムテーブルは全部で何件あるか確認
-			cntTblItem=${#TBL_ITM_INFO[@]}
-
 			#アイテムIDとアイテムテーブルのインデクスが一致するとは限らないため
 			#アイテムテーブルをなめる(性能確認はしていない)。
-			for ((i=0; i<$cntTblItem; i++)) {
+			for ((i=0; i<${#TBL_ITM_INFO[@]}; i++)) {
 				retItemInfo="${TBL_ITM_INFO[i]}"
 
 				#アイテムテーブルの行を半角スペースでパースして1要素目(アイテムID)を取得する
@@ -653,7 +701,7 @@
 			}
 			#渡されたアイテムIDがアイテムテーブルに存在しないとき、
 			#エラーアイテムを返却する(エラーアイテムIDを対象のアイテムIDに置換する)
-			echo "${TBL_ITM_INFO_ERR/ZZZZ/$itemID}"
+			echo "${TBL_ITM_INFO_ERR//ZZZZ/`repMonoSuzi $itemID`}"
 		}
 		}
 	: '足元のものを拾う' && {
@@ -1048,25 +1096,25 @@
 			case $dir in
 				#上移動
 				$CNST_CSR_MVTO_UP)
-					#現在のメニューID(カーソル位置)が1の場合は、一番下の行(メニューID18)に>マークを表示する
+					#現在の持ち物番号(カーソル位置)が1の場合は、一番下の行(持ち物番号15)に>マークを表示する
 					if [ $selCrsrID -eq 1 ] ; then
 						lnSeed[18]=${lnSeed[18]:0:2}'>'${lnSeed[18]:3}
 						selCrsrID=16
 
 					else
-					#1じゃなければ、普通通りにメニューIDを1つデクリメントして>を表示する
+					#1じゃなければ、普通通り持ち物番号を1つデクリメントして>を表示する
 						selCrsrID=$((selCrsrID-1))
 						lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}'>'${lnSeed[$((selCrsrID+2))]:3}
 					fi;;
 				#下移動
 				$CNST_CSR_MVTO_DN)
-					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に>マークを表示する
+					#現在の持ち物番号(カーソル位置)が一番下(持ち物番号15)の場合は、一番上の行に>マークを表示する
 					if [ $selCrsrID -eq 16 ] ; then
 						lnSeed[3]=${lnSeed[3]:0:2}'>'${lnSeed[3]:3}
 						selCrsrID=1
 
 					else
-					#18じゃなければ、普通通りにメニューIDを1つインクリメントして>を表示する
+					#18じゃなければ、普通通りに持ち物番号を1つインクリメントして>を表示する
 						selCrsrID=$((selCrsrID+1))
 						lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}'>'${lnSeed[$((selCrsrID+2))]:3}
 					fi;;
@@ -1075,6 +1123,21 @@
 				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selCrsrID";;
 			esac
 			}
+		}
+	: 'アイテムページ切り替え' && {
+		##################################################
+		##movItemPge
+		## アイテム画面のページを切り替える
+		##   引数なし
+		##################################################
+		function movItemPge(){
+			if [ $selPageID = 1 ] ; then
+				selPageID=2
+			else
+				selPageID=1
+			fi
+			joinFrameOnItem
+		}
 		}
 	: 'メニューカーソル移動' && {
 		##################################################
@@ -1238,7 +1301,7 @@
 			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14+1
 			}
 		}						
-	: 'アイテム欄表示内' && {
+	: 'アイテム欄表示' && {
 		##################################################
 		## defItemInfo
 		##  アイテム一覧表示。レイヤー2。
@@ -1251,7 +1314,7 @@
 			#初期状態     0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
 			#文字数       0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #00
-			lnItemInfo+=('|   所持品  ページ目                             | 説明                                         |直|') #01
+			lnItemInfo+=('|   所持品  Xページ目                            | 説明                                         |直|') #01
 			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #02
 			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #03
 			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #04
@@ -1269,7 +1332,7 @@
 			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #16
 			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #17
 			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #18
-			lnItemInfo+=('+============================================+===+==============================================+==+') #19+1
+			lnItemInfo+=('+============================================+===+==============================================+==+') #19
 			}
 		}
 	: 'ステータス表示内容' && {
@@ -1479,12 +1542,11 @@
 		##################################################
 		function joinFrameOnItem (){
 			
-			selCrsrID=1
-			declare psnItemCnt=0
 			declare spCnt1=0 #アイテム名称の後の半角相当SP数
 			declare spCnt2=0 #アイテム説明の後の半角相当SP数
+			declare maxItemLine=0
 			declare itemName=''
-			declare itemExp=''
+			declare itemExplain=''
 
 			#現在の表示内容を退避し、アイテム枠を表示する。
 			##アイテム枠で上書き
@@ -1492,22 +1554,36 @@
 				lnSeed[i]="${lnItemInfo[i]}"
 			}
 
-			#アイテム内容を詰め込む
-			##所持アイテムリストの長さを取得
-			psnItemCnt=${#psnItemList[*]}
+			psnItemList=(9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 9012 9013 9014 9015 9016 9017 9018 9019 9020 9021)
 			
-			for ((i=0; i<$psnItemCnt; i++)) {
+			lnSeed[1]="${lnSeed[1]:0:9}$selPageID${lnSeed[1]:10}"
 
+			if [ ${#psnItemList[*]} -gt 16 ] ; then
+				if [ $selPageID = 1 ] ; then
+					maxItemLine=16
+				else
+					maxItemLine=$(( ${#psnItemList[*]} - 16 ))
+				fi
+			else
+				if [ $selPageID = 1 ] ; then
+					maxItemLine=${#psnItemList[*]}
+				else
+					maxItemLine=0
+				fi
+			fi
+
+			for ((i=0; i<$maxItemLine; i++)) {
 				#アイテム情報取得関数
-				itemID=${psnItemList[i]}
+				itemID=${psnItemList[$(( i + ( 16 * ($selPageID-1) ) ))]}
 				itemName="$(getItemDisp 0 $itemID)"
-				itemExp="$(getItemDisp 1 $itemID)"
+				itemExplain="$(getItemDisp 1 $itemID)"
 
 				spCnt1=$(( (24-(${#itemName}))*2 ))
-				spCnt2=$(( (23-${#itemExp})*2 ))
+				spCnt2=$(( (23-${#itemExplain})*2 ))
 				
-				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}'"$itemName"'`printf %${spCnt1}s`|$itemExp`printf %${spCnt2}s`|`printf "%2s" $i`|"'
+				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}$itemName`printf %${spCnt1}s`|$itemExplain`printf %${spCnt2}s`|`printf "%2s" '$((i+1))'`|"'
 			}
+
 
 			#カーソル設置
 			lnSeed[3]="${lnSeed[3]:0:2}>${lnSeed[3]:3}"
@@ -3024,6 +3100,9 @@
 			cmdMode=$CNST_CMDMODE_ITEM1
 			#退避
 			escLnSeed
+			#カーソル位置は1ページ目1番
+			selPageID=1
+			selCrsrID=1
 			#lnseed上書き
 			joinFrameOnItem
 			#更新_自キャラカーソルは描写しない
@@ -3132,6 +3211,8 @@
 							[2X]	)	movItemCsr $CNST_CSR_MVTO_DN
 										dispAll $CNST_YN_N;;
 							[8W]	)	movItemCsr $CNST_CSR_MVTO_UP
+										dispAll $CNST_YN_N;;
+							[46AD]	)	movItemPge
 										dispAll $CNST_YN_N;;
 							*		)	getCmdInMain;;
 						esac
