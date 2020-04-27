@@ -236,8 +236,32 @@
 				declare -r -g CNST_IFS_DEFAULT="$IFS"
 
 				## 所持アイテム格納配列
-				### アイテムID で保持
-				declare -a -g psnItemList
+				### レイアウトはアイテムマスタと同じとする。
+				### 最大32要素。今はテスト用に固定定義
+				#declare -a -g psnItemList=()
+				#テスト持ち物リスト。アイテムIDのみ保持するのが厳しいためid以外にも情報を持つ
+				declare -a -g psnItemList=(
+					'9001 +01宝塔 おでん'
+					'9002 +02宝塔 おでん'
+					'9003 +03宝塔 おでん'
+					'9004 +04宝塔 おでん'
+					'9005 +05宝塔 おでん'
+					'9006 +06宝塔 おでん'
+					'9007 +07宝塔 おでん'
+					'9008 +08宝塔 おでん'
+					'9009 +09宝塔 おでん'
+					'9010 +10宝塔 おでん'
+					'9011 +11宝塔 おでん'
+					'9012 +12宝塔 おでん'
+					'9013 +13宝塔 おでん'
+					'9014 +14宝塔 おでん'
+					'9015 +15宝塔 おでん'
+					'9016 +16宝塔 おでん'
+					'9017 +17宝塔 おでん'
+					'9018 +18宝塔 おでん'
+					'9019 +19宝塔 おでん'
+					'9020 +20宝塔 おでん'
+				)
 
 
 				}
@@ -638,7 +662,6 @@
 			declare args=()
 
 			args=($(echo "$(getItemInfo $itemID)"|xargs))
-			#args=($(echo '0000 CSM 000 nomod 八卦炉 激しくマーライオンする'|xargs))
 
 			case $mode in
 				'0')
@@ -718,12 +741,18 @@
 				return
 			fi
 
-			itemName="$(getItemDisp 0 $1)"
+			itemID=$1
+			itemName="$(getItemDisp 0 $itemID)"
+			itemExplain="$(getItemDisp 1 $itemID)"
 
-			if [ ${#psnItemList[*]} -le 15 ] ; then
+			if [ ${#psnItemList[*]} -le 32 ] ; then
 				modMsg 1 1 "$itemNameを拾った"
-				psnItemList+=($itemID)
-
+				
+				#持ち物リストはアイテムIDのみではなくもっと多くの情報を保持するよう変更
+				#psnItemList+=( $itemID )
+				#psnItemList+=( "$itemID $itemName $itemExplain" )
+				psnItemList+=('9021 +21宝塔 おでん')
+				
 				#現在座標取得
 				declare mapX=$((10#${lnSeed[1]:1:2}-1))
 				declare mapY=$((10#${lnSeed[2]:1:2}-1))
@@ -739,6 +768,9 @@
 				#lnSeedとlnMapInfoの両方を更新する必要がある。
 				lnSeed[$((mapY+4))]="${lStrD} ${rStrD}"
 				lnMapInfo[$((mapY))]="${lStrM} ${rStrM}"
+
+				#足元マス表示欄を空欄に
+				lnSeed[20]="${lnSeed[20]:0:47}"' '"${lnSeed[20]:48}"
 
 				dispAll $CNST_YN_Y
 
@@ -774,7 +806,7 @@
 
 						#暫定Lv00s0アイテム
 						itemID=$(lotItem "$itemCat" 00 0)
-						pickItem "itemID"
+						pickItem $itemID
 						;;
 			
 				[#^v] ) ##未実装マップチップ
@@ -1091,7 +1123,7 @@
 			declare dir="$1"
 
 			#現在のカーソル位置から>マークを消去
-			lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}' '${lnSeed[$((selCrsrID+2))]:3}
+			lnSeed[$((selCrsrID+2))]="${lnSeed[$((selCrsrID+2))]:0:2} ${lnSeed[$((selCrsrID+2))]:3}"
 
 			case $dir in
 				#上移動
@@ -1124,14 +1156,14 @@
 			esac
 			}
 		}
-	: 'アイテムページ切り替え' && {
 		##################################################
+	: 'アイテムページ切り替え' && {
 		##movItemPge
 		## アイテム画面のページを切り替える
 		##   引数なし
 		##################################################
 		function movItemPge(){
-			if [ $selPageID = 1 ] ; then
+			if [ $selPageID -eq 1 ] ; then
 				selPageID=2
 			else
 				selPageID=1
@@ -1554,39 +1586,42 @@
 				lnSeed[i]="${lnItemInfo[i]}"
 			}
 
-			psnItemList=(9001 9002 9003 9004 9005 9006 9007 9008 9009 9010 9011 9012 9013 9014 9015 9016 9017 9018 9019 9020 9021)
-			
+			#ページ数表示のはめ込み
 			lnSeed[1]="${lnSeed[1]:0:9}$selPageID${lnSeed[1]:10}"
 
-			if [ ${#psnItemList[*]} -gt 16 ] ; then
-				if [ $selPageID = 1 ] ; then
+			#アイテム所持数とページ数で、
+			#アイテム情報上書きの反復数が異なるため、
+			#その回数を取得する
+			if [ ${#psnItemList[*]} -gt 16 ] ; then #アイテムが16個以上手持ちにある場合
+				if [ $selPageID = 1 ] ; then        #1ページめであれば16個全て表示対象
 					maxItemLine=16
 				else
-					maxItemLine=$(( ${#psnItemList[*]} - 16 ))
+					maxItemLine=$(( ${#psnItemList[*]} - 16 ))  #2ページ目なら所持数から16を引いたものがそのページでの反復数
 				fi
-			else
-				if [ $selPageID = 1 ] ; then
+			else                                    #アイテムが15個以下のとき
+				if [ $selPageID = 1 ] ; then        #1ページめであればアイテムの所持数分のみ反復すれば良い
 					maxItemLine=${#psnItemList[*]}
-				else
+				else                                #2ページ目はアイテムの表示がないはずなので0
 					maxItemLine=0
 				fi
 			fi
 
+			#上記で設定した反復数だけ、アイテム情報のはめ込みを行う
 			for ((i=0; i<$maxItemLine; i++)) {
-				#アイテム情報取得関数
-				itemID=${psnItemList[$(( i + ( 16 * ($selPageID-1) ) ))]}
-				itemName="$(getItemDisp 0 $itemID)"
-				itemExplain="$(getItemDisp 1 $itemID)"
 
-				spCnt1=$(( (24-(${#itemName}))*2 ))
+				#持ち物リストから転記
+				args=($(echo ${psnItemList[$(( i + ( 16 * ($selPageID-1) ) ))]}|xargs))
+				itemName="${args[1]}"
+				itemExplain="${args[2]}"
+
+				spCnt1=$(( (24-${#itemName})*2 ))
 				spCnt2=$(( (23-${#itemExplain})*2 ))
 				
-				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}$itemName`printf %${spCnt1}s`|$itemExplain`printf %${spCnt2}s`|`printf "%2s" '$((i+1))'`|"'
+				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}$itemName`printf %${spCnt1}s`|$itemExplain`printf %${spCnt2}s`|`printf "%2s" '$(( (i+ ( (selPageID-1) * 16 ) )+1 ))'`|"'
 			}
 
-
 			#カーソル設置
-			lnSeed[3]="${lnSeed[3]:0:2}>${lnSeed[3]:3}"
+			lnSeed[$(($selCrsrID+2))]="${lnSeed[$(($selCrsrID+2))]:0:2}>${lnSeed[$(($selCrsrID+2))]:3}"
 
 			}
 		}
@@ -1772,18 +1807,9 @@
 		##  $3 足元マップチップ表示
 		###########################################
 		function modDspWrglPos(){
-			declare X=$(printf "%02d" "$1")
-			declare Y=$(printf "%02d" "$2")
-
-			declare row1Right="${lnSeed[1]:3}"
-			declare row2Right="${lnSeed[2]:3}"
-
-			declare  row20Left="${lnSeed[20]:0:47}"
-			declare row20Right="${lnSeed[20]:48}"
-
-			lnSeed[1]="|$X$row1Right"
-			lnSeed[2]="|$Y$row2Right"
-			lnSeed[20]="$row20Left$3$row20Right"
+			lnSeed[1]="|$(printf "%02d" "$1")${lnSeed[1]:3}"
+			lnSeed[2]="|$(printf "%02d" "$2")${lnSeed[2]:3}"
+			lnSeed[20]="${lnSeed[20]:0:47}$3${lnSeed[20]:48}"
 			}
 		}
 	: '周囲マス開示' && {
@@ -1937,6 +1963,7 @@
 			echo 'tk [n]      : [n]で指定した方向へ話しかける。'
 			echo 'pr [n]      : [n]で指定した対象へ祈る。'
 			echo 'mn          : メニュー画面を開く。'
+			echo 'it          : アイテム画面を開く。'
 			echo 'ss          : 自殺する。次のリグルはもっと上手くやるでしょう。'
 
 			while :
@@ -1978,6 +2005,7 @@
 				'pr'	)	man_pr ;;
 				'ss'	)	man_ss ;;
 				'mn'	)	man_mn ;;
+				'it'	)	man_it ;;
 				'man'	)	man_man ;;
 				*		)	dspCmdLog "[$1]:存在しないコマンド"
 							dispAll $CNST_YN_Y;;
@@ -2700,6 +2728,7 @@
 						echo ''
 						echo '<機能>'
 						echo ' メニュー画面を開く。その後は上下カーソルで行動を選んで実行する。'
+						echo ' メニュー画面は、cmコマンドで閉じることができる。'
 						echo ' 行動によっては追加で方向や対象を選択する必要がある。'
 						echo ' ――今日のご飯は何だろう♪'
 						echo ''
@@ -2719,7 +2748,44 @@
 						done	
 						}
 					}
-				: 'manコマンドマニュアル' && {
+				: 'itコマンドマニュアル' && {
+					function man_it(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** mnコマンド ***'
+						echo '<文法>'
+						echo ' it'
+						echo ' ※引数なし'
+						echo ''
+						echo '<機能>'
+						echo ' アイテム画面を開く。'
+						echo ' その後は上下カーソルでアイテム選んで実行する。'
+						echo ' 左右カーソルでページを移動する。'
+						echo ' アイテム画面は、ciコマンドで閉じることができる。'
+						echo ' どうやって持って帰れば取り上げられないだろう？'
+						echo ' ――そもそも、帰れるのかな'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+					: 'manコマンドマニュアル' && {
 					function man_man(){
 
 						inKey=''
@@ -3344,6 +3410,7 @@
 						'qqq'	)	quitGame;;
 						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。";;
 					esac
+					dispAll $CNST_YN_N
 					;;
 			esac
 		}
