@@ -750,8 +750,8 @@
 				
 				#持ち物リストはアイテムIDのみではなくもっと多くの情報を保持するよう変更
 				#psnItemList+=( $itemID )
-				#psnItemList+=( "$itemID $itemName $itemExplain" )
-				psnItemList+=('9021 +21宝塔 おでん')
+				psnItemList+=( "$itemID $itemName $itemExplain" )
+				#psnItemList+=('9021 +21宝塔 おでん')
 				
 				#現在座標取得
 				declare mapX=$((10#${lnSeed[1]:1:2}-1))
