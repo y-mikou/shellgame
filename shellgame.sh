@@ -1,3 +1,4 @@
+#!/bin/bash
 : '■内部処理系' && {
 	: '初期処理' && {
 		###########################################
@@ -5,12 +6,33 @@
 		##  主に定数定義など
 		###########################################
 		initDef(){
-		: '画面レイアウト系コンスタント値定義' && {
+			: '画面レイアウト系コンスタント値定義' && {
 				##座標							   XX YY
 				declare -r -g     CNST_POS_CMDWIN='20 10' #コマンド入力ウィンドウ
 				declare -r -g    CNST_POS_CMDWIN2='20 11' #コマンド入力ウィンドウ
 				declare -r -g CNST_POS_MAPTIPFOOT='20 47' #現在マップチップ表示窓
 				declare -r -g       CNST_POS_WKMK='26 97' #キー待ち記号表示位置
+				declare -r -g      CNST_CSR_DIR_1='69 9'  #メニュー2用方向指示カーソル位置_↙
+				declare -r -g      CNST_CSR_DIR_2='75 9'  #メニュー2用方向指示カーソル位置_↓
+				declare -r -g      CNST_CSR_DIR_3='81 9'  #メニュー2用方向指示カーソル位置_➘
+				declare -r -g      CNST_CSR_DIR_4='69 7'  #メニュー2用方向指示カーソル位置_←
+				declare -r -g      CNST_CSR_DIR_5='75 7'  #メニュー2用方向指示カーソル位置_・
+				declare -r -g      CNST_CSR_DIR_6='81 7'  #メニュー2用方向指示カーソル位置_→
+				declare -r -g      CNST_CSR_DIR_7='69 5'  #メニュー2用方向指示カーソル位置_↖
+				declare -r -g      CNST_CSR_DIR_8='75 5'  #メニュー2用方向指示カーソル位置_↑
+				declare -r -g      CNST_CSR_DIR_9='81 5'  #メニュー2用方向指示カーソル位置_➚
+				declare -r -g      CNST_CSR_DIR_0='69 11' #メニュー2用方向指示カーソル位置_Cancel
+
+				declare -r -g    CNST_POS_STS_STR='11 2 3' #腕力ステータス表示位置
+				declare -r -g    CNST_POS_STS_INT='12 2 3' #知能ステータス表示位置
+				declare -r -g    CNST_POS_STS_VIT='13 2 3' #体力ステータス表示位置
+				declare -r -g    CNST_POS_STS_MID='14 2 3' #精神ステータス表示位置
+				declare -r -g    CNST_POS_STS_SNS='15 2 3' #知覚ステータス表示位置
+				declare -r -g    CNST_POS_STS_DEX='16 2 3' #器用ステータス表示位置
+				declare -r -g    CNST_POS_STS_AGI='17 2 3' #敏捷ステータス表示位置
+				declare -r -g    CNST_POS_STS_LUK='18 2 3' #幸運ステータス表示位置
+
+				declare -r -g    CNST_POS_ITM_PAG='2 12' #アイテム画面のページ数表示位置表示位置
 
 				##マップサイズ[MAP_SIZ]
 				declare -r -g CNST_MAP_SIZ_X=60 #横
@@ -27,16 +49,17 @@
 				##コマンドログ小窓の開始位置[CMDLGW_IDX]
 				declare -r -g CNST_CMDLGW_IDX=50 #横
 
-				##右上表示表示モード
-				declare -r -g CNST_MENUDISP_MODE_STATUS='0'
-				declare -r -g CNST_MENUDISP_MODE_MENU1='1'
+				##コマンド受付モード
+				declare -r -g CNST_CMDMODE_NRML0='0' #通常
+				declare -r -g CNST_CMDMODE_MENU1='1' #メニュー内の選択
+				#declare -r -g CNST_CMDMODE_MENU2='2' #メニュー内の方向選択など
+				declare -r -g CNST_CMDMODE_ITEM1='5' #アイテム表示時
 
 				##メニュー内カーソル移動方向
 				declare -r -g CNST_CSR_MVTO_UP='8'
-				declare -r -g CNST_CSR_MVTO_DWN='2'
-
+				declare -r -g CNST_CSR_MVTO_DN='2'
 				}
-		: 'マップチップ系コンスタント値' && {
+			: 'マップチップ系コンスタント値' && {
 				#00:表示         英記号1桁(マップ上表記)
 				#01:大分類       英字3桁(意味を持った略称)
 				#02:小分類       数字2桁(実質的なID)
@@ -48,85 +71,202 @@
 				#08:イベント     0:進入 1:接触  8:条件 9:接触戦闘 /CNST_EVT
 				#09:和名         メッセージ表示が必要な場合の呼称
 
-											#  0   1     2    3   4   5   6   7   8   9   
-											#  DSP CNM   CID  STS ENT STY OPN DST EVE NME
-				declare -r -g -a  CNST_MAP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' 'Wall')
-				declare -r -g -a  CNST_MAP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'Floor') #' 'は意図通りに動かないため’F’に読み替える
-				declare -r -g -a  CNST_MAP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'Path')
-				declare -r -g -a  CNST_MAP_7=('#' 'FLR' '02' '0' '1' '1' '1' '0' '0' 'Junction')
-				declare -r -g -a  CNST_MAP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' 'KeylessDoorClosed')
-				declare -r -g -a  CNST_MAP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' 'KeylessDoorOpend')
-				declare -r -g -a CNST_MAP_10=('v' 'STD' '00' '1' '1' '1' '1' '1' '1' 'StairsDOWN')
-				declare -r -g -a CNST_MAP_11=('^' 'STU' '00' '1' '1' '1' '1' '1' '1' 'StairsUP')
-				declare -r -g -a CNST_MAP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'Error')
-				#declare -r -g -a  CNST_MAP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
-					}
-				: '属性値設定' && {
-					declare -r -g DSP=0
-					declare -r -g CNM=1
-					declare -r -g CID=2
-					declare -r -g STS=3
-					declare -r -g ENT=4
-					declare -r -g STY=5
-					declare -r -g OPN=6
-					declare -r -g DST=7
-					declare -r -g EVE=8
-					declare -r -g NME=9
-					}
+												#0   1     2    3   4   5   6   7   8   9   
+												#DSP CNM   CID  STS ENT STY OPN DST EVE NME
+				declare -r -g -a  CNST_MAPTIP_0=('-' 'WAL' '00' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_1=('+' 'WAL' '01' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_2=('=' 'WAL' '02' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_3=('|' 'WAL' '03' '0' '0' '1' '1' '0' '1' '壁')
+				declare -r -g -a  CNST_MAPTIP_4=('X' 'WAL' '04' '0' '0' '1' '1' '0' '1' '壁') #壁に囲まれた土の中
+				declare -r -g -a  CNST_MAPTIP_5=('F' 'FLR' '00' '0' '1' '0' '9' '0' '0' 'ただの床') #' 'は意図通りに動かないため’F’に読み替える
+				declare -r -g -a  CNST_MAPTIP_6=('.' 'FLR' '01' '0' '1' '0' '0' '0' '0' 'ただの床') #部屋同士の道に使う、かも
+				declare -r -g -a  CNST_MAPTIP_7=('#' 'JNT' '02' '0' '1' '1' '1' '0' '0' '隣の部屋への道') #マップ接続用の表示
+				declare -r -g -a  CNST_MAPTIP_8=('D' 'DOR' '00' '0' '0' '1' '1' '1' '1' '扉')
+				declare -r -g -a  CNST_MAPTIP_9=('[' 'DOR' '00' '1' '1' '1' '1' '1' '1' '開いてる扉')
+				declare -r -g -a CNST_MAPTIP_10=('v' 'STD' '00' '0' '1' '1' '1' '1' '1' '下り階段')
+				declare -r -g -a CNST_MAPTIP_11=('^' 'STU' '00' '0' '1' '1' '1' '1' '1' '上り階段')
+				declare -r -g -a CNST_MAPTIP_12=('o' 'ITM' '00' '0' '1' '1' '0' '1' '1' '未抽選消耗品')
+				declare -r -g -a CNST_MAPTIP_13=('O' 'ITM' '00' '1' '1' '1' '0' '1' '1' '抽選済消耗品')
+				declare -r -g -a CNST_MAPTIP_14=('a' 'ITM' '10' '0' '1' '1' '0' '1' '1' '未抽選腕装備')
+				declare -r -g -a CNST_MAPTIP_15=('A' 'ITM' '10' '1' '1' '1' '0' '1' '1' '抽選済腕装備')
+				declare -r -g -a CNST_MAPTIP_99=('e' 'ERR' 'ee' 'e' 'e' 'e' 'e' 'e' 'e' 'エラー')
+				#declare -r -g -a  CNST_MAPTP_XX=('#' 'UNX' '00' '0' '0' '0' '0' '0' '0' 'Unexplored')
+				}
+			: '属性値設定' && {
+				declare -r -g DSP=0
+				declare -r -g CNM=1
+				declare -r -g CID=2
+				declare -r -g STS=3
+				declare -r -g ENT=4
+				declare -r -g STY=5
+				declare -r -g OPN=6
+				declare -r -g DST=7
+				declare -r -g EVE=8
+				declare -r -g NME=9
+				}
+			: '拾得物抽選テーブル' && {
+				#形式 TBL_LOTITM_XXX_88[9]
+				#                種 _Lv[slot]
+				#XXX:種類
+				#CSM:薬系
+				#ARM:腕
+				#SUT:シャツ
+				#BTM:ズボン
+				#MNT:マント
+				#ANT:触覚
+				#ACS:アクセサリ
+				#MAG:符
+				#OTH:他
+				
+				##薬系
+				#抽選テーブルは暫定。
+				##Lv00_0-2の3種類
+				declare -g -a TBL_LOTITM_CSM_00=(
+				  '  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100'
+				  '  3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100'
+				  '  5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100 100 100'
+				)
 
-				: '汎用コード値' && {
-					#可否
-					declare -r -g CNST_YN_Y='1' #肯定/可能
-					declare -r -g CNST_YN_N='0' #否定/不可能
-					declare -r -g CNST_YN_C='8' #/条件次第
+				##腕
+				##Lv00_0-2の3種類
+				declare -g -a TBL_LOTITM_ARM_00=(
+				  '  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100'
+				  '  3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100'
+				  '  5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 100 100 100 100'
+				)
+				}
+			: 'アイテムテーブル' && {
+				#暫定
+				##アイテムテーブルはn個の半角スペースで区切られた要素で構成される。
+				##各要素に半角スペースを含めることはできない(区切れてしまうので)。
+				##あくまでも暫定なのでもうちょっとちゃんとした形に変わるかも。
+				###アイテムIDは0000～FFFFとする。
+				
+				declare -g -a TBL_ITM_INFO=()
+										#   0    1   2   3                      4                    5
+										#   ID   CAT CRR 修飾_全角11文字        名称_全角10文字      説明_全角23文字
+			 #TBL_ITM_INFO+=('FFFF CSM +00 １２３４５６７８９０１ １２３４５６７８９０ １２３４５６７８９０１２３４５６７８９０１２３')
+			  TBL_ITM_INFO+=('0000 CSM 000 nomod                  八卦炉               激しくマーライオンする'                      )
+				TBL_ITM_INFO+=('0001 CSM 000 永遠亭謹製の           おくすり             あなたはもう死ねなくなる'                    )
+				TBL_ITM_INFO+=('0002 CSM +02 紅魔館メイド手製の     毒弁当               瀟洒！'                                      )
+				TBL_ITM_INFO+=('0003 CSM +01 魔法の森でとれた       キノコ               エッチな形をしている＋１'                    )
+				TBL_ITM_INFO+=('0004 CSM +02 魔法の森でとれた       キノコ               エッチな形をしている＋２'                    )
+				TBL_ITM_INFO+=('0005 CSM +03 nomod                  キノコ               エッチな形をしている＋３'                    )
+				TBL_ITM_INFO+=('0006 CSM +04 魔法の森でとれた       キノコ               エッチな形をしている＋４'                    )
+				TBL_ITM_INFO+=('0007 CSM -10 アロマ臭のする         陰陽玉               いいにおいがする。霊夢愛用。'                )
+				TBL_ITM_INFO+=('0008 CSM 000 七色に光る             壊れた人形           血がついている'                              )
+				TBL_ITM_INFO+=('0009 CSM 000 nomod                  宝塔                 おでん'                                      )
 
-					#固定的な数値
-					declare -r -g CNST_AMNT_MIN='0' #無もしくは十分に小さい値
-					declare -r -g CNST_AMNT_STP1='1' #数量1
-					#declare -r -g CNST_AMNT_STEP2='2' #数量2
-					declare -r -g CNST_AMNT_CND='8' #他の条件
-					declare -r -g CNST_AMNT_MAX='9' #十分に大きい値
+				TBL_ITM_INFO+=('9001 CSM +01 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9002 CSM +02 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9003 CSM +03 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9004 CSM +04 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9005 CSM +05 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9006 CSM +06 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9007 CSM +07 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9008 CSM +08 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9009 CSM +09 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9010 CSM +10 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9011 CSM +11 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9012 CSM +12 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9013 CSM +13 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9014 CSM +14 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9015 CSM +15 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9016 CSM +16 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9017 CSM +17 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9018 CSM +18 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9019 CSM +19 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9020 CSM +20 nomod                  宝塔                 おでん'                                      )
+				TBL_ITM_INFO+=('9021 CSM +21 nomod                  宝塔                 おでん'                                      )
 
-					#イベント判定
-					declare -r -g CNST_EVT_ENTR='0' #上に乗ったとき
-					declare -r -g CNST_EVT_TUCH='1' #隣接したとき
-					declare -r -g CNST_EVT_COND='8' #他の条件
-					declare -r -g CNST_EVT_BTTL='9' #隣接時戦闘
-					}
+				#エラーアイテム
+			 TBL_ITM_INFO_ERR=('ZZZZ ERR ERR エラーアイテム       ＩＤ：ZZZZ     ＩＤ：ZZZZのアイテムは存在しません')
 
-		: 'その他コンスタント値定義' && { 
+
+				}
+			: '汎用コード値' && {
+				#可否
+				declare -r -g CNST_YN_Y='1' #肯定/可能
+				declare -r -g CNST_YN_N='0' #否定/不可能
+				declare -r -g CNST_YN_C='8' #/条件次第
+
+				#固定的な数値
+				declare -r -g CNST_AMNT_MIN='0' #無もしくは十分に小さい値
+				declare -r -g CNST_AMNT_STP1='1' #数量1
+				#declare -r -g CNST_AMNT_STEP2='2' #数量2
+				declare -r -g CNST_AMNT_CND='8' #他の条件
+				declare -r -g CNST_AMNT_MAX='9' #十分に大きい値
+
+				#イベント判定
+				declare -r -g CNST_EVT_ENTR='0' #上に乗ったとき
+				declare -r -g CNST_EVT_TUCH='1' #隣接したとき
+				declare -r -g CNST_EVT_COND='8' #他の条件
+				declare -r -g CNST_EVT_BTTL='9' #隣接時戦闘
+				}
+			: 'その他コンスタント値定義' && { 
 				##sayRnd関数の種別
 				declare -r -g  CNST_RND_WALL='1' #壁激突音
 				declare -r -g  CNST_RND_DOOR='2' #扉じゃないところを扉
 				declare -r -g CNST_RND_WEMEN='3' #女性接触声
-				declare -r -g  CNST_RND_DASH='4' #ダッシュ音
+				declare -r -g  CNST_RND_DASH='4' #ダッシュ音				
 				}
-		: 'GLOBAL変数定義' && {
+			: 'GLOBAL変数定義' && {
 				##キー入力受付用
 				declare -g  inKey=''
 				declare -g inKey2=''
 				
 				##右上の領域は初期状態ではステータス表示
-				declare -g dspMenuMode=$CNST_MENUDISP_MODE_STATUS
+				declare -g cmdMode=$CNST_CMDMODE_NRML0
 
 				##メニュー表示時の現在座標退避
 				declare -g posEsc=''
 
-				##メニュー表示時の現在座標退避
-				declare -g selMenuId
+				##ページID
+				declare -g selPageID=''
+
+				##カーソルID
+				declare -g selCrsrID=''
+
+				##足元マップチップ
+				#declare -g maptipFoot=''
 
 				#CONSTANT値
 				##IFS
-				##IFS=$' \t\n'
-				declare -r -g CNST_IFS_DEFAULT=$IFS
-			}
-		}
-		}
+				###IFS=$' \t\n'
+				declare -r -g CNST_IFS_DEFAULT="$IFS"
 
+				## 所持アイテム格納配列
+				### レイアウトはアイテムマスタと同じとする。
+				### 最大32要素。今はテスト用に固定定義
+				#declare -a -g psnItemList=()
+				#テスト持ち物リスト。アイテムIDのみ保持するのが厳しいためid以外にも情報を持つ
+				declare -a -g psnItemList=(
+					'9001 +01宝塔 おでん'
+					'9002 +02宝塔 おでん'
+					'9003 +03宝塔 おでん'
+					'9004 +04宝塔 おでん'
+					'9005 +05宝塔 おでん'
+					'9006 +06宝塔 おでん'
+					'9007 +07宝塔 おでん'
+					'9008 +08宝塔 おでん'
+					'9009 +09宝塔 おでん'
+					'9010 +10宝塔 おでん'
+					'9011 +11宝塔 おでん'
+					'9012 +12宝塔 おでん'
+					'9013 +13宝塔 おでん'
+					'9014 +14宝塔 おでん'
+					'9015 +15宝塔 おでん'
+					'9016 +16宝塔 おでん'
+					'9017 +17宝塔 おでん'
+					'9018 +18宝塔 おでん'
+					'9019 +19宝塔 おでん'
+					'9020 +20宝塔 おでん'
+				)
+
+
+				}
+		}
+		}
 	: '終了処理' && { 
 		##################################################
 		##quitGame
@@ -151,16 +291,89 @@
 		##################################################
 		function getCntSingleWidth(){
 
-			local declare cntStr="$1"
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ設定してください。'
+				return
+			fi
+
+			declare cntStr="$1"
 
 			#半角英数記号以外の文字以外を消す=半角文字数
-			local declare cntS=$(echo -n "$cntStr" | sed -e 's@[^A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
+			declare cntS=$(echo -n "$cntStr" | sed -e 's@[^A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
 
 			#半角英数記号の文字を消す=全角文字数
-			local declare cntW=$(echo -n "$cntStr" | sed -e 's@[A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
+			declare cntW=$(echo -n "$cntStr" | sed -e 's@[A-Za-z0-9~!@#$%&_=:;><,*+.?{}()\ -|¥]@@g' | wc -m)
 
 			#全角文字数を示すcntWは二倍して、2つを足す
 			echo -n "$(((cntW * 2)+cntS))"
+		}
+		}
+	: '半角カナ置換' && {
+		##################################################
+		##repMonoKana
+		## 半角カタカナを全角カタカナに置換する
+		##  返却は標準出力
+		##   $1:入力文字
+		##################################################
+		function repMonoKana(){
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1設定してください。'
+				return
+			fi
+
+			declare cnvstr=$1
+
+			declare tgtDakuten=('ｶﾞ' 'ｷﾞ' 'ｸﾞ' 'ｹﾞ' 'ｺﾞ' 'ｻﾞ' 'ｼﾞ' 'ｽﾞ' 'ｾﾞ' 'ｿﾞ' 'ﾀﾞ' 'ﾁﾞ' 'ﾂﾞ' 'ﾃﾞ' 'ﾄﾞ' 'ﾊﾞ' 'ﾋﾞ' 'ﾌﾞ' 'ﾍﾞ' 'ﾎﾞ' 'ｳﾞ' 'ﾊﾟ' 'ﾋﾟ' 'ﾌﾟ' 'ﾍﾟ' 'ﾎﾟ')
+			declare dstDakuten=('ガ' 'ギ' 'グ' 'ゲ' 'ゴ' 'ザ' 'ジ' 'ズ' 'ゼ' 'ゾ' 'ダ' 'ヂ' 'ヅ' 'デ' 'ド' 'バ' 'ビ' 'ブ' 'ベ' 'ボ' 'パ' 'ピ' 'プ' 'ペ' 'ポ')
+
+			declare tgtAll=('ｱ' 'ｲ' 'ｳ' 'ｴ' 'ｵ' 'ｶ' 'ｷ' 'ｸ' 'ｹ' 'ｺ' 'ｻ' 'ｼ' 'ｽ' 'ｾ' 'ｿ' 'ﾀ' 'ﾁ' 'ﾂ' 'ﾃ' 'ﾄ' 'ﾅ' 'ﾆ' 'ﾇ' 'ﾈ' 'ﾉ' 'ﾊ' 'ﾋ' 'ﾌ' 'ﾍ' 'ﾎ' 'ﾏ' 'ﾐ' 'ﾑ' 'ﾒ' 'ﾓ' 'ﾔ' 'ﾕ' 'ﾖ' 'ﾗ' 'ﾘ' 'ﾙ' 'ﾚ' 'ﾛ' 'ﾜ' 'ｦ' 'ﾝ' 'ｧ' 'ｨ' 'ｩ' 'ｪ' 'ｫ' 'ｯ' 'ｬ' 'ｭ' 'ｮ')
+			declare dstAll=('ア' 'イ' 'ウ' 'エ' 'オ' 'カ' 'キ' 'ク' 'ケ' 'コ' 'サ' 'シ' 'ス' 'セ' 'ソ' 'タ' 'チ' 'ツ' 'テ' 'ト' 'ナ' 'ニ' 'ヌ' 'ネ' 'ノ' 'ハ' 'ヒ' 'フ' 'ヘ' 'ホ' 'マ' 'ミ' 'ム' 'メ' 'モ' 'ヤ' 'ユ' 'ヨ' 'ラ' 'リ' 'ル' 'レ' 'ロ' 'ワ' 'ヲ' 'ン' 'ァ' 'ィ' 'ゥ' 'ェ' 'ォ' 'ッ' 'ャ' 'ュ' 'ョ')
+
+			#2文字結合の必要があるので、先に濁点半濁点を殺す
+			for i in ${!tgtDakuten[@]}
+			do
+				cnvstr=${cnvstr//"${tgtDakuten[i]}"/"${dstDakuten[i]}"}
+			done
+			#半角カタカナ平音を殺す
+			for i in ${!tgtAll[@]}
+			do
+				cnvstr=${cnvstr//"${tgtAll[i]}"/"${dstAll[i]}"}
+			done
+			echo "$cnvstr"
+		}
+		}
+	: '数字置換' && {
+		##################################################
+		##repMonoKana
+		## 半角数字を全角にする
+		##  返却は標準出力
+		##   $1:入力文字
+		##################################################
+		function repMonoSuzi(){
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1設定してください。'
+				return
+			fi
+
+			declare cnvstr=$1
+
+			declare tgtSuzi=('0' '1' '2' '3' '4' '5' '6' '7' '8' '9')
+			declare dstSuzi=('０' '１' '２' '３' '４' '５' '６' '７' '８' '９')
+
+			#半角数字を殺す
+			for i in ${!tgtSuzi[@]}
+			do
+				cnvstr=${cnvstr//"${tgtSuzi[i]}"/"${dstSuzi[i]}"}
+			done
+			echo "$cnvstr"
 		}
 		}
 	: '不正文字個別置換' && {
@@ -168,7 +381,7 @@
 		##crrctStr
 		## 使用頻度が高い障害文字を置換するためのもの。
 		## 【できれば必須呼び出しにしたいがどうするか】
-		## ・半角カタカナは全角カタカナにする。
+		## ・半角カタカナは全角カタカナにする(別関数)。
 		## ・「…(三点リーダ)」の表示が詰まってしまうことがあるため、「...」(ピリオド3つ)にする
 		## ・「[」「]」はbashでブラケットとして判断されるためそれぞれ「［」「］」へ置換する。
 		## ・「¥」は動きが怪しいので「￥」へ置換する。
@@ -179,13 +392,21 @@
 		##   $1:入力文字
 		##################################################
 		function crrctStr(){
-			local declare cnvstr="$1"
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ設定してください。'
+				return
+			fi
+		
+			declare cnvstr="$1"
 
 			cnvstr=${cnvstr//'¥'/'￥'}      #¥
-			cnvstr=$(echo "$cnvstr" | nkf)  #半角カナ
+			cnvstr=$(repMonoKana $cnvstr)   #半角カナ
 			cnvstr=${cnvstr//'['/'［'}		#[
 			cnvstr=${cnvstr//']'/'］'}		#]
-			cnvstr=${cnvstr//'…'/'...'}	   #三点リーダ
+			cnvstr=${cnvstr//'…'/'...'}		#三点リーダ
 			cnvstr=${cnvstr//'　'/'  '}		#全角sp
 			cnvstr=${cnvstr//'	'/'  '}		#タブ文字
 			cnvstr=${cnvstr//'-'/'-'}		#ハイフンに似た文字
@@ -206,7 +427,7 @@
 		###########################################
 		function getChrV(){
 			inKey=''
-			read inKey
+			IFS= read inKey
 		}
 		}
 	: '1文字入力受付' && {
@@ -217,7 +438,27 @@
 		###########################################
 		function getChrH(){
 			inKey=''
-			read -s -n 1 inKey
+			IFS= read -s -n 1 inKey
+		}
+		}
+	: 'ステータス値取得' && {
+		###########################################=
+		##getStsVal
+		## 引数で受け取ったステータス値をlnStsInfoから取得し、
+		## 標準出力で返却する。
+		##  $1:ステータス名(STR,VITなど)
+		###########################################
+		function getStsVal(){
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ設定してください。'
+				return
+			fi
+
+			eval 'args=($(echo $CNST_POS_STS_'$1'|xargs))'
+			eval 'echo ${lnStatusInfo['${args[0]}']:'${args[1]}':'${args[2]}'}'
 		}
 		}
 	: 'コマンド入力受付' && {
@@ -256,7 +497,7 @@
 			tput sgr0
 			tput cvvis
 
-		}
+			}
 		}
 	: 'マップチップ判定' && {
 		###########################################
@@ -269,11 +510,19 @@
 		##   ※詳細はマップチップ系コンスタント値の設定箇所を参照
 		###########################################
 		function getMapInfo(){
-			local declare local tgtchip=''
-			local declare local rslt=''
 
-			local declare objDrction="${lnMapInfo[$((10#$2))]:$((10#$1)):1}"
-			local declare local idx=99
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 3 ] ; then
+				sysOut 'e' $LINENO '引数は3つ設定してください。'
+				return
+			fi
+
+			declare tgtchip=''
+			declare rslt=''
+
+			declare objDrction="${lnMapInfo[$((10#$2))]:$((10#$1)):1}"
+			declare idx=99
 
 			#対象マップチップとして’ ’が渡された場合、想定通りの動きをしないため
 			#' 'の代わりに’F’とみなす。
@@ -282,24 +531,297 @@
 			fi
 
 			for ((i = 0; i < 99; i++)) {
-				if [ "$(eval 'echo ${CNST_MAP_'$i'[0]}')" = "$objDrction" ] ; then
+				if [ "$(eval 'echo ${CNST_MAPTIP_'$i'[0]}')" = "$objDrction" ] ; then
 					idx=i
 					break
 				fi
 			}
 
-			rslt=$(eval 'echo ${CNST_MAP_'$((idx))'[$(($3))]}')
+			rslt=$(eval 'echo ${CNST_MAPTIP_'$((idx))'[$(($3))]}')
 
 			#表示内容を返すことはないと思うが、結果が’F’だった場合は、’ ’へ戻す。
 			if [ "$rslt" = 'F' ] ; then
 				echo ' '
 			else
+			
 				echo "$rslt"
 			fi
 
+			}
+		}
+	: 'アイテム抽選' && {
+		###########################################
+		##lotItem
+		## アイテム最初に拾ったとき抽選する
+		## $1:アイテム種別(CSM,ARM,...)
+		## $2:アイテムレベル(キャラレベルで上下する？)
+		## $3:テーブルバリエーション(信仰心的なもので上下する？)
+		##  標準出力にてアイテム名を返却する。
+		##  また、該当アイテムの座標を保持する。
+		###########################################
+		function lotItem(){
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 3 ] ; then
+				sysOut 'e' $LINENO '引数は3つ設定してください。'
+				return
+			fi
+			##引数の種類
+			if [[ ! $1 =~ (CSM|ARM|SUT|BTM|MNT|ANT|ACS|MAG|OTH) ]] ; then
+				sysOut 'e' $LINENO 'アイテム種別が不正です'
+				return
+			fi
+			##引数の範囲
+			if [ $2 -lt 0 ] || [ $2 -gt 99 ] ; then
+				sysOut 'e' $LINENO '第2引数の範囲が誤っています。$2'
+				return
+			fi
+
+
+			declare itemCat="$1"
+			declare itemLev="$2"
+			declare lotSlot="$3"
+
+			declare stsLuk=$(getStsVal 'LUK')
+			declare stsSns=$(getStsVal 'SNS')
+
+			declare loPrm=0
+			declare hiPrm=0
+			declare dfPrm=0
+
+			declare tgtElm=0
+			declare tgtSlot=''
+			declare lotArry=()
+			declare lotArry2=()
+			declare itemName=''
+			
+			#受け取った引数と
+			#現在のDexとLukの低い方と-10と合計の間で
+			#抽選用集合と乱数を作成
+			##数値的準備
+			if [ $stsSns -ge $stsLuk ] ; then
+				loPrm=$((stsLuk-10))
+				hiPrm=$stsSns-1
+			else
+				loPrm=$((stsSns-10))
+				hiPrm=$stsLuk-1
+			fi
+			
+			#loは最低0且つhiPrm-20未満はhiPrm-20扱い
+			#hiは99超えたら99扱い
+			if [ $((loPrm)) -le 0 ] ; then
+				loPrm=0
+			fi
+			hiPrm=$((stsLuk+stsSns))
+			if [ $((hiPrm)) -gt 99 ] ; then
+				hiPrm=99
+			fi
+			if [ $(($loPrm)) -lt $((hiPrm-20)) ] ; then
+				loPrm=$((hiPrm-20))
+			fi
+
+			##抽選用list作成
+			##対象抽選スロットのloPrmからhiPrmの範囲を抜き出して、抽選用Listとする
+			eval 'tgtSlot=${TBL_LOTITM_'$itemCat'_'$itemLev'['$lotSlot']}'
+			lotArry=( $(echo $tgtSlot | xargs) )
+			for i in $( seq $loPrm $hiPrm ) ;
+			do 
+				lotArry2+=(${lotArry[i]})
+			done
+			
+			#抽選用listから等確率でひとつ抽出し、返却する
+			##抽出用listの長さで乱数を発生して、要素を指定・取得
+			tgtElm=$(($RANDOM % $(($hiPrm-$loPrm))))
+			##アイテム抽選結果をもとにアイテム情報取得。IDを返却。
+			itemID=${lotArry2[$tgtElm]}
+			echo "$itemID"
+
+
+		}
+		}
+	: 'アイテム表示取得' && {
+		###########################################
+		##getItemDisp
+		## アイテムの表示を編集して標準出力で返却する。
+		##  $1:表示区分(0:名称/1:説明)
+		##  $2:アイテムID
+		###########################################
+		function getItemDisp(){
+
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
+
+			declare   mode=$1
+			declare itemId=$2
+			declare retStr=''
+
+			declare args=()
+
+			args=($(echo "$(getItemInfo $itemID)"|xargs))
+
+			case $mode in
+				'0')
+					#補正値が000の時、名称に含めない
+					if [ "${args[2]}" = '000' ] ; then
+						retStr='   '
+					else
+						retStr="${args[2]}"
+					fi
+					#補正値が000の時、名称に含めない
+					if [ "${args[3]}" != 'nomod' ] ; then
+						retStr="$retStr${args[3]}"
+					fi
+					retStr="$retStr${args[4]}"
+					;;
+				'1')
+					retStr="$retStr${args[5]}"
+					;;
+			esac
+
+			echo "$retStr"
+		}		
+		}
+
+	: 'アイテム情報取得' && {
+		###########################################
+		##getItemInfo
+		## アイテムIDをもとにアイテムテーブルの行内容を取得し、
+		## 標準出力で返却する。受け取り側で、xargsなど使用してパースすること。
+		## 該当IDのアイテムが登録されていなければ、エラーアイテムが返却される。
+		##  $1:アイテムID
+		###########################################
+		function getItemInfo(){
+			declare itemID="$(printf "%04d" $1)"
+			declare tmpArr
+			declare retItemInfo
+			declare args
+
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
+
+			#アイテムIDとアイテムテーブルのインデクスが一致するとは限らないため
+			#アイテムテーブルをなめる(性能確認はしていない)。
+			for ((i=0; i<${#TBL_ITM_INFO[@]}; i++)) {
+				retItemInfo="${TBL_ITM_INFO[i]}"
+
+				#アイテムテーブルの行を半角スペースでパースして1要素目(アイテムID)を取得する
+				args=($(echo "${retItemInfo}"|xargs))
+
+				#引数のアイテムIDとアイテムテーブル内のIDが一致したら
+				#必要な修正を施して返却
+				if [ "${args[0]}" = "$itemID" ] ; then
+					#標準出力で返却、関数を抜ける
+					echo "$retItemInfo"
+					break #要る？
+				fi
+			}
+			#渡されたアイテムIDがアイテムテーブルに存在しないとき、
+			#エラーアイテムを返却する(エラーアイテムIDを対象のアイテムIDに置換する)
+			echo "${TBL_ITM_INFO_ERR//ZZZZ/`repMonoSuzi $itemID`}"
+		}
+		}
+	: '足元のものを拾う' && {
+		###########################################
+		##pickItem
+		## 拾う
+		##  $1:アイテムID
+		###########################################
+		function pickItem(){
+
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
+
+			itemID=$1
+			itemName="$(getItemDisp 0 $itemID)"
+			itemExplain="$(getItemDisp 1 $itemID)"
+
+			if [ ${#psnItemList[*]} -le 32 ] ; then
+				modMsg 1 1 "$itemNameを拾った"
+				
+				#持ち物リストはアイテムIDのみではなくもっと多くの情報を保持するよう変更
+				#psnItemList+=( $itemID )
+				psnItemList+=( "$itemID $itemName $itemExplain" )
+				#psnItemList+=('9021 +21宝塔 おでん')
+				
+				#現在座標取得
+				declare mapX=$((10#${lnSeed[1]:1:2}-1))
+				declare mapY=$((10#${lnSeed[2]:1:2}-1))
+
+				#表示情報の更新用
+				declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+				declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+				#正解マップ情報への反映用
+				declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+				declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+
+				#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
+				#lnSeedとlnMapInfoの両方を更新する必要がある。
+				lnSeed[$((mapY+4))]="${lStrD} ${rStrD}"
+				lnMapInfo[$((mapY))]="${lStrM} ${rStrM}"
+
+				#足元マス表示欄を空欄に
+				lnSeed[20]="${lnSeed[20]:0:47}"' '"${lnSeed[20]:48}"
+
+				dispAll $CNST_YN_Y
+
+			else
+				modMsg 1 1 "$itemNameが落ちている...が持ち物がいっぱいで持てない。"
+			fi
 		}
 		}
 
+	: '足元マップ分岐' && {
+		###########################################
+		##divActByFoot
+		## 足元のマップチップを判定し、必要な分岐と処理を行う。
+		## アイテムの抽選はここからで呼び出すこと
+		###########################################
+		function divActByFoot(){
+
+			declare maptipFoot="${lnSeed[20]:47:1}"
+			declare msg=''
+			declare itemCat=''
+			declare pickItemInfo=''
+
+			case "$maptipFoot" in
+				[oa] )  ##アイテムは拾う。
+						case "$maptipFoot" in
+							'a'	)	#アイテム_武器系
+									itemCat='ARM'
+									;;									
+							'o'	)	#アイテム_薬系
+									itemCat='CSM'
+									;;
+						esac
+
+						#暫定Lv00s0アイテム
+						itemID=$(lotItem "$itemCat" 00 0)
+						pickItem $itemID
+						;;
+			
+				[#^v] ) ##未実装マップチップ
+						case "$maptipFoot" in
+							'#'	)	msg='マップ切り替え';;
+							'^'	)	msg='上り階段';;
+							'v'	)	msg='下り階段';;
+						esac
+
+						modMsg 1 1 "$msg"
+						;;
+			esac
+				
+			}
+		}
 	: '指示マス座標計算' && {
 		###########################################
 		##clcDirPos
@@ -307,13 +829,13 @@
 		##  $1:方向指示(1-9,zxcasdqwe)
 		###########################################
 		function clcDirPos(){
-			local declare posX=$((10#${lnSeed[1]:1:2}-1))
-			local declare posY=$((10#${lnSeed[2]:1:2}-1))
-			local declare dirct=$1
-			local declare dirX=0
-			local declare dirY=0
-			local declare tgtX=0
-			local declare tgtY=0
+			declare posX=$((10#${lnSeed[1]:1:2}-1))
+			declare posY=$((10#${lnSeed[2]:1:2}-1))
+			declare dirct=$1
+			declare dirX=0
+			declare dirY=0
+			declare tgtX=0
+			declare tgtY=0
 
 			case "$dirct" in
 				[1Zz]	)	#↙
@@ -350,19 +872,19 @@
 						dirY=-1
 						;;
 				"0"		)	#キャンセル
-						dspCmdLog 'Cmd canceled.'
-						dispAll
+						dspCmdLog 'キャンセルしました。'
+						dispAll $CNST_YN_Y 
 						return
 						;;
-				*		)	sysOut 'e' $LINENO 'Direction value Error.'
+				*		)	sysOut 'e' $LINENO '方向指示エラーです。'
 			esac
 
 			tgtX=$((10#$posX+dirX))
 			tgtY=$((10#$posY+dirY))
 
-			echo "$tgtX:$tgtY"
+			echo "$tgtX,$tgtY"
 
-		}
+			}
 		}
 	: 'ドア開ける' && {
 		###########################################
@@ -370,28 +892,69 @@
 		## ドアを消す
 		##  $1:X座標
 		##  $2:Y座標
-		##   $1$2が指す座標がドアマスであることが確定してから呼ぶこと
+		##   $1$2が指す座標が閉じドアマスであることが確定してから呼ぶこと
 		###########################################
 		function openDoor(){
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
 
-			#表示情報の更新
-			local declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			local declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
-			#正解マップ情報への反映
-			local declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
-			local declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
+
+			#表示情報の更新用
+			declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			#正解マップ情報への反映用
+			declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
 
 			#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
 			#lnSeedとlnMapInfoの両方を更新する必要がある。
 			lnSeed[$((mapY+4))]="${lStrD}[${rStrD}"
 			lnMapInfo[$((mapY))]="${lStrM}[${rStrM}"
 			
-			dispAll
+			dispAll $CNST_YN_Y 
 
+			}
 		}
+	: 'ドア閉じる' && {
+		###########################################
+		##closeDoor
+		## ドアを出す
+		##  $1:X座標
+		##  $2:Y座標
+		##   $1$2が指す座標が開きドアマスであることが確定してから呼ぶこと
+		###########################################
+		function closeDoor(){
+
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
+
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
+
+			#表示情報の更新用
+			declare lStrD="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			declare rStrD="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			#正解マップ情報への反映用
+			declare lStrM="${lnMapInfo[$((mapY))]:0:$((mapX))}"
+			declare rStrM="${lnMapInfo[$((mapY))]:$((mapX+1))}"
+
+			#ドアなど変化情報をセーブデータに残す必要のあるマップチップは、
+			#lnSeedとlnMapInfoの両方を更新する必要がある。
+			lnSeed[$((mapY+4))]="${lStrD}D${rStrD}"
+			lnMapInfo[$((mapY))]="${lStrM}D${rStrM}"
+			
+			dispAll $CNST_YN_Y 
+
+			}
 		}
 	: '対象マスへ移動' &&{
 		###########################################
@@ -406,26 +969,24 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 2 ]; then
-				sysOut 'e' $LINENO 'Set 2 arguments.'
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
 				return
 			fi
 			##$1の範囲
 			if [ $1 -lt 0 ] || [ $1 -gt $CNST_MAP_SIZ_X ]; then
-				sysOut 'e' $LINENO "'X' must be between 1 and $CNST_MAP_SIZ_X."'$1'"=$1"
+				sysOut 'e' $LINENO "X座標は1〜$CNST_MAP_SIZ_Xで指定してください。"'$1'"=$1"
 				return
 			fi
 			##$2の範囲
 			if [ $2 -lt 0 ] || [ $2 -gt $CNST_MAP_SIZ_Y ]; then
-				sysOut 'e' $LINENO "'Y' must be between 1 and $CNST_MAP_SIZ_Y."'$2'"=$2"
+				sysOut 'e' $LINENO "Y座標は1〜$CNST_MAP_SIZ_Yで指定してください。"'$2'"=$2"
 				return
 			fi
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
 
-			#local declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			#local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
-			local declare maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
+			maptipFoot="$(getMapInfo $mapX $mapY 'DSP')"
 
 			modDspWrglPos $(($1+1)) $(($2+1)) "$maptipFoot"
 			opnArndMaptip
@@ -443,24 +1004,29 @@
 		###########################################
 		function goAheadWrgl(){
 
-			local declare mapX=$((10#$1))
-			local declare mapY=$((10#$2))
+			##引数の個数
+			if [ $# -ne 2 ] ; then
+				sysOut 'e' $LINENO '引数は2つ指定してください。'
+				return
+			fi
 
-			local declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
-			local declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
+			declare mapX=$((10#$1))
+			declare mapY=$((10#$2))
 
-			local declare X=$(printf "%02d" $(($1+1)))
-			local declare Y=$(printf "%02d" $(($2+1)))
+			declare lStr="${lnSeed[$((mapY+4))]:0:$((mapX+4))}"
+			declare rStr="${lnSeed[$((mapY+4))]:$((mapX+5))}"
 
-			local declare row1Right="${lnSeed[1]:3}"
-			local declare row2Right="${lnSeed[2]:3}"
+			declare X=$(printf "%02d" $(($1+1)))
+			declare Y=$(printf "%02d" $(($2+1)))
+
+			declare row1Right="${lnSeed[1]:3}"
+			declare row2Right="${lnSeed[2]:3}"
 
 			lnSeed[1]="|$X$row1Right"
 			lnSeed[2]="|$Y$row2Right"
 
 			#ダッシュ移動中のマス開示は足元のマスのみ?
 			opnArndMaptip
-			#lnSeed[$((mapY+4))]="$lStr${lnMapInfo[$((mapY))]:$((mapX)):1}$rStr"
 
 			}
 		}
@@ -474,36 +1040,42 @@
 		##################################################
 		function sayRnd(){
 
-			local declare rslt=$(($RANDOM % 10))
+			##引数の個数
+			if [ $# -ne 1 ] ; then
+				sysOut 'e' $LINENO '引数は1つ指定してください。'
+				return
+			fi
+
+			declare rslt=$(($RANDOM % 10))
 			
 			case "$1" in
 				$CNST_RND_WALL	)	#ぶつかる音
 						case "$rslt" in
-							'0'	)	echo 'Thud!';;
-							'1'	)	echo 'Thump!!';;
-							'2'	)	echo 'Bonk';;
-							'3'	)	echo 'Ou!';;
-							'4'	)	echo 'Ouch!';;
-							'5'	)	echo 'Can not go any further.';;
-							'6'	)	echo 'Do not push!';;
-							'7'	)	echo 'Thud.';;
-							'8'	)	echo 'Thud!!';;
-							'9'	)	echo 'Bonk!';;
+							'0'	)	echo 'いてて';;
+							'1'	)	echo 'ぶつかった...';;
+							'2'	)	echo 'ゴンッ';;
+							'3'	)	echo '壁...';;
+							'4'	)	echo 'いたいっ＞＜';;
+							'5'	)	echo 'これ以上進めないよ';;
+							'6'	)	echo '押さないで！';;
+							'7'	)	echo 'ぶつかった';;
+							'8'	)	echo '壁！';;
+							'9'	)	echo '行けないよ';;
 							*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
 						esac
 						;;
 				$CNST_RND_DOOR	)	#扉じゃないところを開けようとする
 						case "$rslt" in
-							'0'	)	echo 'Open social window...?';;
-							'1'	)	echo 'There is no door.';;
-							'2'	)	echo 'There is no door.';;
-							'3'	)	echo 'There is no door.';;
-							'4'	)	echo 'There is no door.';;
-							'5'	)	echo 'There is no door.';;
-							'6'	)	echo 'There is no door.';;
-							'7'	)	echo 'There is no door.';;
-							'8'	)	echo 'There is no door.';;
-							'9'	)	echo 'There is no door.';;
+							'0'	)	echo '社会の窓でも開けるの...?';;
+							'1'	)	echo '扉なんてないよ。';;
+							'2'	)	echo '扉なんてないよ。';;
+							'3'	)	echo '扉なんてないよ。';;
+							'4'	)	echo '扉なんてないよ。';;
+							'5'	)	echo '扉なんてないよ。';;
+							'6'	)	echo '扉なんてないよ。';;
+							'7'	)	echo '扉なんてないよ。';;
+							'8'	)	echo '扉なんてないよ。';;
+							'9'	)	echo '扉なんてないよ。';;
 							*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
 						esac
 						;;
@@ -519,28 +1091,84 @@
 							'7'	)	echo '';;
 							'8'	)	echo '';;
 							'9'	)	echo '';;
-							*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
+							*	)	sysOut 'e' $LINENO '<sayRnd> 引数エラーです。'
 						esac
 						;;
 				$CNST_RND_DASH	)	#ダッシュ音
 						case "$rslt" in
-							'0'	)	echo 'ksksksksksksksk...';;
-							'1'	)	echo 'Scurry...';;
-							'2'	)	echo 'Scamper!!';;
-							'3'	)	echo 'ksksksksksksksk...';;
-							'4'	)	echo 'Zoooooooooom';;
-							'5'	)	echo 'Zoooooooooom!';;
-							'6'	)	echo 'ksksksksksksksk...';;
-							'7'	)	echo 'ksksksksksksksk...';;
-							'8'	)	echo 'Dashhhhh!';;
+							'0'	)	echo 'カサカサカサ...';;
+							'1'	)	echo 'ぴゅーん！';;
+							'2'	)	echo 'はしれー';;
+							'3'	)	echo 'カサカサカサ...';;
+							'4'	)	echo 'びゅーーーーーーん';;
+							'5'	)	echo 'びゅ〜〜〜〜ん！！';;
+							'6'	)	echo 'カサカサカサ...';;
+							'7'	)	echo 'カサカサカサ...';;
+							'8'	)	echo 'だーっしゅ!';;
 							'9'	)	echo 'Go!Go!Go!';;
-							*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
+							*	)	sysOut 'e' $LINENO '<sayRnd> 引数エラーです。'
 						esac
 						;;
-				*	)	sysOut 'e' $LINENO '<sayRnd> Arg Error.'
+				*				)	sysOut 'e' $LINENO '<sayRnd> 引数エラーです。'
 			esac
-
+			}
 		}
+	: 'アイテムカーソル移動' && {
+		##################################################
+		##movItemCsr
+		## アイテム画面のカーソルを移動する
+		##   $1:方向指示。8=上、2=下
+		##################################################
+		function movItemCsr(){
+			declare dir="$1"
+
+			#現在のカーソル位置から>マークを消去
+			lnSeed[$((selCrsrID+2))]="${lnSeed[$((selCrsrID+2))]:0:2} ${lnSeed[$((selCrsrID+2))]:3}"
+
+			case $dir in
+				#上移動
+				$CNST_CSR_MVTO_UP)
+					#現在の持ち物番号(カーソル位置)が1の場合は、一番下の行(持ち物番号15)に>マークを表示する
+					if [ $selCrsrID -eq 1 ] ; then
+						lnSeed[18]=${lnSeed[18]:0:2}'>'${lnSeed[18]:3}
+						selCrsrID=16
+
+					else
+					#1じゃなければ、普通通り持ち物番号を1つデクリメントして>を表示する
+						selCrsrID=$((selCrsrID-1))
+						lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}'>'${lnSeed[$((selCrsrID+2))]:3}
+					fi;;
+				#下移動
+				$CNST_CSR_MVTO_DN)
+					#現在の持ち物番号(カーソル位置)が一番下(持ち物番号15)の場合は、一番上の行に>マークを表示する
+					if [ $selCrsrID -eq 16 ] ; then
+						lnSeed[3]=${lnSeed[3]:0:2}'>'${lnSeed[3]:3}
+						selCrsrID=1
+
+					else
+					#18じゃなければ、普通通りに持ち物番号を1つインクリメントして>を表示する
+						selCrsrID=$((selCrsrID+1))
+						lnSeed[$((selCrsrID+2))]=${lnSeed[$((selCrsrID+2))]:0:2}'>'${lnSeed[$((selCrsrID+2))]:3}
+					fi;;
+
+				#エラー
+				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selCrsrID";;
+			esac
+			}
+		}
+		##################################################
+	: 'アイテムページ切り替え' && {
+		##movItemPge
+		## アイテム画面のページを切り替える
+		##   引数なし
+		##################################################
+		function movItemPge(){
+			if [ $selPageID -eq 1 ] ; then
+				selPageID=2
+			else
+				selPageID=1
+			fi
+			joinFrameOnItem
 		}
 		}
 	: 'メニューカーソル移動' && {
@@ -550,44 +1178,100 @@
 		##   $1:方向指示。8=上、2=下
 		##################################################
 		function movMenuCsr(){
-			declare local dir="$1"
+			declare dir="$1"
 
 			case $dir in
 
 				#上移動
 				$CNST_CSR_MVTO_UP)
 					#現在のカーソル位置から*マークを消去
-					lnSeed[$selMenuId]=${lnSeed[$selMenuId]:0:67}' '${lnSeed[$selMenuId]:68}
+					lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}' '${lnSeed[$selCrsrID]:68}
 
-					#現在のメニューID(カーソル位置)が1の場合は、一番下の行(メニューID18)に*マークを表示する
-					if [ $selMenuId -eq 1 ] ; then
+					#現在のメニューID(カーソル位置)が1の場合は、一番下の行(メニューID18)に>マークを表示する
+					if [ $selCrsrID -eq 1 ] ; then
 						lnSeed[18]=${lnSeed[18]:0:67}'>'${lnSeed[18]:68}
-						selMenuId=18
+						selCrsrID=18
 
 					else
-					#1じゃなければ、普通通りにメニューIDを1つデクリメントして*を表示する
-						lnSeed[$((selMenuId-1))]=${lnSeed[$((selMenuId-1))]:0:67}'>'${lnSeed[$((selMenuId-1))]:68}
-						selMenuId=$((selMenuId-1))
+					#1じゃなければ、普通通りにメニューIDを1つデクリメントして>を表示する
+						selCrsrID=$((selCrsrID-1))
+						lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}'>'${lnSeed[$selCrsrID]:68}
 					fi;;
 
-				$CNST_CSR_MVTO_DWN)
-					lnSeed[$selMenuId]=${lnSeed[$selMenuId]:0:67}' '${lnSeed[$selMenuId]:68}
+				$CNST_CSR_MVTO_DN)
+					lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}' '${lnSeed[$selCrsrID]:68}
 
-					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に*マークを表示する
-					if [ $selMenuId -eq 18 ] ; then
+					#現在のメニューID(カーソル位置)が一番下(メニューIDが18)の場合は、一番上の行に>マークを表示する
+					if [ $selCrsrID -eq 18 ] ; then
 						lnSeed[1]=${lnSeed[1]:0:67}'>'${lnSeed[1]:68}
-						selMenuId=1
+						selCrsrID=1
 
 					else
-					#18じゃなければ、普通通りにメニューIDを1つインクリメントして*を表示する
-						lnSeed[$((selMenuId+1))]=${lnSeed[$((selMenuId+1))]:0:67}'>'${lnSeed[$((selMenuId+1))]:68}
-						selMenuId=$((selMenuId+1))
+					#18じゃなければ、普通通りにメニューIDを1つインクリメントして>を表示する
+						selCrsrID=$((selCrsrID+1))
+						lnSeed[$selCrsrID]=${lnSeed[$selCrsrID]:0:67}'>'${lnSeed[$selCrsrID]:68}
 					fi;;
 
 				#エラー
-				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selMenuId";;
+				*) 	dspCmdLog "[MenuCsrMvERR]dir:$dir/no:$selCrsrID";;
 			esac
 			}
+		}
+	: 'メニュー2画面方向指示カーソル移動' && {
+		##################################################
+		##movDirCsr
+		## メニュー2画面の方向指示用カーソルを移動する
+		##  メニュー2画面表示中に呼び出すこと
+		##################################################
+		function movDirCsr(){
+
+			#初期は左上にセット
+			declare chcDir='7'
+			declare posLX="${CNST_CSR_DIR_7:0:2}"
+			declare posRX="$((posLX+4))"
+			declare posY="${CNST_CSR_DIR_7:3}"
+
+			lnSeed[$posY]="${lnSeed[$posY]:0:$posLX}[${lnSeed[$posY]:$((posLX+1)):3}]${lnSeed[$posY]:$((posLX+5))}"
+			dispAll $CNST_YN_Y 
+			
+			while :
+			do
+				clrCmdLog
+				getChrH
+				case $inKey	in
+					''						)	cmdMode=$CNST_CMDMODE_MENU2
+												getCmdInMain $chcDir
+												joinFrameOnStatus
+												cmdMode=$CNST_CMDMODE_NRML0
+												dispAll $CNST_YN_Y 
+												break
+												;;
+					[0-9vzxcasdqweVZXCASDQWE])	case $inKey in
+													[Zz]	)	chcDir='1';;
+													[Xx]	)	chcDir='2';;
+													[Cc]	)	chcDir='3';;
+													[Aa]	)	chcDir='4';;
+													[Ss]	)	chcDir='5';;
+													[Dd]	)	chcDir='6';;
+													[Qq]	)	chcDir='7';;
+													[Ww]	)	chcDir='8';;
+													[Ee]	)	chcDir='9';;
+													[Vv]	)	chcDir='0';;
+													*		)	chcDir=$inKey;;
+												esac
+
+												lnSeed[$posY]="${lnSeed[$posY]:0:$posLX} ${lnSeed[$posY]:$((posLX+1)):3} ${lnSeed[$posY]:$((posLX+5))}"
+												eval 'posLX="${CNST_CSR_DIR_'$chcDir':0:2}"'
+												posRX="$((posLX+4))"
+												eval 'posY="${CNST_CSR_DIR_'$chcDir':3}"'
+												lnSeed[$posY]="${lnSeed[$posY]:0:$posLX}[${lnSeed[$posY]:$((posLX+1)):3}]${lnSeed[$posY]:$((posLX+5))}"
+												;;
+					*						)	dspCmdLog "[$inKey]is_invalid.";;
+				esac
+				dispAll $CNST_YN_Y 
+			done
+			}
+		}
 		}
 : '■画面表示系' && {
 	: 'マップ表示内容' && {
@@ -630,26 +1314,59 @@
 
 			declare -a -g lnMapInfo=()
 
-			#初期状態    000000000011111111112222222222333333333344444444445555555555+1
+			#初期状態    000000000011111111112222222222333333333344444444445555555555
 			#文字数      012345678901234567890123456789012345678901234567890123456789+1
 			lnMapInfo+=('+---------------------------+-----------------------+XXXXXXX') #00+1
-			lnMapInfo+=('|                           D                       |XXXXXXX') #01+1
+			lnMapInfo+=('|                           D                      o|XXXXXXX') #01+1
 			lnMapInfo+=('|                           +-+-------------+D+-----+XXXXXXX') #02+1
 			lnMapInfo+=('+                           |X|                     |XXXXXXX') #03+1
-			lnMapInfo+=('#                           |X|                     |XXXXXXX') #04+1
+			lnMapInfo+=('#                           |X|o                    |XXXXXXX') #04+1
 			lnMapInfo+=('#                           |X+--+                  +----+XX') #05+1
-			lnMapInfo+=('#                           |XXXX|                       |XX') #06+1
-			lnMapInfo+=('+                           |XXXX|                  +--+ |XX') #07+1
+			lnMapInfo+=('#                    a      |XXXX|                       |XX') #06+1
+			lnMapInfo+=('+                   o       |XXXX|o                 +--+ |XX') #07+1
 			lnMapInfo+=('|                           |XXXX+------------------+XX| |XX') #08+1
 			lnMapInfo+=('|v                          |XXXXXXXXXXXXXXXXXXXXXXXXXX| |XX') #09+1
 			lnMapInfo+=('+---------------------------+--------------------------+D+XX') #10+1
 			lnMapInfo+=('|                                                        |XX') #11+1
-			lnMapInfo+=('+-+D+-+-------------------+D+---------------+            |XX') #12+1
-			lnMapInfo+=('|     |XXXXXXXXXXXXXXXXXXX| |XXXXXXXXXXXXXXX+------------+XX') #13+1
+			lnMapInfo+=('+-+D+-+-------------------+D+---------------+  o         |XX') #12+1
+			lnMapInfo+=('|ooooo|XXXXXXXXXXXXXXXXXXX| |XXXXXXXXXXXXXXX+------------+XX') #13+1
 			lnMapInfo+=('+-----+XXXXXXXXXXXXXXXXXXX+#+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') #14+1
 			}
 		}						
+	: 'アイテム欄表示' && {
+		##################################################
+		## defItemInfo
+		##  アイテム一覧表示。レイヤー2。
+		##   lnItemInfo[]にアイテム一覧表示内容を格納する
+		##################################################
+		function defItemInfo() {
 
+			declare -a -g lnItemInfo=()
+
+			#初期状態     0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+			#文字数       0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #00
+			lnItemInfo+=('|   所持品  Xページ目                            | 説明                                         |直|') #01
+			lnItemInfo+=('+------------------------------------------------+----------------------------------------------+--+') #02
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #03
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #04
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #05
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #06
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #07
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #08
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #09
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #10
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #11
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #12
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #13
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #14
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #15
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #16
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #17
+			lnItemInfo+=('|      　　　　　　　　　　　　　　　　　　　　　|　　　　　　　　　　　　　　　　　　　　　　　|  |') #18
+			lnItemInfo+=('+============================================+===+==============================================+==+') #19
+			}
+		}
 	: 'ステータス表示内容' && {
 		##################################################
 		## defStatusInfo
@@ -660,27 +1377,27 @@
 
 			declare -a -g lnStatusInfo=()
 
-			#初期状態       000000000011111111112222222222333+65
-			#文字数         012345678901234567890123456789012+65
-			lnStatusInfo+=('+------------+----------+---------+') #00
-			lnStatusInfo+=('|Wriggle     |Bug       |Fighter  |') #01
-			lnStatusInfo+=('+--+---------+----------+---------+') #02
+			#               00000000001111111111222222222233333
+			#               01234567890123456789012345678901234+66
+			lnStatusInfo+=('+------------+--------------------+') #00
+			lnStatusInfo+=('|リグル      |むしむしファイター  |') #01
+			lnStatusInfo+=('+--+---------+--------------------+') #02
 			lnStatusInfo+=('|HP| 100/ 100|BLv: 1=     0/    10|') #03
 			lnStatusInfo+=('|MP| 100/ 100|JLv: 1=     0/    10|') #04
 			lnStatusInfo+=('+--+--+--+--++-+--++--+--+--+--+--+') #05
-			lnStatusInfo+=('|✝|💊|💤|❔|🔇|👓||💪|🛡|🔯|🏃|🍀|') #06
+			lnStatusInfo+=('|絶|毒|黙|乱|眠|闇||攻|防|魔|速|運|') #06
 			lnStatusInfo+=('+--+--+--+--+--+--++--+--+--+--+--+') #07
 			lnStatusInfo+=('| 0| 0| 0| 0| 0| 0|| 0| 0| 0| 0| 0|') #08
 			lnStatusInfo+=('+--+--+--+--+--+--++--+--+--+--+--+') #09
-			lnStatusInfo+=('|  VAL - STS - PAR |🔨|⛰|💧|🔥|🌪|') #10
-			lnStatusInfo+=('|*  10 < Str > Atk |10|10|10|10|10|') #11
-			lnStatusInfo+=('|   10 < Int > Mat |10|10|10|10|10|') #12
-			lnStatusInfo+=('|   10 < Vit > Def |10|10|10|10|10|') #13
-			lnStatusInfo+=('|   10 < Mnd > Mdf |10|10|10|10|10|') #14
-			lnStatusInfo+=('|   10 < Snc > XBns| 1  %+==+=====+') #15
-			lnStatusInfo+=('|   10 < Dex > Hit |10  %|Jw|    0|') #16
-			lnStatusInfo+=('|   10 < Agi > Flee|10  %|Gd|    0|') #17
-			lnStatusInfo+=('|   10 < Luk > Cri |10  %|Sv|   50|') #18
+			lnStatusInfo+=('|  値 - ステ - パラ|物|地|水|火|風|') #10
+			lnStatusInfo+=('|   2 < 腕力 > 物攻|10|10|10|10|10|') #11
+			lnStatusInfo+=('|   2 < 知能 > 魔攻|10|10|10|10|10|') #12
+			lnStatusInfo+=('|   3 < 体力 > 物防|10|10|10|10|10|') #13
+			lnStatusInfo+=('|   1 < 精神 > 魔防|10|10|10|10|10|') #14
+			lnStatusInfo+=('|   5 < 知覚 > 抵抗| 1  %+==+=====+') #15
+			lnStatusInfo+=('|   1 < 器用 > 命中|10  %|金|    0|') #16
+			lnStatusInfo+=('|   4 < 敏捷 > 回避|10  %|銀|    0|') #17
+			lnStatusInfo+=('|   1 < 幸運 > クリ|10  %|銅|   50|') #18
 			lnStatusInfo+=('+==================+=====+==+=====+') #19
 			}
 		}						
@@ -692,30 +1409,67 @@
 		##################################################
 		function defMenuInfo() {
 
-			declare -a -g lnMenuInfo=()
 
-			#初期状態       000000000011111111112222222222333+65
-			#文字数         012345678901234567890123456789012+65
+			declare -a -g lnMenuInfo=()
+			#メニュー内コマンド内容は、右を全角SPで埋めること
+			#初期状態     00000000001111111111222222222233333
+			#文字数       01234567890123456789012345678901234+66
 			lnMenuInfo+=('+ M E N U ====================+===+') #00
-			lnMenuInfo+=('| > Invocation [dir]          |iv |') #01
-			lnMenuInfo+=('|   Open Door [dir]           |op |') #02
-			lnMenuInfo+=('|   Talk [dir]                |tk |') #03
-			lnMenuInfo+=('|                             |   |') #04
-			lnMenuInfo+=('|                             |   |') #05
-			lnMenuInfo+=('|                             |   |') #06
-			lnMenuInfo+=('|                             |   |') #07
-			lnMenuInfo+=('|                             |   |') #08
-			lnMenuInfo+=('|                             |   |') #09
-			lnMenuInfo+=('|                             |   |') #10
-			lnMenuInfo+=('|                             |   |') #11
-			lnMenuInfo+=('|                             |   |') #12
-			lnMenuInfo+=('|                             |   |') #13
-			lnMenuInfo+=('|                             |   |') #14
-			lnMenuInfo+=('|   View manual [cmd]         |man|') #15
-			lnMenuInfo+=('|   View help  　             |?? |') #16
-			lnMenuInfo+=('|   Exit Menu  　             |cm |') #17
-			lnMenuInfo+=('|   Quit game  　             |qqq|') #18
+			lnMenuInfo+=('| > 調べる　　　　　　　　　　|iv |') #01
+			lnMenuInfo+=('|   開く　　　　　　　　　　　|op |') #02
+			lnMenuInfo+=('|   閉じる　　　　　　　　　　|cl |') #03
+			lnMenuInfo+=('|   話す　　　　　　　　　　　|tk |') #04
+			lnMenuInfo+=('|   拾う　　　　　　　　　　　|pk |') #05
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #06
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #07
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #08
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #09
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #10
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #11
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #12
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #13
+			lnMenuInfo+=('|   　　　　　　　　　　　　　|   |') #14
+			lnMenuInfo+=('|   マニュアルを見る　　　　　|man|') #15
+			lnMenuInfo+=('|   ヘルプ（コマンドリスト）　|?? |') #16
+			lnMenuInfo+=('|   戻る　　　　　　　　　　　|cm |') #17
+			lnMenuInfo+=('|   終了　　　　　　　　　　　|qqq|') #18
 			lnMenuInfo+=('+=============================+===+') #19
+			}
+		}						
+	: 'メニュー2画面表示内容(コマンド選択後_引数選択)' && {
+		##################################################
+		## defMenuInfo2
+		##  メニュー画面2表示。レイヤー2。
+		##   メニュー画面1で選択したコマンドの引数(方向とか)を選択する画面
+		##   lnMenuInfo2[]にメニュー画面2表示内容を格納する
+		##   メニュー画面1から1行ずらして表示する
+		##################################################
+		function defMenuInfo2() {
+
+			declare -a -g lnMenuInfo2=()
+
+			#              00000000001111111111222222222233333
+			#              01234567890123456789012345678901234+66
+			lnMenuInfo2+=('+ M E N U ========================+') #00
+			lnMenuInfo2+=('|                                 |') #01
+			lnMenuInfo2+=('+---------------------------------+') #02
+			lnMenuInfo2+=('| 方向を指定してください          |') #03
+			lnMenuInfo2+=('|                                 |') #04
+			lnMenuInfo2+=('|    7Qq   8Ww   9Ee              |') #05
+			lnMenuInfo2+=('|                                 |') #06
+			lnMenuInfo2+=('|    4Aa   =¥=   6Dd              |') #07
+			lnMenuInfo2+=('|                                 |') #08
+			lnMenuInfo2+=('|    1Zz   2Xx   3Cc              |') #09
+			lnMenuInfo2+=('|                                 |') #10
+			lnMenuInfo2+=('|    0Vv > キャンセル             |') #11
+			lnMenuInfo2+=('|                                 |') #12
+			lnMenuInfo2+=('|                                 |') #13
+			lnMenuInfo2+=('|                                 |') #14
+			lnMenuInfo2+=('|                                 |') #15
+			lnMenuInfo2+=('|                                 |') #16
+			lnMenuInfo2+=('|                                 |') #17
+			lnMenuInfo2+=('|                                 |') #18
+			lnMenuInfo2+=('+=================================+') #19
 			}
 		}						
 
@@ -728,6 +1482,7 @@
 		function initDispInfo() {
 
 			declare -a -g lnSeed=() ##0から25までの26要素用意するつもり。
+			declare -a -g escLnSeedInfo=() ##lnSeedと対になる退避領域を定義する。このタイミングでは空。
 
 			#初期状態 0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
 			#文字数   0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -752,7 +1507,7 @@
 			lnSeed+=('|15|                                                            ||                                 |') #18
 			lnSeed+=('+==+=========================================+===+==============++=================================+') #19
 			lnSeed+=('|COMMAND>                                    |   |                                                 |') #20
-			lnSeed+=('+==+======input [om] to Menu.================+===+========================== input [??] to help.===+') #21
+			lnSeed+=('+==+======input [mn] to Menu.================+===+========================== input [??] to help.===+') #21
 			lnSeed+=('|91|                                                                                               |') #22
 			lnSeed+=('|92|                                                                                               |') #23
 			lnSeed+=('|93|                                                                                               |') #24
@@ -761,8 +1516,29 @@
 			lnSeed+=('+--+-----------------------------------------------------------------------------------------------+') #27
 
 			}
+		}	
+	: '全画面表示内容を退避' && {
+		##################################################
+		## escLnSeed
+		##  lnSeedの内容を一時的に退避する。
+		##################################################
+		function escLnSeed() {
+			for ((i = 0; i <= 26; i++)) {
+				escLnSeedInfo[i]="${lnSeed[i]}"
+			}
 		}
-	
+		}
+	: '全画面表示内容を退避領域から復帰' && {
+		##################################################
+		## retLnSeed
+		##  escLnSeedで退避した内容を復帰する
+		##################################################
+		function retLnSeed() {
+			for ((i = 0; i <= 26; i++)) {
+				lnSeed[i]="${escLnSeedInfo[i]}"
+			}
+		}
+		}	
 	: 'マップレイヤー結合' && {
 		##################################################
 		## joinFrameOnMap
@@ -789,8 +1565,67 @@
 				}
 			}
 		}
+	: 'アイテムレイヤー結合' && {
+		##################################################
+		## joinFrameOnItem
+		##  画面フレームと、アイテム表示枠を結合する
+		##   lnSeedのマップ枠の中にlnItemInfoをはめ込む。
+		##   また、所持アイテムの情報をはめ込んでいく。		
+		##################################################
+		function joinFrameOnItem (){
+			
+			declare spCnt1=0 #アイテム名称の後の半角相当SP数
+			declare spCnt2=0 #アイテム説明の後の半角相当SP数
+			declare maxItemLine=0
+			declare itemName=''
+			declare itemExplain=''
 
-		: 'メニューレイヤー結合' && {
+			#現在の表示内容を退避し、アイテム枠を表示する。
+			##アイテム枠で上書き
+			for ((i = 0; i <= 19; i++)) {
+				lnSeed[i]="${lnItemInfo[i]}"
+			}
+
+			#ページ数表示のはめ込み
+			lnSeed[1]="${lnSeed[1]:0:9}$selPageID${lnSeed[1]:10}"
+
+			#アイテム所持数とページ数で、
+			#アイテム情報上書きの反復数が異なるため、
+			#その回数を取得する
+			if [ ${#psnItemList[*]} -gt 16 ] ; then #アイテムが16個以上手持ちにある場合
+				if [ $selPageID = 1 ] ; then        #1ページめであれば16個全て表示対象
+					maxItemLine=16
+				else
+					maxItemLine=$(( ${#psnItemList[*]} - 16 ))  #2ページ目なら所持数から16を引いたものがそのページでの反復数
+				fi
+			else                                    #アイテムが15個以下のとき
+				if [ $selPageID = 1 ] ; then        #1ページめであればアイテムの所持数分のみ反復すれば良い
+					maxItemLine=${#psnItemList[*]}
+				else                                #2ページ目はアイテムの表示がないはずなので0
+					maxItemLine=0
+				fi
+			fi
+
+			#上記で設定した反復数だけ、アイテム情報のはめ込みを行う
+			for ((i=0; i<$maxItemLine; i++)) {
+
+				#持ち物リストから転記
+				args=($(echo ${psnItemList[$(( i + ( 16 * ($selPageID-1) ) ))]}|xargs))
+				itemName="${args[1]}"
+				itemExplain="${args[2]}"
+
+				spCnt1=$(( (24-${#itemName})*2 ))
+				spCnt2=$(( (23-${#itemExplain})*2 ))
+				
+				eval 'lnSeed[i+3]="${lnSeed[i+3]:0:4}$itemName`printf %${spCnt1}s`|$itemExplain`printf %${spCnt2}s`|`printf "%2s" '$(( (i+ ( (selPageID-1) * 16 ) )+1 ))'`|"'
+			}
+
+			#カーソル設置
+			lnSeed[$(($selCrsrID+2))]="${lnSeed[$(($selCrsrID+2))]:0:2}>${lnSeed[$(($selCrsrID+2))]:3}"
+
+			}
+		}
+	: 'メニューレイヤー結合' && {
 		##################################################
 		## joinFrameOnMenu
 		##  画面フレームと、メニュー表示情報を結合する
@@ -803,32 +1638,63 @@
 				}
 			}
 		}
+	: 'メニュー2レイヤー結合' && {
+		##################################################
+		## joinFrameOnMenu2
+		##  画面フレームと、メニュー2表示情報を結合する
+		##   lnSeedのマップ枠の中にlnStatusInfo2をはめ込む。
+		##################################################
+		function joinFrameOnMenu2 (){
+			
+			declare cmd=''
+
+			cmd="${lnSeed[$selCrsrID]:69:13}"
+
+			lnSeed[0]="${lnSeed[0]:0:65}+ M E N U ========================+"
+			lnSeed[1]="${lnSeed[1]:0:66}$cmd       |"
+
+			for ((i = 2; i <= 19; i++)) {
+				lnSeed[i]="${lnSeed[i]:0:65}${lnMenuInfo2[i]}"
+				}
+			
+			dispAll $CNST_YN_Y 
+			movDirCsr
+			}
+		}
 
 	: '全画面更新' && {
 		##################################################
+		##dispAll
 		## 画面の全情報を更新表示
 		##  lnSeed[]で画面を更新する
-		##   自キャラ位置に「¥」を強調表示で上書きする。
+		##  自キャラ位置に「¥」を強調表示で上書きする。
+		##   $1:自キャラカーソルを再描画するかどうか
 		##################################################
-		function dispAll(){
+		function dispAll (){
+
+			declare mode=$1
+			declare posX=''
+			declare posY=''
+		
 			clear
 
 			for ((i = 0; i < ${#lnSeed[*]}; i++)) {
 				echo "${lnSeed[i]}"
 				}
 
-			local declare posX=$((10#${lnSeed[1]:1:2}+3))
-			local declare posY=$((10#${lnSeed[2]:1:2}+3))
 
-			tput sc
-			tput cup $posY $posX
-			tput setab 2
-			tput setaf 0
-			tput blink
-			echo '¥'
-			tput sgr0
-			tput rc
+			if [ $mode = $CNST_YN_Y ] ; then
 
+				posX=$((10#${lnSeed[1]:1:2}+3))
+				posY=$((10#${lnSeed[2]:1:2}+3))
+				tput cup $posY $posX
+				
+				tput setab 2
+				tput setaf 0
+				tput blink
+				echo '¥'
+				tput sgr0
+			fi
 		}
 		}
 	: 'システムエラー画面' && {
@@ -844,12 +1710,12 @@
 		##################################################
 		function sysOut(){
 
-			local declare   errDiv=''
-			local declare   bColor=0
-			local declare   fColor=0
-			local declare wdthSize=0
-			local declare   MAPdth=0
-			local declare   lrWdth=0
+			declare   errDiv=''
+			declare   bColor=0
+			declare   fColor=0
+			declare wdthSize=0
+			declare   MAPdth=0
+			declare   lrWdth=0
 
 			inKey=''
 
@@ -857,16 +1723,16 @@
 			clear
 
 			case "$1" in
-					'e'	)	errDiv='Error'
+					'e'	)	errDiv='エラー'
 							bColor=1
 							fColor=7
 							;;
-					'w'	)	errDiv='Warning'
+					'w'	)	errDiv='警告'
 							bColor=7
 							fColor=0
 							;;
 					#'i'	)	errDiv='Information';;
-					*	)	errDiv='FatalError'
+					*	)	errDiv='致命的なエラー'
 							bColor=1
 							fColor=0
 							;;
@@ -892,13 +1758,13 @@
 				getChrH
 				if [ "$inKey" = 'q' ]; then
 					tput rmcup
-					dispAll
+					dispAll $CNST_YN_Y
 					break
 				else
-					echo 'Invalid input. press [q] to exit.'
+					echo '適合しない入力値. [q] キーで抜けます。'
 				fi
 			done
-		}
+			}
 		}
 	: 'メッセージウィンドウのクリア' && {
 		##################################################
@@ -913,7 +1779,7 @@
 			lnSeed[25]='|94|                                                                                               |' #25
 			lnSeed[26]='|95|                                                                                               |' #26
 
-		}
+			}
 		}
 	: 'コマンドログウィンドウのクリア' && {
 		##################################################
@@ -922,11 +1788,11 @@
 		##################################################
 		function clrCmdLog(){
 
-			declare local maptipFoot="${lnSeed[20]:48:1}"
+			declare maptipFoot="${lnSeed[20]:47:1}"
 
 			lnSeed[20]='|COMMAND>                                    | '"$maptipFoot"' |                                                 |'
 
-		}
+			}
 		}
 	: '現在座標、足元マップチップを画面に反映' && {
 		###########################################
@@ -941,19 +1807,10 @@
 		##  $3 足元マップチップ表示
 		###########################################
 		function modDspWrglPos(){
-			local declare X=$(printf "%02d" "$1")
-			local declare Y=$(printf "%02d" "$2")
-
-			local declare row1Right="${lnSeed[1]:3}"
-			local declare row2Right="${lnSeed[2]:3}"
-
-			local declare  row20Left="${lnSeed[20]:0:47}"
-			local declare row20Right="${lnSeed[20]:48}"
-
-			lnSeed[1]="|$X$row1Right"
-			lnSeed[2]="|$Y$row2Right"
-			lnSeed[20]="$row20Left$3$row20Right"
-		}
+			lnSeed[1]="|$(printf "%02d" "$1")${lnSeed[1]:3}"
+			lnSeed[2]="|$(printf "%02d" "$2")${lnSeed[2]:3}"
+			lnSeed[20]="${lnSeed[20]:0:47}$3${lnSeed[20]:48}"
+			}
 		}
 	: '周囲マス開示' && {
 		###########################################
@@ -963,15 +1820,15 @@
 		##  引数なし(左上の座標表示を使用)
 		###########################################
 		function opnArndMaptip(){
-			local declare posX=$((10#${lnSeed[1]:1:2}-1))
-			local declare posY=$((10#${lnSeed[2]:1:2}-1))
+			declare posX=$((10#${lnSeed[1]:1:2}-1))
+			declare posY=$((10#${lnSeed[2]:1:2}-1))
 
 			#上の行、同じ行、下の行
 			lnSeed[$((posY+3))]="${lnSeed[$((posY+3))]:0:$((posX+3))}${lnMapInfo[$((posY-1))]:$((posX-1)):3}${lnSeed[$((posY+3))]:$((posX+6))}"
 			lnSeed[$((posY+4))]="${lnSeed[$((posY+4))]:0:$((posX+3))}${lnMapInfo[$((posY+0))]:$((posX-1)):3}${lnSeed[$((posY+4))]:$((posX+6))}"
 			lnSeed[$((posY+5))]="${lnSeed[$((posY+5))]:0:$((posX+3))}${lnMapInfo[$((posY+1))]:$((posX-1)):3}${lnSeed[$((posY+5))]:$((posX+6))}"
 
-		}
+			}
 		}
 	: 'メッセージウィンドウの内容変更' && {
 		##################################################
@@ -988,31 +1845,31 @@
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 3 ] ; then
-				sysOut 'e' $LINENO 'Set 4 arguments.'
+				sysOut 'e' $LINENO '引数は3つ設定してください。'
 				return
 			fi
 			##$1の範囲
 			if [ $1 -lt 1 ] || [ $1 -gt $CNST_MSG_SIZ_X ]; then
-				sysOut 'e' $LINENO "StartColumnIndex must be between 1 and $CNST_MSG_SIZ_X."
+				sysOut 'e' $LINENO "開始文字位置は1〜$CNST_MSG_SIZ_Xである必要があります。"
 				return
 			fi
 			##$2の範囲
 			if [ $2 -lt 1 ] || [ $2 -gt $CNST_MSG_SIZ_Y ]; then
-				sysOut 'e' $LINENO "StartRowIndex must be between 1 and $CNST_MSG_SIZ_Y."
+				sysOut 'e' $LINENO "開始行は1〜$CNST_MSG_SIZ_Yである必要があります。"
 				return
 			fi
 
-			local declare tgtRow=$1
-			local declare tgtClmn=$(($2+3))
-			local declare tgtStr=$(crrctStr "$3")
+			declare tgtRow=$1
+			declare tgtClmn=$(($2+3))
+		eval declare tgtStr=$(crrctStr "$3")
 			
-			local declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
+			declare leftStr="${lnSeed[21+$tgtRow]:0:$tgtClmn}"
 
 			#文字長が右端を出ないように切り捨てる。
 			#半角相当の文字数が95以下になるまで、末尾から1文字ずつ切り捨て続ける
 			#半角全角が混じる場合に正確に切り捨てる長さを指定できないため
-			local declare tmpStr="$tgtStr"
-			local declare tmpCntSingleWidth=0
+			declare tmpStr="$tgtStr"
+			declare tmpCntSingleWidth=0
 			while :
 			do
 				tmpCntSingleWidth=$(getCntSingleWidth "$tmpStr")
@@ -1024,13 +1881,12 @@
 				fi
 			done
 
-			local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+			declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 			#getCntSingleWidth()で半角相当の文字数をカウント
 			#100文字-|1文字=99、-文字数でSPACEの反復数
 
 			lnSeed[$((21+$tgtRow))]="$leftStr$tgtStr`printf %${spCnt}s`|"
-
-		}
+			}
 		}
 	: 'コマンドログウィンドウの内容変更' && {
 		###########################################
@@ -1047,14 +1903,14 @@
 				return
 			fi
 
-			local declare tgtStr="$(crrctStr "$1")"
-			local declare leftStr="${lnSeed[20]:0:$CNST_CMDLGW_IDX}"
+			declare tgtStr="$(crrctStr "$1")"
+			declare leftStr="${lnSeed[20]:0:$CNST_CMDLGW_IDX}"
 
 			#文字長が右端を出ないように切り捨てる。
 			#半角相当の文字数が50以下になるまで、末尾から1文字ずつ切り捨て続ける
 			#半角全角が混じる場合に正確に切り捨てる長さを指定できないため
-			local declare tmpStr="$tgtStr"
-			local declare tmpCntSingleWidth=0
+			declare tmpStr="$tgtStr"
+			declare tmpCntSingleWidth=0
 			while :
 			do
 				tmpCntSingleWidth=$(getCntSingleWidth "$tmpStr")
@@ -1066,7 +1922,7 @@
 				fi
 			done
 
-			local declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
+			declare spCnt=$((99-$(getCntSingleWidth "$leftStr$tgtStr")))
 			#getCntSingleWidth()で半角相当の文字数をカウント
 			#100文字-|1文字=99、-文字数でSPACEの反復数
 
@@ -1074,9 +1930,9 @@
 
 			}
 		}
-	}
+		}
 : '■ゲーム中ユーザが使用するコマンド' && {
-	: 'コマンドヘルプ' && {
+	: '??コマンド' && {
 		##################################################
 		##viewHelp
 		## コマンドヘルプ
@@ -1089,51 +1945,55 @@
 			tput smcup
 
 			clear
-			echo '***Command List***  Press [q]key to exit.'
+			echo '***コマンドリスト***  ※[q]キーで終了します'
 			echo ''
-			echo 'man [CMD]   : [CMD] CommandManual'
-			echo '[...]can    : Cancel a command being entered.'
-			echo 'sv [n]      : Save to data [n] the current state.'
-			echo 'svq [n]     : Save to data [n] the current state and quit this game.'
-			echo 'qqq         : Quit this game (without save).'
-			echo 'mv [n]      : Move in direction [n]'
-			echo 'op [n]      : Open the door in the direction of [n] (by suitable key).'
-			echo 'ki [m][n]   : Kick in direction [n] with [n]strength'
-			echo 'wp [n]      : Attack in direction [n] with Wapon'
-			echo 'ct [m][n]   : Cast [m]Magic in direction [n]'
-			echo 'in [n]      : Inspect in direction [n]'
-			echo 'gt [n]      : Get in direction [n]'
-			echo 'tr [m][n]   : Throw [m] item in direction [n]'
-			echo 'tk [n]      : Talk in direction [n]'
-			echo 'pr [n]      : Pray for [n]'
-			echo 'ss          : Suiside!'
+			echo 'man [CMD]   : [CMD]で指定したコマンドのマニュアルを見る。'
+			echo '[...]can    : can以前の入力すべてをキャンセルする。'
+			echo 'qqq         : ゲームを終了する。'
+			echo 'mv [n]      : [n]で指定した方向へ1歩移動する。'
+			echo 'da [n]      : [n]で指定した方向へ直進する。'
+			echo 'op [n]      : [n]で指定した方向にある扉を開ける(鍵が必要かも)。'
+			echo 'cl [n]      : [n]で指定した方向にある扉を閉じる(鍵はかからない)。'
+			echo 'ki [m][n]   : [n]で指定した方向に、強度[n]のリグルキックを放つ。'
+			echo 'wp [n]      : [n]で指定した方向へ武器を振るう。'
+			echo 'ct [m][n]   : [n]で指定した方向へ、[m]にセットした符術を使う。'
+			echo 'iv [n]      : [n]で指定した方向を調べる。'
+			echo 'gt [n]      : [n]で指定した方向にあるものを手に取る。'
+			echo 'tr [m][n]   : [n]で指定した方向へ、[m]のアイテムを投げる。'
+			echo 'tk [n]      : [n]で指定した方向へ話しかける。'
+			echo 'pr [n]      : [n]で指定した対象へ祈る。'
+			echo 'mn          : メニュー画面を開く。'
+			echo 'it          : アイテム画面を開く。'
+			echo 'ss          : 自殺する。次のリグルはもっと上手くやるでしょう。'
 
 			while :
 			do
 				getChrH
 				if [ "$inKey" = 'q' ]; then
 					tput rmcup
-					dispAll
+					dispAll $CNST_YN_Y
 					break
 				else
-					echo "$inKey is invalid. press [q] to exit."
+					echo "$inKey は無効な入力です。 [q]キーで戻る。"
 				fi
 			done
 
 			}
-			}
-	: 'マニュアル参照' && {
+		}
+	: 'manコマンド' && {
 		##################################################
 		##man
 		## マニュアル参照
 		##  引数で渡されたコマンドのマニュアルを表示する。
 		##   $1 参照先コマンド
 		##################################################
-		function man(){		
+		function ma(){
 			case "$1" in
 				'can'	)	man_can ;;
 				'mv'	)	man_mv ;;
+				'da'	)	man_da ;;
 				'op'	)	man_op ;;
+				'cl'	)	man_cl ;;
 				'pp'	)	man_pp ;;
 				'ki'	)	man_ki ;;
 				'wp'	)	man_wp ;;
@@ -1144,729 +2004,873 @@
 				'tk'	)	man_tk ;;
 				'pr'	)	man_pr ;;
 				'ss'	)	man_ss ;;
+				'mn'	)	man_mn ;;
+				'it'	)	man_it ;;
 				'man'	)	man_man ;;
-				*		)	dspCmdLog "[$1] is Invalid CMD."
-							dispAll;;
+				*		)	dspCmdLog "[$1]:存在しないコマンド"
+							dispAll $CNST_YN_Y;;
 			esac
 			}
 		: '■マニュアル詳細' && {
-			: 'canコマンドマニュアル' && {
-				function man_can(){
+				: 'canコマンドマニュアル' && {
+					function man_can(){
 
-					inKey=''
-					tput smcup
+						inKey=''
+						tput smcup
 
-					clear
+						clear
 
-					echo '*** Command Manual:[can] ***'
-					echo '<Format>'
-					echo ' [...]can'
-					echo ' * no arg. For all previous inputs.'
-					echo ''
-					echo '<Function>'
-					echo ' When the command input is completed with "can" at the end,'
-					echo '      all input commands are canceled.'
-					echo ' There seems to be milk returning from the floor to the cup.'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-					
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
+						echo '*** canコマンド ***'
+						echo '<文法>'
+						echo ' [...]can'
+						echo ' ※引数なし。全ての入力の後に付与する。'
+						echo ''
+						echo '<機能>'
+						echo ' 入力コマンドの末尾を「can」で終了したとき、'
+						echo ' 全ての入力をキャンセルします。'
+						echo ' ――帰る覆水もあるってことですね。'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+				: 'svqコマンドマニュアル' && {
+					function man_sq(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** svqコマンド ***'
+						echo '<文法>'
+						echo ' svq [n]'
+						echo ' ※引数は1〜4。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]番のセーブデータに現在の状態を保存してゲームを終了します。'
+						echo ' ――寝る前に日記をつけるのを忘れないようにね。'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+				: 'svコマンドマニュアル' && {
+					function man_svq(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** svコマンド ***'
+						echo '<文法>'
+						echo ' sv [n]'
+						echo ' ※引数:1〜4'
+						echo ''
+						echo '<機能>'
+						echo ' [n]番のセーブデータに現在の状態を保存する。'
+						echo ' ――日記は君を助けてくれる、誰かに中身を見られない限りは。'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+				: 'qqqコマンドマニュアル' && {
+					function man_qqq(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** qqqコマンド ***'
+						echo '<文法>'
+						echo ' qqq'
+						echo ' ※引数なし'
+						echo ''
+						echo '<機能>'
+						echo ' セーブせず、その場でゲームを終了します。'
+						echo ' ――ヤバっ、幽香さんだ！！'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'mvコマンドマニュアル' && {
+					function man_mv(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** mvコマンド ***'
+						echo '<文法>'
+						echo ' mv [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向に1歩移動する。'
+						echo ' mv [n]と入力する代わりに、“ZXCASDQWE(大文字)”の1文字だけを入力してもいい。' 
+						echo ' 5/S/sを指定するとその場で足踏みする。'
+						echo ' 0/V/vを指定するとキャンセルする。'
+						echo ' ――ダンジョン探索は足に始まり足に終わる...いや終わるのは死か？'
+						echo ' 　　ピクニックはさぞ楽しいことだろう。GLHF!'
+						echo ''
+						echo ' 移動先指定...  \  ^  /   \  ^  /   \  ^  /'
+						echo '                 7 8 9     q w e     Q W E '
+						echo '                <4 5 6>   <a s d>   <A S D>'
+						echo '                 3 2 1     z x c     A X C '
+						echo '                /  v  \   /  v  \   /  v  \'
+						echo '                [5]or[s]or[s]  :足踏み(移動なし)'
+						echo '                [0]or[v]or[V]  :キャンセル'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'daコマンドマニュアル' && {
+					function man_da(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** daコマンド ***'
+						echo '<文法>'
+						echo ' da [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向へ直進する。通常の床以外の手前で停止する。' 
+						echo ' 5/S/sを指定するとその場で足踏みする。'
+						echo ' 0/V/vを指定するとキャンセルする。'
+						echo ' ――ダンジョンでは慎重に歩かなければドラゴンの尾を踏むことになる。'
+						echo ' 　　まあ彼にとっては木の根を踏む方が恐ろしいだろうがね。'
+						echo ''
+						echo ' ダッシュ方向...\  ^  /   \  ^  /   \  ^  /'
+						echo '                 7 8 9     q w e     Q W E '
+						echo '                <4 5 6>   <a s d>   <A S D>'
+						echo '                 3 2 1     z x c     A X C '
+						echo '                /  v  \   /  v  \   /  v  \'
+						echo '                [5]or[s]or[s]  :足踏み(移動なし)'
+						echo '                [0]or[v]or[V]  :キャンセル'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'opコマンドマニュアル' && {
+					function man_op(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** opコマンド ***'
+						echo '<文法>'
+						echo ' op [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向の扉を開ける。'
+						echo ' 施錠された扉の場合は適合する鍵を所持している場合のみ、開く。'
+						echo ' ――茨扉の向こう側が、いつも好意的であるとは限らない。'
+						echo ''
+						echo ' 扉の方向指示...  \  ^  /   \  ^  /   \  ^  /'
+						echo '                   7 8 9     q w e     Q W E '
+						echo '                  <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
+						echo '                   3 2 1     z x c     A X C '
+						echo '                  /  v  \   /  v  \   /  v  \  *5/S/s は無効'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'clコマンドマニュアル' && {
+					function man_cl(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** clコマンド ***'
+						echo '<文法>'
+						echo ' cl [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向の扉を閉じる。'
+						echo ' 開く前に施錠扉だったとしても、鍵をかけることはできない。'
+						echo ' 鍵なしの扉として閉じ直す。'
+						echo ' ――嫌な夢でも見たのかい？　その夢が漏れ出てこないようにね。'
+						echo ''
+						echo ' 扉の方向指示...  \  ^  /   \  ^  /   \  ^  /'
+						echo '                   7 8 9     q w e     Q W E '
+						echo '                  <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
+						echo '                   3 2 1     z x c     A X C '
+						echo '                  /  v  \   /  v  \   /  v  \  *5/S/s は無効'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'kiコマンドマニュアル' && {
+					function man_ki(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** kiコマンド ***'
+						echo '<文法>'
+						echo ' ki [n] [m]'
+						echo ' ※引数1は0〜9(5以外)、vzxcadqwe、VZXCADQWE。'
+						echo ' ※引数2は1〜9。'
+						echo ''
+						echo '<機能>'
+						echo ' リグルキックです。'
+						echo ' [n]で指定した方向を、強度[m]で蹴ります。'
+						echo ' リグルキックは、連続で使うことができません。'
+						echo ' 武器がないときには大いに助けになってくれると同時に'
+						echo ' いくつかの敵はリグルキックでなければ打ち破ることができないでしょう。'
+						echo ' ――見敵必殺！...でも必ずOHKOとは限らないよねえ'
+						echo ''
+						echo ' 蹴る方向...  \  ^  /'
+						echo '               1 2 3 '
+						echo '              <4 ¥ 6>'
+						echo '               7 8 9 '
+						echo '              /  v  \'
+						echo ''
+						echo '<消費MP>'
+						echo '  +--------+---+---+---+---+---+---+---+---+---+'
+						echo '  |強度    |  1|  2|  3|  4|  5|  6|  7|  8|  9|'
+						echo '  +--------+---+---+---+---+---+---+---+---+---+'
+						echo '  |消費MP  |  3|  3|  3|  7|  7|  7|  9|  9| 12|'
+						echo '  +--------+-----------------------------------+'
+						echo ''
+						echo '<威力>'
+						echo '  ([Atk]*[useLv]*1.2)+([Atk]*[useLv-9]*0.5)'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'wpコマンドマニュアル' && {
+					function man_wp(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** wpコマンド ***'
+						echo '<文法>'
+						echo ' wp [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向へ装備中の武器を振ります。'
+						echo ' 威力や射程は装備中の武器に依存します。'
+						echo ' 特定の武器についてはMPを消費することもとあるかもしれません。'
+						echo ' ――彼はいつも、ダンジョンでストレスを発散しているように見える。'
+						echo '     ストレスの原因は、彼の妻(達)だろうか...？'
+						echo ''
+						echo ' 武器を振る方向...  \  ^  /'
+						echo '                     1 2 3 '
+						echo '                    <4 ¥ 6>'
+						echo '                     7 8 9 '
+						echo '                    /  v  \   ※距離は武器依存'
+						echo ''
+						echo '<威力>'
+						echo '  ([Atk]*[weponAtk])+(|Atk-50|*[weponAtk]*0.3)'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'ctコマンドマニュアル' && {
+					function man_ct(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** ctコマンド ***'
+						echo '<文法>'
+						echo ' ct [n] [m]'
+						echo ' ※引数1は1〜4'
+						echo ' ※引数2は1〜9'
+						echo ''
+						echo '<機能>'
+						echo ' [m]の方向へ、[n]の符術を使用する'
+						echo ' [m]に5を指定した場合は、自分を対象とする。'
+						echo ' 距離は使用した符術に依存する。[m]を必要としないものもある。'
+						echo ' 符術は攻撃用とは限らない。'
+						echo ' 回復、補助、あるいはもっと特別な効果を持つものもあるだろう。'
+						echo ' いずれにしてもダンジョン探索には有用なものに違いない。'
+						echo ' ――これ、湿布？'
+						echo ''
+						echo ' 射出方向...  \  ^  /'
+						echo '               1 2 3 '
+						echo '              <4 ¥ 6>'
+						echo '               7 8 9 '
+						echo '              /  v  \   ※射程は符術に依存'
+						echo ''
+						echo '<威力>'
+						echo '  ([Mat]*[magicStr])+(|[Mat]-50|*[magicStr]*0.4)'
+						echo ''
+						echo '<消費MP>'
+						echo '  消費MPは[Int]の値によって一定量軽減される。'
+						echo '    +--------+---+-----------+----------+----+'
+						echo '    |int     |~30|~60        |~98       |99  |'
+						echo '    +--------+---+-----------+----------+----+'
+						echo '    |消費MP  |-0%|-(int/20)% |-(int/10)%|-30%|'
+						echo '    +--------+---+-----------+----------+----+'
+						echo '    ※軽減値は少数切り上げ'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'ivコマンドマニュアル' && {
+					function man_iv(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** ivコマンド ***'
+						echo '<文法>'
+						echo ' iv [n]'
+						echo ' ※引数は0〜9、vzxcasdqwe、VZXCASDQWE。'
+						echo ''
+						echo '<機能>'
+						echo ' [n]で指定した方向を調査します。'
+						echo ' ある種の調査は、[Snc]の値によって成否が分かれるかもしれない。'
+						echo ' [n]に5を指定した場合、足元か、あるいは自身を対象とする。'
+						echo ' ――いつでも触覚はキレイに保っておくべきだね'
+						echo ''
+						echo ' 調査する方向...     \  ^  /'
+						echo '                      7 8 9 '
+						echo '                     <4 ¥ 6>'
+						echo '                      3 2 1 '
+						echo '                     /  v  \      ※[5]は足元か自身'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'gtコマンドマニュアル' && {
+					function man_gt(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** gtコマンド ***'
+						echo '<文法>'
+						echo ' gt [n]'
+						echo ' ※引数は1〜9'
+						echo ''
+						echo '<機能>'
+						echo ' [n]の方向にあるものを拾い上げたり手に取ったりします。'
+						echo ' [n]に5を指定した場合、足元か自身を対象とします。'
+						echo ' ――童話「アリとキリギリス」は、'
+						echo ' 　　巣で待つ妻(達)のために働くべきだと教訓を残している。...違ったっけ？'
+						echo ''
+						echo ' 取る方向...  \  ^  /'
+						echo '               7 8 9 '
+						echo '              <4 ¥ 6>'
+						echo '               3 2 1 '
+						echo '              /  v  \      *[5]は足元'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+				: 'trコマンドマニュアル' && {
+					function man_tr(){
+
+						inKey=''
+						tput smcup
+						clear
+
+						echo '*** trコマンド ***'
+						echo '<文法>'
+						echo ' tr [n] [m]'
+						echo ' ※引数1は1〜9'
+						echo ' ※引数2は1〜9(5以外)'
+						echo ''
+						echo '<機能>'
+						echo ' [m]の方向に向けて、[n]のアイテムを投げます。'
+						echo ' 投げるアイテムと[STR]あるいはその他のステータス値によって、効果は変わります。'
+						echo ' ――ものを投げつけるなら気をつけるべきだ。'
+						echo ' 　　それが女性から受け取ったもだったら、妻が見つけたときに特に面倒を招く。'
+						echo ''
+						echo ' 投げる方向... \  ^  /'
+						echo '                7 8 9 '
+						echo '               <4 ¥ 6>'
+						echo '                3 2 1 '
+						echo '               /  v  \'
+						echo ''
+						echo '<威力>'
+						echo '  Jewel     --- [金額]*1000.0                       :防御力を無視'
+						echo '  Gold      --- [金額]*100.0                        :防御力を無視'
+						echo '  Silver    --- [金額]*1.0                          :防御力を無視'
+						echo '  武器      --- [Str]*[WeponAtk]*(RoundUp(Str/100))'
+						echo '  防具      --- [Str]*[ArmorDef]*(RoundUp(Str/150))'
+						echo '  薬など    --- [ItemRecovery]*1.0                  :ダメージではなく回復'
+						echo '  他        --- 何が起こるかわからない！'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'tkコマンドマニュアル' && {
+					function man_tk(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** tkコマンド ***'
+						echo '<文法>'
+						echo ' tk [n]'
+						echo ' ※引数は1〜9(5以外)'
+						echo ''
+						echo '<機能>'
+						echo ' [n]の方向へ話しかける。'
+						echo ' 会話が上手なら誰とでも仲良くなれる。でも妻の視線に気をつけて。'
+						echo ''
+						echo ' 声をかける方向...  \  ^  /'
+						echo '                     7 8 9 '
+						echo '                    <4 ¥ 6>'
+						echo '                     3 2 1 '
+						echo '                    /  v  \'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'prコマンドマニュアル' && {
+					function man_pr(){
+
+						inKey=''
+						tput smcup
+
+						clear
+
+						echo '*** prコマンド ***'
+						echo '<文法>'
+						echo ' pr [n]'
+						echo ' ※引数は不明'
+						echo ''
+						echo '<機能>'
+						echo ' 引数で示した対象に向けて祈り、奇蹟を乞う。'
+						echo ' 何が起こるかわからないが[MND]値によって望ましい結果を引き寄せ易くなるだろう'
+						echo ' 知っている偶像に対してしか祈ることはできない。'
+						echo ' ――ある一つの偶像に祈っている限り罰が当たることはないだろうが、'
+						echo ' 　　もしお祈りが過ぎると処されるかもしれない。妻に祈ってだめなら、諦めるべきだ。'
+						echo ''
+						echo '<祈りの対象(偶像)>'
+						echo ' 不明'
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'ssコマンドマニュアル' && {
+					function man_ss(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** ssコマンド ***'
+						echo '<文法>'
+						echo ' ss'
+						echo ' ※引数なし'
+						echo ''
+						echo '<機能>'
+						echo ' 自殺します。誰も彼を悲しまない。'
+						echo ' ――次のリグルはもっと上手くやるでしょう'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done
+						}
+					}
+				: 'mnコマンドマニュアル' && {
+					function man_mn(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** mnコマンド ***'
+						echo '<文法>'
+						echo ' mn'
+						echo ' ※引数なし'
+						echo ''
+						echo '<機能>'
+						echo ' メニュー画面を開く。その後は上下カーソルで行動を選んで実行する。'
+						echo ' メニュー画面は、cmコマンドで閉じることができる。'
+						echo ' 行動によっては追加で方向や対象を選択する必要がある。'
+						echo ' ――今日のご飯は何だろう♪'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+				: 'itコマンドマニュアル' && {
+					function man_it(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '*** mnコマンド ***'
+						echo '<文法>'
+						echo ' it'
+						echo ' ※引数なし'
+						echo ''
+						echo '<機能>'
+						echo ' アイテム画面を開く。'
+						echo ' その後は上下カーソルでアイテム選んで実行する。'
+						echo ' 左右カーソルでページを移動する。'
+						echo ' アイテム画面は、ciコマンドで閉じることができる。'
+						echo ' どうやって持って帰れば取り上げられないだろう？'
+						echo ' ――そもそも、帰れるのかな'
+						echo ''
+						echo '... 以上'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
+					: 'manコマンドマニュアル' && {
+					function man_man(){
+
+						inKey=''
+
+						tput smcup
+						clear
+
+						echo '...今使ってるだろ。'
+						echo '[q]キーで終了します'
+						
+						while :
+						do
+							getChrH
+							if [ "$inKey" = 'q' ]; then
+								tput rmcup
+								dispAll $CNST_YN_Y
+								break
+							else
+								echo '[q]キーで終了します'
+							fi
+						done	
+						}
+					}
 				}
-				}
-			: 'sqコマンドマニュアル' && {
-				function man_sq(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[svq] ***'
-					echo '<Format>'
-					echo ' svq [n]'
-					echo ' * arg:1-4.'
-					echo ''
-					echo '<Function>'
-					echo ' Save to data [n] the current state and quit this game.'
-					echo ' Do not forget to write a diary before going to bed.'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-					
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'svコマンドマニュアル' && {
-				function man_svq(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[sv] ***'
-					echo '<Format>'
-					echo ' sv [n]'
-					echo ' * arg:1-4.'
-					echo ''
-					echo '<Function>'
-					echo ' Save to data [n] the current state.'
-					echo ' The diary will help you, unless you look into it.'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-					
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'qqqコマンドマニュアル' && {
-				function man_qqq(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[qqq] ***'
-					echo '<Format>'
-					echo ' qqq'
-					echo ' * no arg.'
-					echo ''
-					echo '<Function>'
-					echo ' Quit the game without save. A highly responsive exit command.'
-					echo ' Holy cow, Yuka came!'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-					
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'mvコマンドマニュアル' && {
-				function man_mv(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[mv] ***'
-					echo '<Format>'
-					echo ' mv [arg]'
-					echo ' * arg=1~9, [zxcasdqwe] or [ZXCASDQWE].'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle moves 1 step [arg]. Consume 1 turn.'
-					echo ' The direction of movement is determined by 1-9 or' 
-					echo '     the “ZXCASDQWE” key on the left side of your keyboard'
-					echo ' Enter [5]or[S]or[s] to step on the spot.'
-					echo ' Entering [0] cancels the [mv] command continuation input.'
-					echo ' You can move even if you omit "mv", but you may suffer from a disadvantage.'
-					echo ' If [mv] is omitted, [ZXCASDQWE] must be shift qualified.'
-					echo ' Even if "mv" is omitted, do not use shift qualification when specifying 0-9.'
-					echo ' This means that instead of omitting "mv", you can simply enter 1-9 as usual or'
-					echo '     enter the capital letter "ZXCASDQWE".'
-					echo ' If you want to move carefully, it is recommended to move with the [mv] command.'
-					echo ' Dungeon exploration begins with walking and ends with walking...'
-					echo ' ...No, when is the end when I die? Make your picnic feel moderate. GLHF!'
-					echo ''
-					echo ' move to...   \  ^  /   \  ^  /   \  ^  /'
-					echo '               7 8 9     q w e     Q W E '
-					echo '              <4 5 6>   <a s d>   <A S D>'
-					echo '               3 2 1     z x c     A X C '
-					echo '              /  v  \   /  v  \   /  v  \'
-					echo '              [5]or[s]or[s]  :skipThisTurn'
-					echo '              [0]            :cancel'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-					
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'opコマンドマニュアル' && {
-				function man_op(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[op] ***'
-					echo '<Format>'
-					echo ' op [arg]'
-					echo ' * arg=1~9, [zxcasdqwe] or [ZXCASDQWE].'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle opens the door in the direction of [9].'
-					echo '      (for locked doors, only if you have a suitable key).'
-					echo ' Consume 1 turn.'
-					echo ' She over the door of the thorn is not always waiting for me favorably.'
-					echo ''
-					echo ' open the door...   \  ^  /   \  ^  /   \  ^  /'
-					echo '                     7 8 9     q w e     Q W E '
-					echo '                    <4 ¥ 6>   <a ¥ d>   <A ¥ D>'
-					echo '                     3 2 1     z x c     A X C '
-					echo '                    /  v  \   /  v  \   /  v  \  *5 is invalid.'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-					
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'kiコマンドマニュアル' && {
-				function man_ki(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[ki] ***'
-					echo '<Format>'
-					echo ' ki [arg1] [arg2]'
-					echo ' * arg1=1~9 except 5.'
-					echo ' * arg2=1~9.'
-					echo ''
-					echo '<Function>'
-					echo ' It is Called "WriggleKick".'
-					echo ' Wriggle kicks [arg1] with a strength of [arg2].'
-					echo ' Consume 1 turn.'
-					echo ' Once used, the "WriggleKick" cannot be reused for one turn.'
-					echo ' "WriggleKick" range is 1 square.'
-					echo ' "Wrigglekick" is very helpful when you have no weapons.'
-					echo ' Some enemies can only be defeated with "WriggleKick".'
-					echo ' Because it is the first enemy, it is not necessarily OHKO.'
-					echo ''
-					echo ' kick to...   \  ^  /'
-					echo '               1 2 3 '
-					echo '              <4 ¥ 6>'
-					echo '               7 8 9 '
-					echo '              /  v  \'
-					echo ''
-					echo '<MP Cost Referance>'
-					echo '  +--------+---+---+---+---+---+---+---+---+---+'
-					echo '  |useLv   |  1|  2|  3|  4|  5|  6|  7|  8|  9|'
-					echo '  +--------+---+---+---+---+---+---+---+---+---+'
-					echo '  |Cost MP |  3|  3|  3|  7|  7|  7|  9|  9| 12|'
-					echo '  +--------+-----------------------------------+'
-					echo ''
-					echo '<Strength>'
-					echo '  ([Atk]*[useLv]*1.2)+([Atk]*[useLv-9]*0.5)'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'wpコマンドマニュアル' && {
-				function man_wp(){
-
-					inKey=''
-
-					tput smcup
-					clear
-
-					echo '*** Command Manual:[wp] ***'
-					echo '<Format>'
-					echo ' wp [arg]'
-					echo ' * arg=1~9 except 5.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle uses a weapon to attack in [arg] directions.'
-					echo ' Consume 1 turn.'
-					echo ' The range depends on the weapon used.'
-					echo ' There is no MP consumption except in special cases.'
-					echo ' He seems to be trying to clear up the depression '
-					echo '     that has always been abused by his wife(s) in the dungeon.'
-					echo ''
-					echo ' attack to...   \  ^  /'
-					echo '                 1 2 3 '
-					echo '                <4 ¥ 6>'
-					echo '                 7 8 9 '
-					echo '                /  v  \   *range depends wepon.'
-					echo ''
-					echo '<Strength>'
-					echo '  ([Atk]*[weponAtk])+(|Atk-50|*[weponAtk]*0.3)'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done
-				}
-				}
-			: 'ctコマンドマニュアル' && {
-				function man_ct(){
-
-					inKey=''
-
-					tput smcup
-					clear
-
-					echo '*** Command Manual:[ct] ***'
-					echo '<Format>'
-					echo ' ct [arg1] [arg2]'
-					echo ' * arg1=1~4.'
-					echo ' * arg2=1~9.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle casts a [arg1] Magic in [arg2] directions.'
-					echo ' When [5] is set, you are the subject.'
-					echo ' Consume 1 turn.'
-					echo ' The range depends on the mgic used.'
-					echo ' Magic is not necessarily for attack.'
-					echo ' There are also recovery, assistance, and some with more special effects.'
-					echo ' Useful for exploring dungeons.'
-					echo ''
-					echo ' cast to...   \  ^  /'
-					echo '               1 2 3 '
-					echo '              <4 ¥ 6>'
-					echo '               7 8 9 '
-					echo '              /  v  \   *range depends magic.'
-					echo ''
-					echo '<Strength>'
-					echo '  ([Mat]*[magicStr])+(|[Mat]-50|*[magicStr]*0.4)'
-					echo ''
-					echo '<MP Cost Referance>'
-					echo '  MP consumed depends on the magic used, but can be reduced by [Int] value.'
-					echo '    +--------+---+-----------+----------+----+'
-					echo '    |int     |~30|~60        |~98       |99  |'
-					echo '    +--------+---+-----------+----------+----+'
-					echo '    |Cost MP |-0%|-(int/20)% |-(int/10)%|-30%|'
-					echo '    +--------+---+-----------+----------+----+'
-					echo '    *Reduction amount is rounded up to one decimal place.'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'ivコマンドマニュアル' && {
-				function man_iv(){
-
-					inKey=''
-
-					tput smcup
-					clear
-
-					echo '*** Command Manual:[iv] ***'
-					echo '<Format>'
-					echo ' iv [arg]'
-					echo ' * arg=1~9.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle investigates the direction of [arg]. Consume 1 turn.'
-					echo ' Depending on the [Snc]value, success and failure may be separated.'
-					echo ' When [5], it is foot of the Wriggle or Wriggleself.'
-					echo ' Keep your antennae clean.'
-					echo ''
-					echo ' investigate to...   \  ^  /'
-					echo '                      7 8 9 '
-					echo '                     <4 ¥ 6>'
-					echo '                      3 2 1 '
-					echo '                     /  v  \      *[5], foot or self'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'gtコマンドマニュアル' && {
-				function man_gt(){
-
-					inKey=''
-
-					tput smcup
-					clear
-
-					echo '*** Command Manual:[gt] ***'
-					echo '<Format>'
-					echo ' gt [arg]'
-					echo ' * arg=1~9.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle gets or picks up the one in the direction of [arg]. Consume 1 turn.'
-					echo ' When [5], it is foot of the Wriggle or Wriggleself.'
-					echo ' "The old tale of ants and grasshoppers" should have been that'
-					echo '       the workers were exploited by wife(s) waiting in the nest. ...Is it different?'
-					echo ''
-					echo ' gets to...   \  ^  /'
-					echo '               7 8 9 '
-					echo '              <4 ¥ 6>'
-					echo '               3 2 1 '
-					echo '              /  v  \      *[5], foot'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'trコマンドマニュアル' && {
-				function man_tr(){
-
-					inKey=''
-					tput smcup
-					clear
-
-					echo '*** Command Manual:[tr] ***'
-					echo '<Format>'
-					echo ' tr [arg1] [arg2]'
-					echo ' * arg1=1~9.'
-					echo ' * arg2=1~9 except 5.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle throws [arg1] item in the direction of [arg2]. Consume 1 turn.'
-					echo ' Depending on the [arg1] item type or [STR] value, the thrown item can be destroyed.'
-					echo ' The winner will also take damage according to the [STR] value and [arg1] item.'
-					echo ' If you are going to throw things away, be careful.'
-					echo ' What I received from a woman is particularly troublesome when my wife finds it.'
-					echo ''
-					echo ' throw to...   \  ^  /'
-					echo '                7 8 9 '
-					echo '               <4 ¥ 6>'
-					echo '                3 2 1 '
-					echo '               /  v  \'
-					echo ''
-					echo '<Damege>'
-					echo '  Jewel     --- [Value]*1000.0                       :Ignore the [Def].'
-					echo '  Gold      --- [Value]*100.0                        :Ignore the [Def].'
-					echo '  Silver    --- [Value]*1.0                          :Ignore the [Def].'
-					echo '  Wepon     --- [Str]*[WeponAtk]*(RoundUp(Str/100))'
-					echo '  Armor     --- [Str]*[ArmorDef]*(RoundUp(Str/150))'
-					echo '  Medicine  --- [ItemRecovery]*1.0                   :Heal instead of damage.'
-					echo '  OtherItem --- I do not know how to do it!'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'tkコマンドマニュアル' && {
-				function man_tk(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[tk] ***'
-					echo '<Format>'
-					echo ' tk [arg]'
-					echo ' * arg=1~9 except 5.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle speaks in the direction of [arg]. Consume 1 turn.'
-					echo ' If you talk well, you may get along. But watch out for your wife'"'"'s gaze.'
-					echo ''
-					echo ' talk to...   \  ^  /'
-					echo '               7 8 9 '
-					echo '              <4 ¥ 6>'
-					echo '               3 2 1 '
-					echo '              /  v  \'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'prコマンドマニュアル' && {
-				function man_pr(){
-
-					inKey=''
-					tput smcup
-
-					clear
-
-					echo '*** Command Manual:[pr] ***'
-					echo '<Format>'
-					echo ' pr [arg]'
-					echo ' * arg=1~9.'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle prays for [arg] and asks for a miracle. Consume 1 turn.'
-					echo ' I do not know what will happen, but the [Mnd] value makes it easy to do something good.'
-					echo ' You can pray only to those who have idols.'
-					echo ' And if you pray to one, then pray to another, you may be punished.'
-					echo ' And if you pray too much, you will be punished.'
-					echo ''
-					echo '<Object to pray>'
-					echo ' unknown'
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'ssコマンドマニュアル' && {
-				function man_ss(){
-
-					inKey=''
-
-					tput smcup
-					clear
-
-					echo '*** Command Manual:[ss] ***'
-					echo '<Format>'
-					echo ' ss *no arg'
-					echo ''
-					echo '<Function>'
-					echo ' Wriggle commits suicide. No one will be sad.'
-					echo ''
-					echo '... over.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			: 'manコマンドマニュアル' && {
-				function man_man(){
-
-					inKey=''
-
-					tput smcup
-					clear
-
-					echo 'It is how to use it.'
-					echo 'Press [q]key to exit.'
-
-					while :
-					do
-						getChrH
-						if [ "$inKey" = 'q' ]; then
-							tput rmcup
-							dispAll
-							break
-						else
-							echo 'Invalid input. press [q] to exit.'
-						fi
-					done	
-				}
-				}
-			}
-			}
+		}
 	: 'mvコマンド' && {
 		###########################################
 		##mv
 		## キャラ('¥'で示す)が動く           7 8 9  q w e
 		##  $1 移動先座標(1〜9,zxcasdqwe)    4 ¥ 6  a ¥ d
-		##        ※大文字でも良い           3 2 1  z x c
+		##        ※大文字でも良い            3 2 1  z x c
 		###########################################
 		function mv(){
-			local declare goX=''
-			local declare goY=''
-			local declare direction="$1"
+			declare goX=''
+			declare goY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<mv> Set 1 arguments.'
-				dispAll
+				dspCmdLog '<mv>引数は1つだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			##$1のバリエーション
-			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$direction") ] ; then
-				dspCmdLog '<mv> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
-				dispAll
+			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$direction") ] ; then
+				dspCmdLog '<mv>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			tput civis
 
-			#5Ssだったら足踏み
+			#0Vvだったらキャンセル、5Ssだったら足踏み
+			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+				dspCmdLog '<mv>キャンセルしました'
+				return
+			fi
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
 				dspCmdLog 'Hoppn'"'"'nnnnn!'
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$direction")
-				goX=$1
-				goY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
+
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				goX=${args[0]}
+				goY=${args[1]}
+				
 
 				#移動先が移動不可だったら「ぶつかりボイス」
 				#そうでなければ移動する
-				if	[ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
-						dspCmdLog "$(sayRnd $CNST_RND_WALL)"
+				#移動後、足元マップチップごとの処理分岐を行う
+				##部屋移動が未実装なのでスペシャルロジックが残っている
+				if	 [ "$(getMapInfo $goX $goY 'ENT')" = $CNST_YN_N ] ; then
+					dspCmdLog "$(sayRnd $CNST_RND_WALL)"
+				elif [ "$(getMapInfo $goX $goY 'CNM')" = 'JNT' ] ; then
+					dspCmdLog "隣の部屋は未実装だってさ"
 				else
-					case "$(getMapInfo $goX $goY 'DSP')" in
-						'#'	)	#マップ切り替え
-								modMsg 1 1 'マップ切替は未実装です';;
-						'^'	)	#上り階段
-								clrCmdLog
-								jmpPosWrgl $goX $goY
-								modMsg 1 1 '上り階段は未実装です';;
-						'v'	)	#下り階段
-								clrCmdLog
-								jmpPosWrgl $goX $goY
-								modMsg 1 1 '下り階段は未実装です';;
-						*)		#他
-								clrCmdLog
-								jmpPosWrgl $goX $goY
-					esac
+					jmpPosWrgl $goX $goY
+					divActByFoot $goX $goY					
 				fi
 			fi
 		
-			dispAll
+			dispAll $CNST_YN_Y
 			tput cvvis
 
 		}
@@ -1875,50 +2879,111 @@
 		###########################################
 		##op
 		## ドアを開く。但し、適合する鍵を持っている場合のみ。
-		##  $1 移動先座標(1〜9,zxcasdqwe)
+		##  $1 開け先座標(1〜9,zxcasdqwe)
 		##                        ※大文字でも良い
 		###########################################
 		function op(){
 
-			local declare opX=''
-			local declare opY=''
+			declare opX=''
+			declare opY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$1" = '' ]; then
-				dspCmdLog '<op> Set 1 arguments.'
-				dispAll
+				dspCmdLog '<op>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
-			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
-				dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
-				dispAll
+			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
+				dspCmdLog '<op>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
+			#0Vvだったらキャンセル、5Ssだったら無視
+			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+				dspCmdLog '<op>キャンセルしました'
+				return
+			fi
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
 				:
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				opX=$1
-				opY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
+
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				opX=${args[0]}
+				opY=${args[1]}
 
 				if	[ "$(getMapInfo $opX $opY 'CNM')" != 'DOR' ] ; then
 					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
+				elif
+					[ "$(getMapInfo $opX $opY 'STS')" = '1' ] ; then
+					dspCmdLog "もう開いてる。"
 				else
-					clrCmdLog
 					modMsg 1 1 'ひらけごま！'
 					openDoor $opX $opY 
 				fi
-				dispAll
+				dispAll $CNST_YN_Y
+			fi
+			}
+		}
+	: 'clコマンド' && {
+		###########################################
+		##cl
+		## ドアを閉じる。施錠はできない。
+		##  $1 閉じ先座標(1〜9,zxcasdqwe)
+		##                        ※大文字でも良い
+		###########################################
+		function cl(){
+
+			declare clX=''
+			declare clY=''
+			declare direction="$1"
+			declare args=()
+
+			#バリデーション
+			##引数の個数
+			if [ $# -ne 1 ] || [ "$1" = '' ]; then
+				dspCmdLog '<cl>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
+				return
+			fi
+			##$1のバリエーション
+			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
+				dspCmdLog '<cl>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
+				return
 			fi
 
-		}
+			#0Vvだったらキャンセル、5Ssだったら無視
+			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+				dspCmdLog '<cl>キャンセルしました'
+				return
+			fi
+			if  [ $(echo '5Ss' | grep "$1") ] ; then
+				dspCmdLog "足元に扉はないかな・・・。"
+			else
+
+				#移動先座標を,区切りで取得
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				clX=${args[0]}
+				clY=${args[1]}
+
+				if	[ "$(getMapInfo $clX $clY 'CNM')" != 'DOR' ] ; then
+					dspCmdLog "$(sayRnd "$CNST_RND_DOOR")"
+				elif
+					[ "$(getMapInfo $clX $clY 'STS')" = '0' ] ; then
+					dspCmdLog "閉まってるよ。"
+				else				
+					modMsg 1 1 'ばたん。'
+					closeDoor $clX $clY 
+				fi
+				dispAll $CNST_YN_Y
+			fi
+			}
 		}
 	: 'ivコマンド' && {
 		###########################################
@@ -1929,54 +2994,72 @@
 		###########################################
 		function iv(){
 
-			local declare ivX=''
-			local declare ivY=''
+			declare posX=$((10#${lnSeed[1]:1:2}-1))
+			declare posY=$((10#${lnSeed[2]:1:2}-1))
+
+			declare ivX=''
+			declare ivY=''
+			declare direction="$1"
+			declare args=()
 
 			#バリデーション
 			##引数の個数
-			if [ $# -ne 1 ] || [ "$1" = '' ]; then
-				dspCmdLog '<op> Set 1 arguments.'
-				dispAll
+			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
+				dspCmdLog '<iv>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
-			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$1") ] ; then
-				dspCmdLog '<op> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
-				dispAll
+			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
+				dspCmdLog '<iv>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
+
+			#0Vvだったらキャンセル、5Ssだったら足踏み
+			if  [ $(echo '0Vv' | grep "$1") ] ; then
+				dspCmdLog '<iv>キャンセルしました'
+				return
+			fi
+
+			#移動先座標を,区切りで取得
+			args=($(echo $(clcDirPos "$direction")|xargs -d,))
+			ivX=${args[0]}
+			ivY=${args[1]}
 
 			if  [ $(echo '5Ss' | grep "$1") ] ; then
 				##今は足元以外を調べる行動と足元を調べる行動は、マスが違うだけで処理内容は同じ。
 				##いずれ足元と足元以外で範囲を変更するなどあるかもしれないのでif分岐は残置する
-
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				ivX=$1
-				ivY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
-
-				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
-				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))"
-				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)."
+				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
+				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))は$(getMapInfo $ivX $ivY $NME)だ。"
 			else
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$1")
-				ivX=$1
-				ivY=$2
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
-
-				lnSeed[$ivY+4]=${lnSeed[$ivY+4]:0:$ivX+4}${lnMapInfo[$ivY]:$ivX:1}${lnSeed[$ivY+4]:$ivX+5}
-				dspCmdLog "Wriggle has investigate for $(($ivX+1)):$(($ivY+1))"
-				modMsg 1 1 "Wriggle : There is a $(getMapInfo $ivX $ivY $NME)."
+				
+				dspCmdLog "$(($ivX+1)):$(($ivY+1))を調べた。"
+				modMsg 1 1 "リグル:$(($ivX+1)):$(($ivY+1))には$(getMapInfo $ivX $ivY $NME)があるよ。"
 			fi
-			dispAll
-
+			dispAll $CNST_YN_Y
+			}
 		}
+	: 'pkコマンド' && {
+		###########################################
+		##pk
+		## 拾う
+		## 引数なし		
+		###########################################
+		function pk(){
+
+			declare posX=${lnSeed[1]:1:2}
+			declare posY=${lnSeed[2]:1:2}
+			declare maptipFoot=${lnSeed[20]:47:1}
+
+			if	[ $foot = '' ] ; then
+				dipCmdLog 1 1 'なにもない。'
+			else 
+				modMsg 1 1 "リグル:$posX:$posYで$maptipFootを拾った。"
+			fi
+			
+			dispAll $CNST_YN_Y
+			}
 		}
 	: 'daコマンド' && {
 		###########################################
@@ -1987,79 +3070,76 @@
 		##        ※大文字でも良い
 		###########################################
 		function da(){
-			local declare goX=''
-			local declare goY=''
-			local declare direction=$1
+			declare goX=''
+			declare goY=''
+			declare direction=$1
 
 			#バリデーション
 			##引数の個数
 			if [ $# -ne 1 ] || [ "$direction" = '' ]; then
-				dspCmdLog '<da> Set 1 arguments.'
-				dispAll
+				dspCmdLog '<da>引数はひとつだけ指定してください。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 			##$1のバリエーション
-			if  [ ! $(echo 'ZXCASDQWEzxcasdqwe123456789' | grep "$direction") ] ; then
-				dspCmdLog '<da> Enter 1-9 or 1 of"zxcasdqwe(or Capital)".'
-				dispAll
+			if  [ ! $(echo 'VZXCASDQWEvzxcasdqwe0123456789' | grep "$1") ] ; then
+				dspCmdLog '<da>0〜9とvzxcasdqwe(と大文字)から1つ指定。'
+				dispAll $CNST_YN_Y
 				return
 			fi
 
 			tput civis
 
-			#5Ssだったら足踏み
+			#0Vvだったらキャンセル、5Ssだったら足踏み
+			if  [ $(echo '0Vv' | grep "$direction") ] ; then
+				dspCmdLog '<da>キャンセルしました'
+				return
+			fi
 			if  [ $(echo '5Ss' | grep "$direction") ] ; then
 				dspCmdLog 'Hoppn'"'"'nnnnn!'
 			else
 
-				#一時的に区切り文字を変更する
-				IFS=':'
-				set -- $(clcDirPos "$direction")
-				goX=$1
-				goY=$2
+				#移動先座標を,区切りで取得
+				##最低1回は実行する
+				args=($(echo $(clcDirPos "$direction")|xargs -d,))
+				goX=${args[0]}
+				goY=${args[1]}
 
 				#進行方向が通常床である限り直進する
 				while [ "$(getMapInfo $goX $goY 'DSP')" = ' ' ]
 				do
 					goAheadWrgl $goX $goY
-					#jmpPosWrgl $goX $goY
-					set -- $(clcDirPos "$direction")
-					goX=$1
-					goY=$2
+					#移動先座標を,区切りで取得
+					args=($(echo $(clcDirPos "$direction")|xargs -d,))
+					goX=${args[0]}
+					goY=${args[1]}
 				done
 
-				local declare posX=$((10#${lnSeed[1]:1:2}))
-				local declare posY=$((10#${lnSeed[2]:1:2}))
+				declare posX=$((10#${lnSeed[1]:1:2}))
+				declare posY=$((10#${lnSeed[2]:1:2}))
 
 				modDspWrglPos $posX $posY "$(getMapInfo $((posX-1)) $((posY-1)) 'DSP')"
-				
-				#区切り文字を戻す
-				IFS=$CNST_IFS_DEFAULT
 				
 				#実行メッセージ
 				dspCmdLog $(sayRnd $CNST_RND_DASH)
 
 			fi
 
-			#終着マスのみ周囲開示
-			#opnArndMaptip
-
-			dispAll
+			dispAll $CNST_YN_Y
 			tput cvvis
-
+			}
 		}
-		}
-
-	: 'omコマンド' && {
+	: 'mnコマンド' && {
 		###########################################
-		##om
+		##mn
 		## メニューを開く
 		##  引数なし
 		###########################################
-		function om(){
-			dspMenuMode="$CNST_MENUDISP_MODE_MENU1"
+		function mn(){
+			cmdMode=$CNST_CMDMODE_MENU1
 			joinFrameOnMenu
-			selMenuId=1
+			selCrsrID=1
+			dispAll $CNST_YN_Y
 			}
 		}
 	: 'cmコマンド' && {
@@ -2069,31 +3149,59 @@
 		##  引数なし
 		###########################################
 		function cm(){
-			dspMenuMode="$CNST_MENUDISP_MODE_STATUS"
+			cmdMode=$CNST_CMDMODE_NRML0
 			joinFrameOnStatus
+			dispAll $CNST_YN_Y
 			}
+		}
+	: 'itコマンド' && {
+		###########################################
+		##it
+		## アイテムを開く
+		##  引数なし
+		###########################################
+		function it(){
+
+			#コマンド体系をアイテム表示時に変更
+			cmdMode=$CNST_CMDMODE_ITEM1
+			#退避
+			escLnSeed
+			#カーソル位置は1ページ目1番
+			selPageID=1
+			selCrsrID=1
+			#lnseed上書き
+			joinFrameOnItem
+			#更新_自キャラカーソルは描写しない
+			dispAll $CNST_YN_N
+		}
+		}
+	: 'ciコマンド' && {
+		###########################################
+		##ci
+		## アイテムを閉じる（ステータス表示に戻る）
+		##  引数なし
+		###########################################
+		function ci(){
+
+			#コマンド体系を通常へ
+			cmdMode=$CNST_CMDMODE_NRML0
+			#退避領域から復帰
+			retLnSeed
+			#更新_自キャラカーソルも描画
+			dispAll $CNST_YN_Y
+
+		}
 		}
 
 	: 'テストコマンド' && {
 		##テストコマンドなので雑
-		function ci(){
-			dspCmdLog 'チルノ？どうかした？'
-			modMsg 1 1 'チルノ[え？]'
-			dispAll
-			wk
-			modMsg 2 1 'チルノ[¥ど、どうもしねーよ……///]'
-			dispAll
-			wk
-			modMsg 3 1 '!庭には一羽庭渡changがいる。庭には二羽庭渡changがいる。庭には三羽庭渡changがいる。庭には四羽庭渡changがいる。'
-			dspCmdLog 'ローリーのローリングソバット!!昼に食べた麻辣担々麺でマーライオンに変身！'
-			dispAll
-			wk
-			clrMsgWin
-			dispAll
-		}
+		function te(){
+			dspCmdLog 'aaaaaaaああああｱｱｱｱ'
+			dispAll $CNST_YN_Y
+			}
 		}
 
-	}
+		}
 : '■主幹処理系' && {
 	: 'メインループ' && {
 		###########################################
@@ -2103,126 +3211,235 @@
 		###########################################
 		mainLoop(){
 			jmpPosWrgl 20 6
-			dspCmdLog 'Wriggle respowned.'
-			dispAll
+			dspCmdLog 'リグルくん爆誕！！'
+			dispAll $CNST_YN_Y
 			while :
 			do
 				tput cup $CNST_POS_CMDWIN
 				getChrH
 				#移動入力として1文字受け付ける。移動を指示しない入力だった場合
 				#任意長のコマンド受付にリダイレクトされる。
-				if [ $dspMenuMode = '0' ] ; then
-					case "$inKey" in
-						[1Z]	)	mv 1;;
-						[2X]	)	mv 2;;
-						[3C]	)	mv 3;;
-						[4A]	)	mv 4;;
-						[5S]	)	mv 5;;
-						[6D]	)	mv 6;;
-						[7Q]	)	mv 7;;
-						[8W]	)	mv 8;;
-						[9E]	)	mv 9;;
-						*	)	getCmdInMain;;
-					esac
-				else
-					case "$inKey" in
-						[2X]	)	movMenuCsr $CNST_CSR_MVTO_DWN
-									dispAll;;
-						[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP
-									dispAll;;
-						*	)	getCmdInMain;;
-					esac
-				fi
+				case "$cmdMode" in
+					#通常時はmvコマンドのショートカットが有効
+					#画面更新はmvコマンド内で行われている。
+					$CNST_CMDMODE_NRML0	)
+						case "$inKey" in
+							[1Z]	)	mv 1;;
+							[2X]	)	mv 2;;
+							[3C]	)	mv 3;;
+							[4A]	)	mv 4;;
+							[5S]	)	mv 5;;
+							[6D]	)	mv 6;;
+							[7Q]	)	mv 7;;
+							[8W]	)	mv 8;;
+							[9E]	)	mv 9;;
+							''		)	dspCmdLog '入力してください。'
+										dispAll $CNST_YN_Y;;
+							*		)	getCmdInMain;;
+						esac
+						;;
+
+					$CNST_CMDMODE_MENU1	)
+						#メニュー表示時はmvコマンドのショートカットが無効化され
+						#メニューないカーソルの移動といくつかのコマンドが生存する
+						case "$inKey" in
+							''		)	
+										case "$selCrsrID" in
+										16	)
+											cmdMode=$CNST_CMDMODE_MENU2
+											getCmdInMain $selCrsrID
+											cmdMode=$CNST_CMDMODE_NRML0
+											joinFrameOnStatus
+											;;
+										17	)
+											cmdMode=$CNST_CMDMODE_NRML0
+											joinFrameOnStatus
+											;;
+										*	)
+											joinFrameOnMenu2;;
+										esac
+										;;
+							[2X]	)	movMenuCsr $CNST_CSR_MVTO_DN;;
+							[8W]	)	movMenuCsr $CNST_CSR_MVTO_UP;;
+							*		)	getCmdInMain;;
+						esac
+						#いずれにしても全画面の更新再表示は行う
+						dispAll $CNST_YN_Y
+						;;
+
+					$CNST_CMDMODE_ITEM1	)
+						#アイテム表示時はショートカットが無効化され
+						#アイテム表示時特有の操作系になる
+						##画面更新は自キャラカーソルを更新しない。
+						case "$inKey" in
+							''		)	dspCmdLog "アイテムを使用する？"
+										;;
+							[2X]	)	movItemCsr $CNST_CSR_MVTO_DN
+										dispAll $CNST_YN_N;;
+							[8W]	)	movItemCsr $CNST_CSR_MVTO_UP
+										dispAll $CNST_YN_N;;
+							[46AD]	)	movItemPge
+										dispAll $CNST_YN_N;;
+							*		)	getCmdInMain;;
+						esac
+						;;
+				esac
+				clrCmdLog
 			done
-		}
+			}
 		}
 	: 'コマンド受付' && {
 		###########################################
 		##getCmdInMain
 		## mainLoopから呼び出される任意長コマンド受付
 		## 各種コマンド割り振りと制御
+		##  $1:メニュー内コマンド選択で呼び出された場合の引数
 		###########################################
 		function getCmdInMain(){
-			inKey2="$inKey"
-			printf "$inKey2"
-			getChrV
-			inKey="${inKey2}${inKey}"
-			case "$dspMenuMode" in
-				'0'	)	case "$inKey" in
-							'man can')	man can;;
-							*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
-							'ci'	)	ci ;;
-							'??'	)	viewHelp;; 
-							'man'*	)	man "${inKey:4}";;
-							'mv'*	)	mv "${inKey:3}";;
-							'op'*	)	op "${inKey:3}";;
-							'da'*	)	da "${inKey:3}";;
-							'qq'	)	da 7;;
-							'ww'	)	da 8;;
-							'ee'	)	da 9;;
-							'aa'	)	da 4;;
-							'dd'	)	da 6;;
-							'zz'	)	da 1;;
-							'xx'	)	da 2;;
-							'cc'	)	da 3;;
-							'om'	)	om;;
-							'sv'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'sq'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'ki'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'wp'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'ct'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'iv'*	)	iv "${inKey:3}";;
-							'gt'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'tr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'tk'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'pr'*	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'ss'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							'qqq'	)	quitGame;;
-							#'sv'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							#'sq'	)	dspCmdLog "Sorry, [$inKey]Cmd is not yet implemented.";;
-							' '		)	dspCmdLog 'Input key.';;
-							*		)	dspCmdLog "[$inKey]is invalid.";;
-						esac;;
-				'1'	)	case "$inKey" in
-							'man can')	man can;;
-							*'can'	)	dspCmdLog 'Alright, Command canceled :)' dispAll;;
-							'man'*	)	man "${inKey:4}";;
-							'??'	)	viewHelp;; 
-							'mv'*	)	mv "${inKey:3}";;
-							'cm'	)	cm;;
-							'qqq'	)	quitGame;;
-							' '		)	dspCmdLog 'Input key.';;
-							*		)	dspCmdLog "[$inKey]is invalid.";;
-						esac;;
-				*	) dspCmdLog "[$inKey]is invalid.";;
-			esac
-			dispAll
-		}
-		}
-	}
-: '■メイン' && {
 
+			case "$cmdMode" in
+
+				#通常時は続けてコマンドを取得し、各種コマンドを起動する
+				##通常時はコマンド数が多いためdispallコマンドは各ケースごとに記述する。
+				##コマンドによって引数を変えるため。
+				$CNST_CMDMODE_NRML0	)
+					inKey2="$inKey"
+					printf "$inKey2"
+					getChrV
+
+					inKey="$inKey2$inKey"
+					case "$inKey" in
+						'ma can')	ma can;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
+									dispAll $CNST_YN_Y;;
+						'te'	)	te;;
+						'??'	)	viewHelp;; 
+						'man '*	)	ma "${inKey:4}";;
+						'mv '*	)	mv "${inKey:3}";;
+						'op '*	)	op "${inKey:3}";;
+						'cl '*	)	cl "${inKey:3}";;
+						'da '*	)	da "${inKey:3}";;
+						'pk '*	)	pk;;
+						'qq'	)	da 7;;
+						'ww'	)	da 8;;
+						'ee'	)	da 9;;
+						'aa'	)	da 4;;
+						'dd'	)	da 6;;
+						'zz'	)	da 1;;
+						'xx'	)	da 2;;
+						'cc'	)	da 3;;
+						'mn'	)	mn;;
+						'it'	)	it;;
+						'sv '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'sq '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ki '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'wp '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ct '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'iv '*	)	iv "${inKey:3}";;
+						'gt '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'tr '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'tk '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'pr '*	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'ss'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						'qqq'	)	quitGame;;
+						#'sv'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						#'sq'	)	dspCmdLog "[$inKey]コマンドは未実装です";;
+						''		)	dspCmdLog '入力してください。'
+									dispAll $CNST_YN_Y;;
+						*		)	dspCmdLog "[${inKey// /}...]は無効、または引数が必要です"
+									dispAll $CNST_YN_Y;;
+					esac
+					;;
+				#メニュー表示時
+				$CNST_CMDMODE_MENU1	)
+					inKey2="$inKey"
+					printf "$inKey2"
+					getChrV
+					inKey="${inKey2}${inKey}"
+
+					case "$inKey" in
+						'ma can')	ma can;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
+									dispAll $CNST_YN_Y;;
+						'man '*	)	ma "${inKey:4}";;
+						'??'	)	viewHelp;; 
+						'mv '*	)	mv "${inKey:3}";;
+						'cm'	)	cm
+									dispAll $CNST_YN_Y;;
+						'qqq'	)	quitGame;;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。"
+									dispAll $CNST_YN_Y;;
+					esac
+					;;
+				$CNST_CMDMODE_MENU2	)
+					case $selCrsrID in
+						'1' )	iv $1;;
+						'2' )	op $1;;
+						'3' )	cl $1;;
+						'4' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'5' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'6' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'7' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'8' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'9' )	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'10')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'11')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'12')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'13')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'14')	dspCmdLog "[$selCrsrID]は未実装です。";;
+						'15')	man ;;
+						'16')	viewHelp ;;
+						'17')	cm ;;
+						'18')	quitGame ;;
+						*		)	dspCmdLog "[$selCrsrID]は無効または引数が必要です。";;
+					esac
+					;;
+				#アイテム表示時
+				$CNST_CMDMODE_ITEM1	)
+					inKey2="$inKey"
+					printf "$inKey2"
+					getChrV
+					inKey="${inKey2}${inKey}"
+
+					case "$inKey" in
+						'ma can')	ma can;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
+						'man '*	)	ma "${inKey:4}";;
+						'??'	)	viewHelp;;
+						'ci'	)	ci;;
+						'qqq'	)	quitGame;;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。";;
+					esac
+					dispAll $CNST_YN_N
+					;;
+			esac
+		}
+		}
+		}
+: '■メイン' && {
 	###########################################
 	##main
 	## mainLoopをキックする主制御
 	###########################################
-
+	
 	clear
-	#安定するまでは不測の無限ループ脱出のためコメントアウトする
 	trap 'quitGame' INT QUIT TSTP
 
 	initDef
 	defMapInfo
+	defItemInfo
 	defStatusInfo
 	defMenuInfo
+	defMenuInfo2
 	dspMapInfo
 	initDispInfo 
 	joinFrameOnMap
 	joinFrameOnStatus
-	dispAll
 
-	#主処理
+	dispAll $CNST_YN_Y
+
 	mainLoop
+	#主処理
 
 	#終了時に文字修飾を除去し、画面をクリアする
 	quitGame
