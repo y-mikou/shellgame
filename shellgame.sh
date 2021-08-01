@@ -3241,7 +3241,7 @@
 
 					$CNST_CMDMODE_MENU1	)
 						#メニュー表示時はmvコマンドのショートカットが無効化され
-						#メニューないカーソルの移動といくつかのコマンドが生存する
+						#メニュー内カーソルの移動といくつかのコマンドが生存する
 						case "$inKey" in
 							''		)	
 										case "$selCrsrID" in
@@ -3402,16 +3402,26 @@
 					inKey="${inKey2}${inKey}"
 
 					case "$inKey" in
-						'ma can')	ma can;;
-						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)';;
-						'man '*	)	ma "${inKey:4}";;
-						'??'	)	viewHelp;;
+						'ma can')	ma can
+									dispAll $CNST_YN_N
+									;;
+						*'can'	)	dspCmdLog 'OK、キャンセルしたよ:)'
+									dispAll $CNST_YN_N
+									;;
+						'man '*	)	ma "${inKey:4}"
+									dispAll $CNST_YN_N
+									;;
+						'??'	)	viewHelp
+									dispAll $CNST_YN_N
+									;;
 						'ci'	)	ci;;
-						'qqq'	)	quitGame;;
-						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。";;
+						'qqq'	)	quitGame
+									dispAll $CNST_YN_N
+									;;
+						*		)	dspCmdLog "[${inKey:0:2}...]は無効または引数が必要です。"
+									dispAll $CNST_YN_N
+									;;
 					esac
-					dispAll $CNST_YN_N
-					;;
 			esac
 		}
 		}
